@@ -1,0 +1,42 @@
+/* Pump&Flow — Colores
+   Los 5 colores de marca vienen del PDF "Pump and flow propuesta 2".
+   Tints/shades derivados se marcan como (derivado). */
+:root {
+  /* Paleta de marca */
+  --pf-rosa-claro: #EFB2E0;
+  --pf-rosa: #EAA1DC;
+  --pf-lila: #E3C7FA;
+  --pf-lavanda: #AA9DED;
+  --pf-morado: #584472;
+
+  /* Derivados (tints/shades armónicos de la paleta) */
+  --pf-lila-fondo: #F5EEFD;      /* (derivado) tint de lila para fondos de página */
+  --pf-rosa-fondo: #FBE9F6;      /* (derivado) tint de rosa para fondos suaves */
+  --pf-lavanda-hover: #9A8BE4;   /* (derivado) lavanda un paso más oscura */
+  --pf-morado-hover: #4A3861;    /* (derivado) morado un paso más oscuro */
+  --pf-morado-profundo: #3E2F52; /* (derivado) para texto de alto contraste */
+  --pf-blanco: #FFFFFF;
+
+  /* Semánticos de estado (derivados, misma saturación suave de la marca) */
+  --pf-exito: #6FA287;
+  --pf-exito-fondo: #E9F3EE;
+  --pf-error: #C77490;
+  --pf-error-fondo: #F9EAF0;
+  --pf-aviso: #C9A26B;
+  --pf-aviso-fondo: #F8F0E4;
+
+  /* Alias semánticos */
+  --surface-page: var(--pf-lila-fondo);
+  --surface-card: var(--pf-blanco);
+  --surface-accent: var(--pf-lavanda);
+  --surface-soft: var(--pf-lila);
+  --surface-dark: var(--pf-morado);
+  --text-title: var(--pf-morado);
+  --text-body: var(--pf-morado-profundo);
+  --text-muted: #8D7FA6;         /* (derivado) morado desaturado */
+  --text-on-dark: var(--pf-blanco);
+  --text-on-accent: var(--pf-blanco);
+  --border-soft: #E3D6F5;        /* (derivado) borde lila suave */
+  --border-strong: var(--pf-lavanda);
+  --focus-ring: var(--pf-lavanda);
+}

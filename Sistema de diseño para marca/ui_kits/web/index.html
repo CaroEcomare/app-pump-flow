@@ -1,0 +1,135 @@
+<!-- @dsCard group="Web" viewport="1280x760" subtitle="Landing de venta: captar alumnas, reservar, cursos" name="Página web" -->
+<!-- @startingPoint section="Web" subtitle="Landing de venta Pump&Flow" viewport="1280x760" -->
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pump&Flow · Más que solo hipopresivos</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--surface-page);color:var(--text-body);font:var(--type-body)}
+  a{color:var(--pf-morado);text-decoration:none}
+  a:hover{color:var(--pf-lavanda-hover)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px}
+  .btn{font:var(--text-button);border:none;border-radius:var(--radius-pill);cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:14px 30px;min-height:48px;transition:background var(--transition-fast),transform var(--transition-fast)}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--pf-lavanda);color:#fff}
+  .btn-primary:hover{background:var(--pf-lavanda-hover)}
+  .btn-outline{background:transparent;color:var(--pf-morado);box-shadow:inset 0 0 0 2px var(--pf-lavanda)}
+  .btn-outline:hover{background:var(--pf-lila-fondo)}
+  .btn-white{background:#fff;color:var(--pf-morado)}
+  .btn-white:hover{background:var(--pf-lila)}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+  nav .links{display:flex;gap:28px;font:var(--text-body-strong);font-size:15px}
+  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;padding-top:56px;padding-bottom:72px}
+  .hero h1{font:var(--text-display-xl);color:var(--text-title);margin:0 0 16px}
+  .hero p{font:var(--text-body-lg);max-width:440px;margin:0 0 28px}
+  .foto{background:var(--pf-rosa-claro);border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;color:var(--pf-morado);font:var(--text-caption);min-height:360px;position:relative;overflow:hidden}
+  .anillo{position:absolute;width:120px;height:120px;border:20px solid var(--pf-lavanda);border-radius:50%;opacity:.5}
+  .bloque-lavanda{background:var(--pf-lavanda);padding:72px 0}
+  .bloque-lavanda h2{font:var(--text-display);color:#fff;text-align:center;margin:0 0 36px}
+  .burbujas{display:grid;gap:10px;max-width:560px;margin:0 auto}
+  .bub{background:#fff;border-radius:var(--radius-xl);padding:18px 32px;font:var(--text-h3);color:var(--pf-morado);text-align:center}
+  .bub:nth-child(even){margin-left:40px}
+  .bub:nth-child(odd){margin-right:40px}
+  .clases{padding-top:72px;padding-bottom:72px}
+  .clases h2{font:var(--text-display);color:var(--text-title);text-align:center;margin:0 0 12px}
+  .clases .sub{text-align:center;margin:0 auto 40px;max-width:520px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:28px;display:grid;gap:12px;align-content:start}
+  .card h3{font:var(--text-h2);color:var(--text-title);margin:0}
+  .card .precio{font:var(--text-h3);color:var(--pf-lavanda-hover)}
+  .badge{font:var(--text-caption);font-weight:600;padding:4px 12px;border-radius:var(--radius-pill);background:var(--pf-lila);color:var(--pf-morado);width:fit-content}
+  .reserva{background:var(--pf-morado);padding:72px 0}
+  .reserva .inner{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+  .reserva h2{font:var(--text-display);color:#fff;margin:0 0 12px}
+  .reserva p{color:var(--pf-lila);margin:0 0 8px}
+  .form{background:#fff;border-radius:var(--radius-xl);padding:32px;display:grid;gap:14px}
+  .form label{display:grid;gap:6px;font:var(--text-body-strong);font-size:14px;color:var(--text-title)}
+  .form input,.form select{font:var(--type-body);color:var(--text-body);padding:12px 18px;border-radius:var(--radius-pill);border:2px solid var(--border-soft);outline:none;min-height:48px;box-sizing:border-box;background:#fff}
+  .form input:focus,.form select:focus{border-color:var(--focus-ring)}
+  footer{background:var(--pf-morado);border-top:1px solid rgba(255,255,255,.15);padding:32px 0;color:var(--pf-lila)}
+  footer .inner{display:flex;justify-content:space-between;align-items:center;font:var(--text-small)}
+</style></head><body>
+<header class="wrap">
+  <nav>
+    <a href="index.html"><img src="../../assets/logo-morado.png" alt="Pump&Flow" style="height:64px"></a>
+    <div class="links"><a href="clases.html">Clases</a><a href="curso.html">Curso en línea</a><a href="personales.html">Clases personales</a></div>
+    <a class="btn btn-primary" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20%F0%9F%A4%8D" target="_blank" style="text-decoration:none">Reserva tu clase ✨</a>
+  </nav>
+</header>
+
+<section class="wrap hero">
+  <div>
+    <span class="badge" style="margin-bottom:14px;letter-spacing:var(--letter-spacing-caps);text-transform:uppercase">Más que solo hipopresivos</span>
+    <h1>Conecta con tu cuerpo, a tu ritmo 🤍</h1>
+    <p>Clases de hipopresivos grupales y personales, presenciales y en línea. Para trabajar tu abdomen, cuidar tu suelo pélvico y regalarte un momento de calma.</p>
+    <div style="display:flex;gap:12px">
+      <a class="btn btn-primary" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20de%20introducci%C3%B3n%20%F0%9F%A4%8D" target="_blank" style="text-decoration:none">Agenda tu primera clase</a>
+      <a class="btn btn-outline" href="curso.html" style="text-decoration:none">Conoce los cursos</a>
+    </div>
+  </div>
+  <div class="foto" style="background:url('../../assets/hero-pumpflow.png') center/cover no-repeat"></div>
+</section>
+
+<section class="bloque-lavanda">
+  <div class="wrap">
+    <h2>Estas clases son para ti si buscas</h2>
+    <div class="burbujas">
+      <div class="bub">Evitar pérdida de orina</div>
+      <div class="bub">Mejorar tránsito intestinal</div>
+      <div class="bub">Reducir perímetro de cintura</div>
+      <div class="bub">Mejorar tu sistema nervioso</div>
+      <div class="bub">Aumentar capacidad pulmonar</div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap clases" id="clases">
+  <h2>Elige cómo entrenar</h2>
+  <p class="sub">Presencial o en línea, en grupo o solo para ti. Tu primera clase es para conocerte, ven como estés.</p>
+  <div class="grid3">
+    <div class="card">
+      <span class="badge">Grupal</span>
+      <h3>Clases grupales</h3>
+      <p style="margin:0;font:var(--text-small)">Grupos pequeños, energía compartida y acompañamiento cercano.</p>
+      <span class="precio">Mensualidad de 8 clases</span>
+      <a class="btn btn-primary" href="clases.html" style="text-decoration:none;justify-content:center">Ver horarios</a>
+    </div>
+    <div class="card">
+      <span class="badge" style="background:var(--pf-rosa)">Personal</span>
+      <h3>Clases personales</h3>
+      <p style="margin:0;font:var(--text-small)">Sesiones 1 a 1 diseñadas para tu momento: posparto, oficina, retomar movimiento.</p>
+      <span class="precio">Agenda flexible</span>
+      <a class="btn btn-primary" href="personales.html" style="text-decoration:none;justify-content:center">Conocer más</a>
+    </div>
+    <div class="card" id="cursos">
+      <span class="badge" style="background:var(--pf-lavanda);color:#fff">En línea ✨</span>
+      <h3>Cursos en línea</h3>
+      <p style="margin:0;font:var(--text-small)">Videos y programas para practicar donde estés, a tu horario.</p>
+      <span class="precio">Acceso inmediato</span>
+      <a class="btn btn-outline" href="curso.html" style="text-decoration:none;justify-content:center">Conocer el curso</a>
+    </div>
+  </div>
+</section>
+
+<section class="reserva" id="reserva">
+  <div class="wrap inner">
+    <div>
+      <img src="../../assets/logo-blanco.png" alt="" style="height:90px;margin-bottom:18px">
+      <h2>Reserva tu lugar</h2>
+      <p>Escríbeme por WhatsApp, te confirmo tu lugar y te espero en clase.</p>
+      <p style="font:var(--text-body-strong);color:#fff">Cel: 44 31 33 11 46 · @Caro_fluye</p>
+      <p style="color:var(--pf-lila);font:var(--text-small)">Utume #498, Lomas de Vista Bella, Morelia, Michoacán</p>
+      <a class="btn btn-primary" style="text-decoration:none;margin-top:12px" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20%F0%9F%A4%8D" target="_blank">Escribir por WhatsApp ✨</a>
+    </div>
+    <form class="form" style="padding:0;overflow:hidden;min-height:340px;display:block;position:relative">
+      <iframe src="https://www.google.com/maps?q=Utume%20498%2C%20Lomas%20de%20Vista%20Bella%2C%20Morelia%2C%20Michoac%C3%A1n&output=embed" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" title="Ubicación Pump&Flow"></iframe>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap inner">
+    <span>Pump&Flow · @Caro_fluye</span>
+    <span>Clases grupales y personales, presencial y en línea</span>
+  </div>
+</footer>
+</body></html>

@@ -1,0 +1,100 @@
+<!-- @dsCard group="Web" viewport="1280x760" subtitle="Horarios, clase de introducción y precios" name="Página Clases" -->
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clases · Pump&Flow</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--surface-page);color:var(--text-body);font:var(--type-body)}
+  a{color:var(--pf-morado);text-decoration:none}
+  a:hover{color:var(--pf-lavanda-hover)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px}
+  .btn{font:var(--text-button);border:none;border-radius:var(--radius-pill);cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:14px 30px;min-height:48px;transition:background var(--transition-fast),transform var(--transition-fast);text-decoration:none}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--pf-lavanda);color:#fff}
+  .btn-primary:hover{background:var(--pf-lavanda-hover);color:#fff}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+  nav .links{display:flex;gap:28px;font:var(--text-body-strong);font-size:15px}
+  .hero{text-align:center;padding:56px 0 40px}
+  .hero h1{font:var(--text-display);color:var(--text-title);margin:0 0 12px}
+  .hero p{max-width:520px;margin:0 auto}
+  .horarios{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:720px;margin:0 auto}
+  .horario{background:var(--pf-lavanda);border-radius:var(--radius-xl);padding:32px;text-align:center;color:#fff}
+  .horario .dias{font:var(--text-h2);color:#fff;margin-bottom:6px}
+  .horario .hora{font:var(--text-display);color:#fff}
+  .leyenda{text-align:center;font:var(--text-body-strong);color:var(--pf-morado);margin:28px auto 0;max-width:520px}
+  .intro{padding:64px 0}
+  .intro .card{background:#fff;border-radius:var(--radius-xl);box-shadow:var(--shadow-card);padding:48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+  .intro h2{font:var(--text-h1);color:var(--text-title);margin:0 0 16px}
+  .lista{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+  .lista li{background:var(--pf-lila-fondo);border-radius:var(--radius-pill);padding:12px 22px;font:var(--type-body)}
+  .precios{background:var(--pf-morado);padding:64px 0;text-align:center}
+  .precios h2{font:var(--text-display);color:#fff;margin:0 0 36px}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:720px;margin:0 auto 36px}
+  .precio{background:#fff;border-radius:var(--radius-xl);padding:36px 28px}
+  .precio .nombre{font:var(--text-h3);color:var(--text-title)}
+  .precio .monto{font:var(--text-display-xl);color:var(--pf-lavanda-hover);margin:8px 0}
+  .precio .det{font:var(--text-small);color:var(--text-muted)}
+  footer{background:var(--pf-morado);border-top:1px solid rgba(255,255,255,.15);padding:32px 0;color:var(--pf-lila)}
+  footer .inner{display:flex;justify-content:space-between;align-items:center;font:var(--text-small)}
+</style></head><body>
+<header class="wrap">
+  <nav>
+    <a href="index.html"><img src="../../assets/logo-morado.png" alt="Pump&Flow" style="height:64px"></a>
+    <div class="links"><a href="clases.html">Clases</a><a href="curso.html">Curso en línea</a><a href="personales.html">Clases personales</a></div>
+    <a class="btn btn-primary" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20%F0%9F%A4%8D" target="_blank">Reserva tu clase ✨</a>
+  </nav>
+</header>
+
+<section class="wrap hero">
+  <h1>Clases grupales</h1>
+  <p>Grupos pequeños, acompañamiento cercano y un espacio para conectar contigo. Presencial y en línea.</p>
+</section>
+
+<section class="wrap">
+  <div class="horarios">
+    <div class="horario"><div class="dias">Martes y jueves</div><div class="hora">7:15 pm</div></div>
+    <div class="horario"><div class="dias">Miércoles y viernes</div><div class="hora">10:00 am</div></div>
+  </div>
+  <p class="leyenda">Recuerda agendar tu clase de introducción primero 🤍</p>
+</section>
+
+<section class="wrap intro">
+  <div class="card">
+    <div>
+      <h2>Tu clase de introducción</h2>
+      <p>Es tu primer paso. En una sesión personal conocemos tu cuerpo y tu momento, para que llegues a las clases grupales con bases firmes.</p>
+    </div>
+    <ul class="lista">
+      <li>Explicación de qué son los hipopresivos ✨</li>
+      <li>Aprendes cómo se respira</li>
+      <li>Aprendes cómo se activan los músculos</li>
+      <li>Valoración de tu faja abdominal</li>
+    </ul>
+  </div>
+</section>
+
+<section class="precios">
+  <div class="wrap">
+    <h2>Precios</h2>
+    <div class="pgrid">
+      <div class="precio">
+        <div class="nombre">Clase de introducción</div>
+        <div class="monto">$300</div>
+        <div class="det">Sesión individual, tu punto de partida</div>
+      </div>
+      <div class="precio">
+        <div class="nombre">Mensualidad</div>
+        <div class="monto">$600</div>
+        <div class="det">8 clases al mes, martes a viernes</div>
+      </div>
+    </div>
+    <a class="btn btn-primary" style="padding:16px 40px;font-size:18px" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20de%20introducci%C3%B3n%20%F0%9F%A4%8D" target="_blank">Agendar por WhatsApp ✨</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap inner">
+    <span>Pump&Flow · @Caro_fluye</span>
+    <span>Clases grupales y personales, presencial y en línea</span>
+  </div>
+</footer>
+</body></html>

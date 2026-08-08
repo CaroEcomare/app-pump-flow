@@ -1,0 +1,352 @@
+<!-- @dsCard group="App" viewport="880x820" subtitle="Vista alumna y vista admin: reservas, check-in, contenido, paquetes" name="App móvil" -->
+<!-- @startingPoint section="App" subtitle="App móvil Pump&Flow" viewport="880x820" -->
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pump&Flow App</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--pf-morado);display:flex;flex-direction:column;align-items:center;gap:18px;padding:24px;font:var(--type-body);color:var(--text-body)}
+  a{color:var(--pf-morado);text-decoration:none}
+  a:hover{color:var(--pf-lavanda-hover)}
+  .switch{display:inline-flex;gap:4px;background:rgba(255,255,255,.15);border-radius:var(--radius-pill);padding:4px}
+  .switch button{font:var(--text-small);font-weight:600;padding:10px 24px;border-radius:var(--radius-pill);border:none;background:transparent;color:#fff;cursor:pointer;min-height:44px}
+  .switch button.on{background:#fff;color:var(--pf-morado)}
+  .phones{display:flex;gap:20px}
+  .phone{width:380px;height:720px;background:var(--surface-page);border-radius:40px;overflow:hidden;display:none;flex-direction:column;box-shadow:var(--shadow-float)}
+  .phone.on{display:flex}
+  .screen{flex:1;overflow-y:auto;padding:20px 20px 12px;display:none}
+  .screen.active{display:block}
+  h1{font:var(--text-h1);color:var(--text-title);margin:6px 0 4px}
+  .muted{font:var(--text-small);color:var(--text-muted)}
+  .card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:18px;margin-top:14px}
+  .pillbtn{font:var(--text-button);font-size:15px;border:none;border-radius:var(--radius-pill);cursor:pointer;padding:11px 22px;min-height:44px;background:var(--pf-lavanda);color:#fff;transition:background var(--transition-fast)}
+  .pillbtn:hover{background:var(--pf-lavanda-hover)}
+  .pillbtn.soft{background:var(--pf-lila);color:var(--pf-morado)}
+  .pillbtn.soft:hover{background:var(--border-soft)}
+  .pillbtn.dark{background:var(--pf-morado)}
+  .pillbtn.dark:hover{background:var(--pf-morado-hover)}
+  .pillbtn:disabled{opacity:.45;cursor:not-allowed}
+  .badge{font:var(--text-caption);font-weight:600;padding:4px 12px;border-radius:var(--radius-pill);background:var(--pf-lila);color:var(--pf-morado);white-space:nowrap}
+  .badge.ok{background:var(--pf-exito-fondo);color:var(--pf-exito)}
+  .badge.warn{background:var(--pf-aviso-fondo);color:var(--pf-aviso)}
+  .badge.err{background:var(--pf-error-fondo);color:var(--pf-error)}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .tabbar{display:flex;background:#fff;border-top:1px solid var(--border-soft);padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+  .tab{flex:1;display:grid;justify-items:center;gap:3px;font:var(--text-caption);color:var(--text-muted);border:none;background:none;cursor:pointer;padding:6px 0;min-height:48px;border-radius:var(--radius-md)}
+  .tab.on{color:var(--pf-morado);font-weight:600}
+  .tab .ico{width:20px;height:20px}
+  .prog{height:10px;border-radius:999px;background:var(--pf-lila);overflow:hidden;margin-top:8px}
+  .prog i{display:block;height:100%;background:var(--pf-lavanda);border-radius:999px}
+  .cupos{display:flex;gap:4px;margin-top:8px}
+  .cupo{width:16px;height:16px;border-radius:50%;background:var(--pf-lavanda)}
+  .cupo.libre{background:var(--border-soft)}
+  .video{background:var(--pf-lila);border-radius:var(--radius-md);height:104px;display:flex;align-items:center;justify-content:center;color:var(--pf-morado);font:var(--text-caption);text-align:center;padding:8px;box-sizing:border-box}
+  .play{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--pf-lavanda);font-size:16px;box-shadow:var(--shadow-card)}
+  .chips{display:flex;gap:8px;margin:14px 0 2px;flex-wrap:wrap}
+  .chip{font:var(--text-small);font-weight:500;padding:8px 16px;border-radius:var(--radius-pill);border:none;background:#fff;color:var(--pf-morado);cursor:pointer}
+  .chip.on{background:var(--pf-morado);color:#fff}
+  .avatar{width:44px;height:44px;border-radius:50%;background:var(--pf-rosa);display:flex;align-items:center;justify-content:center;font:var(--text-body-strong);color:var(--pf-morado);flex-shrink:0}
+  .dato{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-soft);font:var(--text-small)}
+  .dato:last-child{border-bottom:none}
+  .dato b{color:var(--text-title)}
+</style></head><body>
+
+<div class="switch">
+  <button class="on" data-p="p-alumna">Vista alumna</button>
+  <button data-p="p-admin">Vista administradora</button>
+</div>
+
+<div class="phones">
+<!-- ══════════ ALUMNA ══════════ -->
+<div class="phone on" id="p-alumna">
+  <div class="screen active" id="a-inicio">
+    <img src="../../assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
+    <h1>Hola, Mariana 🤍</h1>
+    <div class="muted">Hoy tienes clase a las 7:15 pm</div>
+
+    <div class="card" style="background:var(--pf-lavanda);color:#fff">
+      <div class="row"><b style="font:var(--text-h3)">Hipopresivos grupal</b><span class="badge" style="background:#fff">Hoy 7:15 pm</span></div>
+      <div style="font:var(--text-small);color:#fff;margin:6px 0 12px">Presencial · Utume #498</div>
+      <button class="pillbtn" style="background:#fff;color:var(--pf-morado);width:100%" id="btn-checkin">Hacer check-in</button>
+      <div id="checkin-hecho" style="display:none;margin-top:10px;font:var(--text-small);color:#fff;text-align:center">Check-in enviado, Caro lo confirma en clase ✨</div>
+    </div>
+
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Tu paquete</b><span class="badge">Quedan 5 de 8</span></div>
+      <div class="prog"><i style="width:62%"></i></div>
+      <div class="muted" style="margin-top:8px">Tu siguiente pago es el 1 de septiembre</div>
+    </div>
+
+    <div class="card">
+      <b style="color:var(--text-title)">Tip de hoy ✨</b>
+      <div style="font:var(--text-small);margin-top:6px">Antes de tu apnea, exhala todo el aire con calma. Tu diafragma trabaja mejor sin prisa.</div>
+    </div>
+  </div>
+
+  <div class="screen" id="a-clases">
+    <h1>Aparta tu espacio</h1>
+    <div class="muted">Cada clase tiene cupo para 6 personas</div>
+
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Martes 11 de agosto</b><span class="badge">7:15 pm</span></div>
+      <div class="cupos"><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo libre"></i><i class="cupo libre"></i><i class="cupo libre"></i></div>
+      <div class="muted" style="margin:6px 0 12px">3 lugares disponibles</div>
+      <button class="pillbtn reservar" style="width:100%">Aparto mi espacio</button>
+    </div>
+
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Miércoles 12 de agosto</b><span class="badge">10:00 am</span></div>
+      <div class="cupos"><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo libre"></i></div>
+      <div class="muted" style="margin:6px 0 12px">1 lugar disponible</div>
+      <button class="pillbtn reservar" style="width:100%">Aparto mi espacio</button>
+    </div>
+
+    <div class="card" style="opacity:.6">
+      <div class="row"><b style="color:var(--text-title)">Jueves 13 de agosto</b><span class="badge err">Llena</span></div>
+      <div class="cupos"><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i></div>
+      <div class="muted" style="margin:6px 0 12px">7:15 pm · sin lugares</div>
+      <button class="pillbtn soft" style="width:100%">Avísame si se libera</button>
+    </div>
+
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Viernes 14 de agosto</b><span class="badge">10:00 am</span></div>
+      <div class="cupos"><i class="cupo"></i><i class="cupo libre"></i><i class="cupo libre"></i><i class="cupo libre"></i><i class="cupo libre"></i><i class="cupo libre"></i></div>
+      <div class="muted" style="margin:6px 0 12px">5 lugares disponibles</div>
+      <button class="pillbtn reservar" style="width:100%">Aparto mi espacio</button>
+    </div>
+  </div>
+
+  <div class="screen" id="a-contenido">
+    <h1>Contenido</h1>
+    <div class="chips">
+      <button class="chip on">Hipopresivos</button><button class="chip">Meditaciones</button>
+    </div>
+
+    <div class="card">
+      <div class="video"><span class="play">▶</span></div>
+      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Fundamentos: qué son</b><span class="badge ok">Visto</span></div>
+      <div class="muted">Liga de YouTube</div>
+    </div>
+
+    <div class="card">
+      <div class="video"><span class="play">▶</span></div>
+      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Cómo se respira</b></div>
+      <div class="muted">Liga de YouTube</div>
+    </div>
+
+    <div class="card">
+      <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación de 10 minutos</b><span class="badge">Nueva ✨</span></div>
+      <div class="muted">Para cerrar tu día con calma</div>
+    </div>
+  </div>
+
+  <div class="screen" id="a-espacio">
+    <h1>Tu espacio</h1>
+    <div class="card row">
+      <div class="avatar" style="width:56px;height:56px;font:var(--text-h3)">M</div>
+      <div style="flex:1"><b style="color:var(--text-title)">Mariana López</b><div class="muted">Alumna desde marzo de 2026 🧘🏽‍♀️</div></div>
+    </div>
+
+    <div class="card">
+      <b style="color:var(--text-title)">Tu paquete</b>
+      <div class="dato"><span>Clases restantes</span><b>5 de 8</b></div>
+      <div class="dato"><span>Último pago</span><b>$600 · 1 de agosto</b></div>
+      <div class="dato"><span>Siguiente pago</span><b>1 de septiembre</b></div>
+      <div class="dato"><span>Forma de pago</span><b>Transferencia</b></div>
+    </div>
+
+    <div class="card">
+      <b style="color:var(--text-title)">Tus asistencias</b>
+      <div class="dato"><span>5 de agosto · 7:15 pm</span><span class="badge ok">Confirmada</span></div>
+      <div class="dato"><span>1 de agosto · 10:00 am</span><span class="badge ok">Confirmada</span></div>
+      <div class="dato"><span>29 de julio · 7:15 pm</span><span class="badge ok">Confirmada</span></div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab on" data-s="a-inicio"><i data-lucide="heart" class="ico"></i>Inicio</button>
+    <button class="tab" data-s="a-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
+    <button class="tab" data-s="a-contenido"><i data-lucide="play-circle" class="ico"></i>Contenido</button>
+    <button class="tab" data-s="a-espacio"><i data-lucide="user" class="ico"></i>Tu espacio</button>
+  </div>
+</div>
+
+<!-- ══════════ ADMIN ══════════ -->
+<div class="phone" id="p-admin">
+  <div class="screen active" id="d-hoy">
+    <img src="../../assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
+    <h1>Hola, Caro 🤍</h1>
+    <div class="muted">Clase de hoy, 7:15 pm · 4 apartadas</div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:4px"><b style="color:var(--text-title)">Pasar lista</b><span class="badge">4 de 6</span></div>
+      <div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">M</span>Mariana López</div><button class="pillbtn valida" style="padding:7px 16px;min-height:36px;font-size:13px">Confirmar</button></div>
+      <div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px;background:var(--pf-lila)">A</span>Ana Ruiz</div><button class="pillbtn valida" style="padding:7px 16px;min-height:36px;font-size:13px">Confirmar</button></div>
+      <div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px;background:var(--pf-lavanda);color:#fff">S</span>Sofía Mendoza</div><span class="badge ok">Confirmada</span></div>
+      <div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px;background:var(--pf-rosa-claro)">L</span>Lucía Torres</div><span class="badge warn">Sin check-in</span></div>
+    </div>
+
+    <div class="card">
+      <b style="color:var(--text-title)">Pendientes de la semana</b>
+      <div class="dato"><span>Pagos por recibir</span><b>2 alumnas</b></div>
+      <div class="dato"><span>Paquetes por vencer</span><b>1 alumna</b></div>
+      <div class="dato"><span>Valoraciones pendientes</span><b>1 alumna</b></div>
+    </div>
+  </div>
+
+  <div class="screen" id="d-alumnas">
+    <h1>Alumnas</h1>
+    <div class="chips">
+      <button class="chip on">Activas</button><button class="chip">Por pagar</button><button class="chip">Inactivas</button>
+    </div>
+
+    <div class="card row">
+      <span class="avatar">M</span>
+      <div style="flex:1"><b style="color:var(--text-title)">Mariana López</b><div class="muted">5 de 8 clases · paga el 1 de sep</div></div>
+      <span class="badge ok">Al día</span>
+    </div>
+    <div class="card row">
+      <span class="avatar" style="background:var(--pf-lila)">A</span>
+      <div style="flex:1"><b style="color:var(--text-title)">Ana Ruiz</b><div class="muted">1 de 8 clases · venció el 3 de ago</div></div>
+      <span class="badge err">Por pagar</span>
+    </div>
+    <div class="card row">
+      <span class="avatar" style="background:var(--pf-lavanda);color:#fff">S</span>
+      <div style="flex:1"><b style="color:var(--text-title)">Sofía Mendoza</b><div class="muted">7 de 8 clases · paga el 12 de ago</div></div>
+      <span class="badge ok">Al día</span>
+    </div>
+    <div class="card row">
+      <span class="avatar" style="background:var(--pf-rosa-claro)">L</span>
+      <div style="flex:1"><b style="color:var(--text-title)">Lucía Torres</b><div class="muted">Solo clase de introducción</div></div>
+      <span class="badge warn">Nueva</span>
+    </div>
+  </div>
+
+  <div class="screen" id="d-ficha">
+    <h1>Mariana López</h1>
+    <div class="muted">Alumna desde marzo de 2026</div>
+
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Paquete</b><button class="pillbtn soft" style="padding:7px 16px;min-height:36px;font-size:13px">Activar mes</button></div>
+      <div class="dato"><span>Clases restantes</span><b>5 de 8</b></div>
+      <div class="dato"><span>Último pago</span><b>$600 · transferencia · 1 de ago</b></div>
+      <div class="dato"><span>Siguiente pago</span><b>1 de septiembre</b></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:2px"><b style="color:var(--text-title)">Valoraciones</b><button class="pillbtn" style="padding:7px 16px;min-height:36px;font-size:13px">+ Nueva valoración</button></div>
+      <div class="muted" style="margin-bottom:10px">2 registradas · la más reciente arriba</div>
+
+      <div style="border:2px solid var(--border-soft);border-radius:var(--radius-md);overflow:hidden;margin-bottom:10px">
+        <button class="acc" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--pf-lila-fondo);border:none;padding:12px 14px;cursor:pointer;font:var(--text-body-strong);font-size:14px;color:var(--text-title);text-align:left;min-height:44px">
+          Valoración 2 · 4 de agosto de 2026<span class="badge ok">Reciente</span>
+        </button>
+        <div class="acc-body" style="padding:4px 14px 12px">
+          <div class="dato"><span>Nombre</span><b>Mariana López</b></div>
+          <div class="dato"><span>Edad</span><b>34</b></div>
+          <div class="dato"><span>Fecha</span><b>4 de agosto de 2026</b></div>
+          <div class="dato"><span>Ciclo</span><b>Día 12</b></div>
+          <div class="dato"><span>Partos</span><b>1 vaginal</b></div>
+          <div class="dato"><span>Tonicidad abdominal</span><b>Media</b></div>
+          <div class="dato"><span>Competencia abdominal (dedos)</span><b>2</b></div>
+          <div class="dato"><span>Co-activación abdominal</span><b>Presente</b></div>
+          <div class="dato"><span>Diástasis supraumbilical</span><b>1.5 cm</b></div>
+          <div class="dato"><span>Diástasis umbilical</span><b>2 cm</b></div>
+          <div class="dato"><span>Diástasis infraumbilical</span><b>1 cm</b></div>
+          <div class="dato"><span>Tonicidad diafragmática cúpula izq.</span><b>Buena</b></div>
+          <div class="dato"><span>Tonicidad diafragmática cúpula der.</span><b>Media</b></div>
+          <div class="dato"><span>Competencia perineal</span><b>Grado 3</b></div>
+          <div class="dato"><span>Perímetro de cintura</span><b>76 cm</b></div>
+          <div class="dato"><span>Perímetro al ombligo</span><b>84 cm</b></div>
+          <div class="dato"><span>Perímetro abajo de ombligo</span><b>88 cm</b></div>
+          <div class="dato"><span>Perímetro cadera</span><b>98 cm</b></div>
+          <div class="dato"><span>Perímetro cintura con apnea</span><b>71 cm</b></div>
+          <div class="dato" style="display:block"><span>Observaciones</span><div style="margin-top:4px;color:var(--text-body)">Mejor activación de transverso. Sigue cuidando postura de oficina.</div></div>
+          <button class="pillbtn soft" style="width:100%;margin-top:10px;font-size:13px;min-height:40px">Editar valoración</button>
+        </div>
+      </div>
+
+      <div style="border:2px solid var(--border-soft);border-radius:var(--radius-md);overflow:hidden">
+        <button class="acc cerrado" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--pf-lila-fondo);border:none;padding:12px 14px;cursor:pointer;font:var(--text-body-strong);font-size:14px;color:var(--text-title);text-align:left;min-height:44px">
+          Valoración 1 · 14 de marzo de 2026<span class="badge">Ver</span>
+        </button>
+        <div class="acc-body" style="display:none;padding:4px 14px 12px">
+          <div class="dato"><span>Perímetro de cintura</span><b>78 cm</b></div>
+          <div class="dato"><span>Diástasis umbilical</span><b>2.5 cm</b></div>
+          <div class="dato"><span>Competencia perineal</span><b>Grado 2</b></div>
+          <div class="dato" style="display:block"><span>Observaciones</span><div style="margin-top:4px;color:var(--text-body)">Primera valoración. Diástasis leve, trabajar activación transverso.</div></div>
+          <button class="pillbtn soft" style="width:100%;margin-top:10px;font-size:13px;min-height:40px">Editar valoración</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <b style="color:var(--text-title)">Asistencias del mes</b>
+      <div class="dato"><span>5 de agosto · 7:15 pm</span><span class="badge ok">Confirmada</span></div>
+      <div class="dato"><span>1 de agosto · 10:00 am</span><span class="badge ok">Confirmada</span></div>
+      <div class="dato"><span>29 de julio · 7:15 pm</span><span class="badge ok">Confirmada</span></div>
+    </div>
+  </div>
+
+  <div class="screen" id="d-clases">
+    <h1>Tus clases</h1>
+    <div class="muted">Cupo de 6 por clase</div>
+
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Martes 7:15 pm</b><span class="badge">3 de 6</span></div>
+      <div class="cupos"><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo libre"></i><i class="cupo libre"></i><i class="cupo libre"></i></div>
+    </div>
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Miércoles 10:00 am</b><span class="badge">5 de 6</span></div>
+      <div class="cupos"><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo libre"></i></div>
+    </div>
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Jueves 7:15 pm</b><span class="badge err">Llena</span></div>
+      <div class="cupos"><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i><i class="cupo"></i></div>
+    </div>
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Viernes 10:00 am</b><span class="badge">1 de 6</span></div>
+      <div class="cupos"><i class="cupo"></i><i class="cupo libre"></i><i class="cupo libre"></i><i class="cupo libre"></i><i class="cupo libre"></i><i class="cupo libre"></i></div>
+    </div>
+    <button class="pillbtn dark" style="width:100%;margin-top:14px">Abrir clase extra</button>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab on" data-s="d-hoy"><i data-lucide="check-circle" class="ico"></i>Hoy</button>
+    <button class="tab" data-s="d-alumnas"><i data-lucide="users" class="ico"></i>Alumnas</button>
+    <button class="tab" data-s="d-ficha"><i data-lucide="clipboard-list" class="ico"></i>Ficha</button>
+    <button class="tab" data-s="d-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
+  </div>
+</div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>
+if (window.lucide) lucide.createIcons();
+document.querySelectorAll('.switch button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.switch button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.phone').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById(b.dataset.p).classList.add('on');
+}));
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  const phone=t.closest('.phone');
+  phone.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  phone.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  t.classList.add('on');
+  phone.querySelector('#'+t.dataset.s).classList.add('active');
+}));
+const bc=document.getElementById('btn-checkin');
+bc.addEventListener('click',()=>{bc.style.display='none';document.getElementById('checkin-hecho').style.display='block';});
+document.querySelectorAll('.reservar').forEach(b=>b.addEventListener('click',()=>{
+  b.textContent='Tu lugar está apartado ✨';b.classList.add('soft');b.disabled=true;
+}));
+document.querySelectorAll('.valida').forEach(b=>b.addEventListener('click',()=>{
+  const s=document.createElement('span');s.className='badge ok';s.textContent='Confirmada';b.replaceWith(s);
+}));
+document.querySelectorAll('.acc').forEach(b=>b.addEventListener('click',()=>{
+  const body=b.nextElementSibling;
+  body.style.display = body.style.display==='none' ? 'block' : 'none';
+}));
+</script>
+</body></html>

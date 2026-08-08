@@ -1,0 +1,25 @@
+<!-- @dsCard group="Components" viewport="700x260" name="Botones" subtitle="Button e IconButton: variantes, tamaños, estados" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;padding:16px;background:#fff;font:var(--text-small);color:var(--text-muted);display:grid;gap:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{font:var(--text-button);border:none;border-radius:var(--radius-pill);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:12px 26px;min-height:44px}
+</style></head><body>
+<div class="row">
+  <button class="btn" style="background:var(--pf-lavanda);color:#fff">Reserva tu lugar ✨</button>
+  <button class="btn" style="background:transparent;color:var(--pf-morado);box-shadow:inset 0 0 0 2px var(--pf-lavanda)">Ver horarios</button>
+  <button class="btn" style="background:var(--pf-morado);color:#fff">Comprar curso</button>
+  <button class="btn" style="background:transparent;color:var(--pf-morado)">Ghost</button>
+  <button class="btn" style="background:var(--pf-lavanda);color:#fff;opacity:.45;cursor:not-allowed">Deshabilitado</button>
+</div>
+<div class="row">
+  <button class="btn" style="background:var(--pf-lavanda);color:#fff;padding:8px 18px;min-height:36px;font-size:14px">Pequeño</button>
+  <button class="btn" style="background:var(--pf-lavanda);color:#fff">Mediano</button>
+  <button class="btn" style="background:var(--pf-lavanda);color:#fff;padding:16px 34px;min-height:52px;font-size:18px">Grande</button>
+  <span style="background:var(--pf-lavanda);padding:14px 20px;border-radius:var(--radius-pill)"><button class="btn" style="background:#fff;color:var(--pf-morado)">Sobre color</button></span>
+</div>
+<div class="row">
+  <button class="btn" style="width:44px;height:44px;border-radius:50%;padding:0;background:var(--pf-lila);color:var(--pf-morado)">♡</button>
+  <button class="btn" style="width:44px;height:44px;border-radius:50%;padding:0;background:var(--pf-lavanda);color:#fff">→</button>
+  IconButton soft / accent
+</div>
+</body></html>
