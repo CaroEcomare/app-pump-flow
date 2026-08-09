@@ -1332,7 +1332,7 @@ git commit -m "feat: lógica de las pantallas de alumna (inicio, clases, tu espa
 - Create: `app/admin.js`
 
 **Interfaces:**
-- Consumes: de `app/data.js` (Tarea 4) — `obtenerClaseDeHoy`, `listarReservasDeClase`, `confirmarAsistencia`, `listarAlumnas`, `obtenerFichaAlumna`, `activarPaquete`, `crearValoracion`, `obtenerPaqueteActivo`, `listarClasesProximas`; de `app/lib/date-utils.js` (Tarea 1) — `hoyISO`, `formatHora12`, `formatDiaMesConDia`, `formatFechaCompleta`, `formatMesAno`; de `app/lib/status.js` (Tarea 2) — `estadoAsistenciaBadge`, `estadoPaquete`, `paqueteVenceEnDias`, `siguienteNumeroValoracion`, `tieneValoraciones`, `inicialAvatar`, `puntosCupo`, `estadoClase`.
+- Consumes: de `app/data.js` (Tarea 4) — `obtenerClaseDeHoy`, `listarReservasDeClase`, `confirmarAsistencia`, `listarAlumnas`, `obtenerFichaAlumna`, `activarPaquete`, `crearValoracion`, `obtenerPaqueteActivo`, `listarClasesProximas` (todas importadas estáticamente al inicio del archivo, ver Step 1); de `app/lib/date-utils.js` (Tarea 1) — `hoyISO`, `formatHora12`, `formatDiaMesConDia`, `formatFechaCompleta`, `formatMesAno`; de `app/lib/status.js` (Tarea 2) — `estadoAsistenciaBadge`, `estadoPaquete`, `paqueteVenceEnDias`, `siguienteNumeroValoracion`, `tieneValoraciones`, `inicialAvatar`, `puntosCupo`, `estadoClase`.
 - Produces: `montarVistaAdmin({supabase, onCerrarSesion}) => Promise<void>`.
 - Consumido por: `app/app.js` (Tarea 9).
 
@@ -1342,7 +1342,7 @@ git commit -m "feat: lógica de las pantallas de alumna (inicio, clases, tu espa
 import {
   obtenerClaseDeHoy, listarReservasDeClase, confirmarAsistencia,
   listarAlumnas, obtenerFichaAlumna, activarPaquete, crearValoracion,
-  listarClasesProximas,
+  listarClasesProximas, obtenerPaqueteActivo,
 } from './data.js';
 import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
 import {
@@ -1438,7 +1438,7 @@ async function renderAlumnas(supabase) {
   const hoy = hoyISO();
   const cont = document.getElementById('d-alumnas-lista');
   const filas = await Promise.all(alumnas.map(async (a) => {
-    const paquete = await import('./data.js').then((m) => m.obtenerPaqueteActivo(supabase, a.id));
+    const paquete = await obtenerPaqueteActivo(supabase, a.id);
     const estado = estadoPaquete(paquete, hoy);
     const badgeTexto = estado === 'al_dia' ? 'Al día' : estado === 'por_pagar' ? 'Por pagar' : 'Nueva';
     const badgeClase = estado === 'al_dia' ? 'ok' : estado === 'por_pagar' ? 'err' : 'warn';
