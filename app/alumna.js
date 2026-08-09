@@ -110,7 +110,8 @@ async function renderClases(supabase, alumnaId) {
         await Promise.all([renderClases(supabase, alumnaId), renderInicio(supabase, alumnaId)]);
       } catch (err) {
         btn.disabled = false;
-        alert('Esta clase ya está llena, elige otro horario 🤍');
+        const yaLlena = /llena/i.test(err.message);
+        mostrarErrorCerca(btn, yaLlena ? 'Esta clase ya está llena, elige otro horario 🤍' : `No se pudo apartar tu lugar: ${err.message}`);
       }
     });
   });

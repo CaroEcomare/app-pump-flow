@@ -9,7 +9,6 @@ import { wireTabs, mostrarErrorCerca } from './ui.js';
 import {
   estadoAsistenciaBadge, estadoPaquete, paqueteVenceEnDias,
   siguienteNumeroValoracion, inicialAvatar,
-  puntosCupo, estadoClase,
 } from './lib/status.js';
 
 const CAMPOS_VALORACION = [
@@ -109,11 +108,12 @@ async function renderHoy(supabase, resumen) {
     </div>`;
 }
 
-function tarjetaPasarLista(clase, reservas) {
+function tarjetaPasarLista(clase, reservas, etiqueta) {
   const confirmadas = reservas.filter((r) => r.asistencia?.confirmada_admin).length;
+  const titulo = etiqueta ?? `Pasar lista · ${formatHora12(clase.horarios.hora)}`;
   return `
     <div class="card">
-      <div class="row" style="margin-bottom:4px"><b style="color:var(--text-title)">Pasar lista · ${escaparHTML(formatHora12(clase.horarios.hora))}</b><span class="badge">${confirmadas} de ${reservas.length}</span></div>
+      <div class="row" style="margin-bottom:4px"><b style="color:var(--text-title)">${escaparHTML(titulo)}</b><span class="badge">${confirmadas} de ${reservas.length}</span></div>
       ${reservas.length === 0 ? '<div class="muted">Nadie ha apartado lugar todavía</div>' : reservas.map((r) => {
         const badge = estadoAsistenciaBadge(r.asistencia);
         const accion = badge === 'confirmada'
@@ -303,13 +303,24 @@ function abrirDialogPaquete(supabase, alumnaId) {
 
 async function renderClasesAdmin(supabase) {
   const clases = await listarClasesProximas(supabase);
-  document.getElementById('d-clases-lista').innerHTML = clases.map((c) => {
-    const puntos = puntosCupo(c.cupo, c.reservasCount).map((o) => `<i class="cupo ${o ? '' : 'libre'}"></i>`).join('');
-    const estado = estadoClase(c.cupo, c.reservasCount);
-    return `
-      <div class="card">
-        <div class="row"><b style="color:var(--text-title)">${escaparHTML(formatDiaMesConDia(c.fecha))} ${escaparHTML(formatHora12(c.horarios.hora))}</b><span class="badge ${estado === 'llena' ? 'err' : ''}">${estado === 'llena' ? 'Llena' : `${escaparHTML(c.reservasCount)} de ${escaparHTML(c.cupo)}`}</span></div>
-        <div class="cupos">${puntos}</div>
-      </div>`;
-  }).join('') || '<div class="muted">No hay clases próximas todavía</div>';
+  const listas = await Promise.all(clases.map((c) => listarReservasDeClase(supabase, c.id)));
+  const cont = document.getElementById('d-clases-lista');
+  cont.innerHTML = clases.map((c, i) => tarjetaPasarLista(
+    c,
+    listas[i],
+    `${formatDiaMesConDia(c.fecha)} · ${formatHora12(c.horarios.hora)}`,
+  )).join('') || '<div class="muted">No hay clases próximas todavía</div>';
+
+  cont.querySelectorAll('.valida').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        await confirmarAsistencia(supabase, btn.dataset.alumnaId, Number(btn.dataset.claseId));
+        await renderClasesAdmin(supabase);
+      } catch (err) {
+        btn.disabled = false;
+        mostrarErrorCerca(btn.closest('.dato') ?? btn, `No se pudo confirmar: ${err.message}`);
+      }
+    });
+  });
 }

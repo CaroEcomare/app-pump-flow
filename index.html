@@ -90,10 +90,10 @@
   </div>
 
   <div class="tabbar">
-    <button class="tab on" data-s="a-inicio">Inicio</button>
-    <button class="tab" data-s="a-clases">Clases</button>
-    <button class="tab" data-s="a-contenido">Contenido</button>
-    <button class="tab" data-s="a-espacio">Tu espacio</button>
+    <button class="tab on" data-s="a-inicio"><i data-lucide="heart" class="ico"></i>Inicio</button>
+    <button class="tab" data-s="a-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
+    <button class="tab" data-s="a-contenido"><i data-lucide="play-circle" class="ico"></i>Contenido</button>
+    <button class="tab" data-s="a-espacio"><i data-lucide="user" class="ico"></i>Tu espacio</button>
   </div>
 </div>
 </div>
@@ -123,10 +123,10 @@
   </div>
 
   <div class="tabbar">
-    <button class="tab on" data-s="d-hoy">Hoy</button>
-    <button class="tab" data-s="d-alumnas">Alumnas</button>
-    <button class="tab" data-s="d-ficha">Ficha</button>
-    <button class="tab" data-s="d-clases">Clases</button>
+    <button class="tab on" data-s="d-hoy"><i data-lucide="check-circle" class="ico"></i>Hoy</button>
+    <button class="tab" data-s="d-alumnas"><i data-lucide="users" class="ico"></i>Alumnas</button>
+    <button class="tab" data-s="d-ficha"><i data-lucide="clipboard-list" class="ico"></i>Ficha</button>
+    <button class="tab" data-s="d-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
   </div>
 </div>
 </div>
@@ -134,6 +134,8 @@
 <dialog id="dialog-valoracion"><div class="dialog-body" id="dialog-valoracion-body"></div></dialog>
 <dialog id="dialog-paquete"><div class="dialog-body" id="dialog-paquete-body"></div></dialog>
 
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
 <script type="module" src="app/app.js"></script>
 </body>
 </html>
