@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pump&Flow</title>
+<link rel="stylesheet" href="app/styles.css">
+</head>
+<body>
+
+<div class="pantalla on" id="pantalla-auth" style="align-items:center;justify-content:center;padding:24px">
+  <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
+  <div class="switch claro" id="switch-auth">
+    <button class="on" data-modo="login">Iniciar sesión</button>
+    <button data-modo="registro">Crear cuenta</button>
+  </div>
+
+  <form id="form-login" class="card" style="width:100%;max-width:340px;margin-top:16px">
+    <label class="field"><span>Correo</span><input class="input" type="email" id="login-correo" required></label>
+    <label class="field"><span>Contraseña</span><input class="input" type="password" id="login-contrasena" required minlength="6"></label>
+    <div id="login-error" class="badge err" style="display:none;margin-top:10px"></div>
+    <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Entrar</button>
+  </form>
+
+  <form id="form-registro" class="card" style="width:100%;max-width:340px;margin-top:16px;display:none">
+    <label class="field"><span>Nombre</span><input class="input" type="text" id="registro-nombre" required></label>
+    <label class="field"><span>Teléfono</span><input class="input" type="tel" id="registro-telefono"></label>
+    <label class="field"><span>Correo</span><input class="input" type="email" id="registro-correo" required></label>
+    <label class="field"><span>Contraseña</span><input class="input" type="password" id="registro-contrasena" required minlength="6"></label>
+    <div id="registro-error" class="badge err" style="display:none;margin-top:10px"></div>
+    <div id="registro-exito" class="muted" style="display:none;margin-top:10px">Te mandamos un correo para confirmar tu cuenta. Ábrelo y luego inicia sesión aquí 🤍</div>
+    <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Crear cuenta</button>
+  </form>
+</div>
+
+<div style="display:none;justify-content:center;padding:10px;position:sticky;top:0;background:var(--surface-page);z-index:5" id="switch-vistas">
+  <div class="switch claro">
+    <button class="on" data-pantalla="pantalla-admin">Vista administradora</button>
+    <button data-pantalla="pantalla-alumna">Vista alumna</button>
+  </div>
+</div>
+
+<!-- ══════════ ALUMNA ══════════ -->
+<div class="pantalla" id="pantalla-alumna">
+<div class="contenedor-app">
+  <div class="screen active" id="a-inicio">
+    <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
+    <h1 id="a-inicio-saludo">Hola 🤍</h1>
+    <div id="a-inicio-proxima-clase"></div>
+    <div id="a-inicio-paquete"></div>
+    <div class="card">
+      <b style="color:var(--text-title)">Tip de hoy ✨</b>
+      <div style="font:var(--text-small);margin-top:6px">Antes de tu apnea, exhala todo el aire con calma. Tu diafragma trabaja mejor sin prisa.</div>
+    </div>
+  </div>
+
+  <div class="screen" id="a-clases">
+    <h1>Aparta tu espacio</h1>
+    <div class="muted">Cada clase tiene cupo para 6 personas</div>
+    <div id="a-clases-lista"></div>
+  </div>
+
+  <div class="screen" id="a-contenido">
+    <h1>Contenido</h1>
+    <div class="chips">
+      <button class="chip on">Hipopresivos</button><button class="chip">Meditaciones</button>
+    </div>
+    <div class="card">
+      <div class="video"><span class="play">▶</span></div>
+      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Fundamentos: qué son</b><span class="badge ok">Visto</span></div>
+      <div class="muted">Liga de YouTube</div>
+    </div>
+    <div class="card">
+      <div class="video"><span class="play">▶</span></div>
+      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Cómo se respira</b></div>
+      <div class="muted">Liga de YouTube</div>
+    </div>
+    <div class="card">
+      <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación de 10 minutos</b><span class="badge">Nueva ✨</span></div>
+      <div class="muted">Para cerrar tu día con calma</div>
+    </div>
+  </div>
+
+  <div class="screen" id="a-espacio">
+    <h1>Tu espacio</h1>
+    <div id="a-espacio-paquete"></div>
+    <div id="a-espacio-asistencias"></div>
+    <button class="link-suave btn-logout">Cerrar sesión</button>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab on" data-s="a-inicio">Inicio</button>
+    <button class="tab" data-s="a-clases">Clases</button>
+    <button class="tab" data-s="a-contenido">Contenido</button>
+    <button class="tab" data-s="a-espacio">Tu espacio</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ ADMIN ══════════ -->
+<div class="pantalla" id="pantalla-admin">
+<div class="contenedor-app">
+  <div class="screen active" id="d-hoy">
+    <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
+    <h1>Hola 🤍</h1>
+    <div id="d-hoy-lista"></div>
+    <div id="d-hoy-pendientes"></div>
+    <button class="link-suave btn-logout">Cerrar sesión</button>
+  </div>
+
+  <div class="screen" id="d-alumnas">
+    <h1>Alumnas</h1>
+    <div id="d-alumnas-lista"></div>
+  </div>
+
+  <div class="screen" id="d-ficha"></div>
+
+  <div class="screen" id="d-clases">
+    <h1>Tus clases</h1>
+    <div class="muted">Cupo de 6 por clase</div>
+    <div id="d-clases-lista"></div>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab on" data-s="d-hoy">Hoy</button>
+    <button class="tab" data-s="d-alumnas">Alumnas</button>
+    <button class="tab" data-s="d-ficha">Ficha</button>
+    <button class="tab" data-s="d-clases">Clases</button>
+  </div>
+</div>
+</div>
+
+<dialog id="dialog-valoracion"><div class="dialog-body" id="dialog-valoracion-body"></div></dialog>
+<dialog id="dialog-paquete"><div class="dialog-body" id="dialog-paquete-body"></div></dialog>
+
+<script type="module" src="app/app.js"></script>
+</body>
+</html>
