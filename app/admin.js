@@ -1,0 +1,280 @@
+import {
+  obtenerClaseDeHoy, listarReservasDeClase, confirmarAsistencia,
+  listarAlumnas, obtenerFichaAlumna, activarPaquete, crearValoracion,
+  listarClasesProximas, obtenerPaqueteActivo,
+} from './data.js';
+import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
+import {
+  estadoAsistenciaBadge, estadoPaquete, paqueteVenceEnDias,
+  siguienteNumeroValoracion, tieneValoraciones, inicialAvatar,
+  puntosCupo, estadoClase,
+} from './lib/status.js';
+
+const CAMPOS_VALORACION = [
+  { key: 'edad', label: 'Edad', type: 'number' },
+  { key: 'ciclo', label: 'Ciclo', type: 'text' },
+  { key: 'partos', label: 'Partos', type: 'text' },
+  { key: 'tonicidad_abdominal', label: 'Tonicidad abdominal', type: 'text' },
+  { key: 'competencia_abdominal_dedos', label: 'Competencia abdominal (dedos)', type: 'number' },
+  { key: 'coactivacion_abdominal', label: 'Co-activación abdominal', type: 'text' },
+  { key: 'diastasis_supraumbilical', label: 'Diástasis supraumbilical', type: 'number' },
+  { key: 'diastasis_umbilical', label: 'Diástasis umbilical', type: 'number' },
+  { key: 'diastasis_infraumbilical', label: 'Diástasis infraumbilical', type: 'number' },
+  { key: 'tonicidad_diafragma_izq', label: 'Tonicidad diafragmática cúpula izq.', type: 'text' },
+  { key: 'tonicidad_diafragma_der', label: 'Tonicidad diafragmática cúpula der.', type: 'text' },
+  { key: 'competencia_perineal', label: 'Competencia perineal', type: 'text' },
+  { key: 'perimetro_cintura', label: 'Perímetro de cintura', type: 'number' },
+  { key: 'perimetro_ombligo', label: 'Perímetro al ombligo', type: 'number' },
+  { key: 'perimetro_bajo_ombligo', label: 'Perímetro abajo de ombligo', type: 'number' },
+  { key: 'perimetro_cadera', label: 'Perímetro cadera', type: 'number' },
+  { key: 'perimetro_cintura_apnea', label: 'Perímetro cintura con apnea', type: 'number' },
+  { key: 'observaciones', label: 'Observaciones', type: 'textarea' },
+];
+
+let supabaseRef;
+
+export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
+  supabaseRef = supabase;
+  wireTabsAdmin();
+  document.getElementById('d-hoy').querySelector('.btn-logout')?.addEventListener('click', onCerrarSesion);
+
+  await Promise.all([renderHoy(supabase), renderAlumnas(supabase), renderClasesAdmin(supabase)]);
+  document.getElementById('d-ficha').innerHTML = '<h1>Ficha</h1><div class="muted">Elige una alumna en la pestaña "Alumnas".</div>';
+}
+
+async function renderHoy(supabase) {
+  const clase = await obtenerClaseDeHoy(supabase);
+  const contLista = document.getElementById('d-hoy-lista');
+  const contPend = document.getElementById('d-hoy-pendientes');
+
+  if (!clase) {
+    contLista.innerHTML = `<div class="card"><b style="color:var(--text-title)">Hoy no hay clase</b></div>`;
+  } else {
+    const reservas = await listarReservasDeClase(supabase, clase.id);
+    contLista.innerHTML = `
+      <div class="card">
+        <div class="row" style="margin-bottom:4px"><b style="color:var(--text-title)">Pasar lista</b><span class="badge">${reservas.filter((r) => r.asistencia?.confirmada_admin).length} de ${reservas.length}</span></div>
+        ${reservas.length === 0 ? '<div class="muted">Nadie ha apartado lugar todavía</div>' : reservas.map((r) => {
+          const badge = estadoAsistenciaBadge(r.asistencia);
+          const accion = badge === 'confirmada'
+            ? '<span class="badge ok">Confirmada</span>'
+            : `<button class="pillbtn valida" data-alumna-id="${r.alumnaId}" data-clase-id="${clase.id}" style="padding:7px 16px;min-height:36px;font-size:13px">Confirmar</button>`;
+          return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${inicialAvatar(r.nombre)}</span>${r.nombre}${badge === 'sin_checkin' ? ' <span class="badge warn">Sin check-in</span>' : ''}</div>${accion}</div>`;
+        }).join('')}
+      </div>`;
+    contLista.querySelectorAll('.valida').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        await confirmarAsistencia(supabase, btn.dataset.alumnaId, Number(btn.dataset.claseId));
+        await renderHoy(supabase);
+      });
+    });
+  }
+
+  const alumnas = await listarAlumnas(supabase);
+  const hoy = hoyISO();
+  let pagosPorRecibir = 0;
+  let paquetesPorVencer = 0;
+  let valoracionesPendientes = 0;
+  await Promise.all(alumnas.filter((a) => !a.es_admin).map(async (a) => {
+    const ficha = await obtenerFichaAlumna(supabase, a.id);
+    const estado = estadoPaquete(ficha.paquete, hoy);
+    if (estado !== 'al_dia') pagosPorRecibir += 1;
+    if (paqueteVenceEnDias(ficha.paquete, hoy)) paquetesPorVencer += 1;
+    if (!tieneValoraciones(ficha.valoraciones)) valoracionesPendientes += 1;
+  }));
+  contPend.innerHTML = `
+    <div class="card">
+      <b style="color:var(--text-title)">Pendientes de la semana</b>
+      <div class="dato"><span>Pagos por recibir</span><b>${pagosPorRecibir} alumna${pagosPorRecibir === 1 ? '' : 's'}</b></div>
+      <div class="dato"><span>Paquetes por vencer</span><b>${paquetesPorVencer} alumna${paquetesPorVencer === 1 ? '' : 's'}</b></div>
+      <div class="dato"><span>Valoraciones pendientes</span><b>${valoracionesPendientes} alumna${valoracionesPendientes === 1 ? '' : 's'}</b></div>
+    </div>`;
+}
+
+async function renderAlumnas(supabase) {
+  const alumnas = (await listarAlumnas(supabase)).filter((a) => !a.es_admin);
+  const hoy = hoyISO();
+  const cont = document.getElementById('d-alumnas-lista');
+  const filas = await Promise.all(alumnas.map(async (a) => {
+    const paquete = await obtenerPaqueteActivo(supabase, a.id);
+    const estado = estadoPaquete(paquete, hoy);
+    const badgeTexto = estado === 'al_dia' ? 'Al día' : estado === 'por_pagar' ? 'Por pagar' : 'Nueva';
+    const badgeClase = estado === 'al_dia' ? 'ok' : estado === 'por_pagar' ? 'err' : 'warn';
+    const progreso = paquete ? `${paquete.clases_usadas} de ${paquete.clases_totales} clases` : 'Sin paquete activo';
+    return `
+      <div class="card row alumna-fila" data-alumna-id="${a.id}" style="cursor:pointer">
+        <span class="avatar">${inicialAvatar(a.nombre)}</span>
+        <div style="flex:1"><b style="color:var(--text-title)">${a.nombre}</b><div class="muted">${progreso}</div></div>
+        <span class="badge ${badgeClase}">${badgeTexto}</span>
+      </div>`;
+  }));
+  cont.innerHTML = filas.join('') || '<div class="muted">Aún no tienes alumnas registradas</div>';
+  cont.querySelectorAll('.alumna-fila').forEach((fila) => {
+    fila.addEventListener('click', () => {
+      renderFicha(supabase, fila.dataset.alumnaId);
+      document.querySelector('#pantalla-admin .tab[data-s="d-ficha"]').click();
+    });
+  });
+}
+
+async function renderFicha(supabase, alumnaId) {
+  const { alumna, paquete, valoraciones, asistencias } = await obtenerFichaAlumna(supabase, alumnaId);
+  const estado = estadoPaquete(paquete, hoyISO());
+  const cont = document.getElementById('d-ficha');
+  cont.innerHTML = `
+    <h1>${alumna.nombre}</h1>
+    <div class="muted">Alumna desde ${formatFechaCompleta(alumna.fecha_alta)}</div>
+
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Paquete</b><button class="pillbtn soft" id="btn-activar-paquete" style="padding:7px 16px;min-height:36px;font-size:13px">Activar mes</button></div>
+      ${estado === 'sin_paquete'
+        ? '<div class="muted" style="margin-top:8px">Sin paquete activo</div>'
+        : `<div class="dato"><span>Clases restantes</span><b>${paquete.clases_totales - paquete.clases_usadas} de ${paquete.clases_totales}</b></div>
+           <div class="dato"><span>Último pago</span><b>${paquete.monto ? `$${paquete.monto} · ` : ''}${paquete.forma_pago ?? ''} · ${paquete.fecha_pago ? formatDiaMesConDia(paquete.fecha_pago) : '—'}</b></div>
+           <div class="dato"><span>Siguiente pago</span><b>${paquete.vence ? formatDiaMesConDia(paquete.vence) : '—'}</b></div>`}
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:2px"><b style="color:var(--text-title)">Valoraciones</b><button class="pillbtn" id="btn-nueva-valoracion" style="padding:7px 16px;min-height:36px;font-size:13px">+ Nueva valoración</button></div>
+      <div class="muted" style="margin-bottom:10px">${valoraciones.length} registrada${valoraciones.length === 1 ? '' : 's'} · la más reciente arriba</div>
+      ${valoraciones.map((v, i) => renderValoracion(v, i, alumna.nombre)).join('') || '<div class="muted">Sin valoraciones todavía</div>'}
+    </div>
+
+    <div class="card">
+      <b style="color:var(--text-title)">Asistencias recientes</b>
+      ${asistencias.slice(0, 5).map((a) => {
+        const badge = estadoAsistenciaBadge({ checkin_alumna: a.checkinAlumna, confirmada_admin: a.confirmadaAdmin });
+        const texto = badge === 'confirmada' ? 'Confirmada' : badge === 'pendiente' ? 'Pendiente' : 'Sin check-in';
+        const clase = badge === 'confirmada' ? 'ok' : badge === 'pendiente' ? 'warn' : '';
+        return `<div class="dato"><span>${formatDiaMesConDia(a.fecha)} · ${formatHora12(a.hora)}</span><span class="badge ${clase}">${texto}</span></div>`;
+      }).join('') || '<div class="muted">Sin asistencias todavía</div>'}
+    </div>`;
+
+  cont.querySelectorAll('.acc').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const body = btn.nextElementSibling;
+      body.style.display = body.style.display === 'none' ? 'block' : 'none';
+    });
+  });
+  document.getElementById('btn-nueva-valoracion').addEventListener('click', () => abrirDialogValoracion(supabase, alumnaId, valoraciones));
+  document.getElementById('btn-activar-paquete').addEventListener('click', () => abrirDialogPaquete(supabase, alumnaId));
+}
+
+function renderValoracion(v, index, nombreAlumna) {
+  const esReciente = index === 0;
+  const filas = CAMPOS_VALORACION.filter((c) => c.key !== 'observaciones')
+    .map((c) => `<div class="dato"><span>${c.label}</span><b>${v[c.key] ?? '—'}</b></div>`).join('');
+  return `
+    <div style="border:2px solid var(--border-soft);border-radius:var(--radius-md);overflow:hidden;margin-bottom:10px">
+      <button class="acc" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--pf-lila-fondo);border:none;padding:12px 14px;cursor:pointer;font:var(--text-body-strong);font-size:14px;color:var(--text-title);text-align:left;min-height:44px">
+        Valoración ${v.numero} · ${formatFechaCompleta(v.fecha)}<span class="badge ${esReciente ? 'ok' : ''}">${esReciente ? 'Reciente' : 'Ver'}</span>
+      </button>
+      <div class="acc-body" style="display:none;padding:4px 14px 12px">
+        <div class="dato"><span>Nombre</span><b>${nombreAlumna}</b></div>
+        ${filas}
+        <div class="dato" style="display:block"><span>Observaciones</span><div style="margin-top:4px;color:var(--text-body)">${v.observaciones ?? '—'}</div></div>
+      </div>
+    </div>`;
+}
+
+function abrirDialogValoracion(supabase, alumnaId, valoraciones) {
+  const dialog = document.getElementById('dialog-valoracion');
+  const body = document.getElementById('dialog-valoracion-body');
+  const numero = siguienteNumeroValoracion(valoraciones);
+  body.innerHTML = `
+    <h1 style="font:var(--text-h3)">Nueva valoración</h1>
+    <form id="form-valoracion">
+      <label class="field"><span>Fecha</span><input class="input" type="date" name="fecha" value="${hoyISO()}" required></label>
+      ${CAMPOS_VALORACION.map((c) => `
+        <label class="field"><span>${c.label}</span>
+          ${c.type === 'textarea'
+            ? `<textarea class="textarea" name="${c.key}"></textarea>`
+            : `<input class="input" type="${c.type}" name="${c.key}" ${c.type === 'number' ? 'step="0.1"' : ''}>`}
+        </label>`).join('')}
+      <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">Guardar valoración</button>
+      <button class="link-suave" type="button" id="btn-cancelar-valoracion" style="width:100%;text-align:center">Cancelar</button>
+    </form>`;
+  document.getElementById('btn-cancelar-valoracion').addEventListener('click', () => dialog.close());
+  document.getElementById('form-valoracion').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const campos = { fecha: formData.get('fecha') };
+    CAMPOS_VALORACION.forEach((c) => {
+      const valor = formData.get(c.key);
+      campos[c.key] = c.type === 'number' ? (valor === '' ? null : Number(valor)) : (valor || null);
+    });
+    await crearValoracion(supabase, alumnaId, campos, numero);
+    dialog.close();
+    await renderFicha(supabase, alumnaId);
+  });
+  dialog.showModal();
+}
+
+function abrirDialogPaquete(supabase, alumnaId) {
+  const dialog = document.getElementById('dialog-paquete');
+  const body = document.getElementById('dialog-paquete-body');
+  body.innerHTML = `
+    <h1 style="font:var(--text-h3)">Activar mes</h1>
+    <form id="form-paquete">
+      <label class="field"><span>Tipo</span>
+        <select class="input" name="tipo">
+          <option value="mensualidad">Mensualidad</option>
+          <option value="introduccion">Introducción</option>
+        </select>
+      </label>
+      <label class="field"><span>Clases totales</span><input class="input" type="number" name="clasesTotales" value="8" required></label>
+      <label class="field"><span>Monto</span><input class="input" type="number" name="monto" step="0.01" required></label>
+      <label class="field"><span>Forma de pago</span>
+        <select class="input" name="formaPago">
+          <option value="transferencia">Transferencia</option>
+          <option value="efectivo">Efectivo</option>
+        </select>
+      </label>
+      <label class="field"><span>Fecha de pago</span><input class="input" type="date" name="fechaPago" value="${hoyISO()}" required></label>
+      <label class="field"><span>Vence</span><input class="input" type="date" name="vence" required></label>
+      <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">Activar paquete</button>
+      <button class="link-suave" type="button" id="btn-cancelar-paquete" style="width:100%;text-align:center">Cancelar</button>
+    </form>`;
+  document.getElementById('btn-cancelar-paquete').addEventListener('click', () => dialog.close());
+  document.getElementById('form-paquete').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    await activarPaquete(supabase, alumnaId, {
+      tipo: formData.get('tipo'),
+      clasesTotales: Number(formData.get('clasesTotales')),
+      monto: Number(formData.get('monto')),
+      formaPago: formData.get('formaPago'),
+      fechaPago: formData.get('fechaPago'),
+      vence: formData.get('vence'),
+    });
+    dialog.close();
+    await renderFicha(supabase, alumnaId);
+  });
+  dialog.showModal();
+}
+
+async function renderClasesAdmin(supabase) {
+  const clases = await listarClasesProximas(supabase);
+  document.getElementById('d-clases-lista').innerHTML = clases.map((c) => {
+    const puntos = puntosCupo(c.cupo, c.reservasCount).map((o) => `<i class="cupo ${o ? '' : 'libre'}"></i>`).join('');
+    const estado = estadoClase(c.cupo, c.reservasCount);
+    return `
+      <div class="card">
+        <div class="row"><b style="color:var(--text-title)">${formatDiaMesConDia(c.fecha)} ${formatHora12(c.horarios.hora)}</b><span class="badge ${estado === 'llena' ? 'err' : ''}">${estado === 'llena' ? 'Llena' : `${c.reservasCount} de ${c.cupo}`}</span></div>
+        <div class="cupos">${puntos}</div>
+      </div>`;
+  }).join('') || '<div class="muted">No hay clases próximas todavía</div>';
+}
+
+function wireTabsAdmin() {
+  const pantalla = document.getElementById('pantalla-admin');
+  pantalla.querySelectorAll('.tab').forEach((t) => {
+    t.addEventListener('click', () => {
+      pantalla.querySelectorAll('.tab').forEach((x) => x.classList.remove('on'));
+      pantalla.querySelectorAll('.screen').forEach((x) => x.classList.remove('active'));
+      t.classList.add('on');
+      pantalla.querySelector(`#${t.dataset.s}`).classList.add('active');
+    });
+  });
+}
