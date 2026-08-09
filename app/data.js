@@ -85,12 +85,13 @@ export async function obtenerPaqueteActivo(supabase, alumnaId) {
 export async function obtenerMisAsistencias(supabase, alumnaId) {
   const { data, error } = await supabase
     .from('asistencias')
-    .select('id, checkin_alumna, confirmada_admin, clases(fecha, horarios(hora))')
+    .select('id, clase_id, checkin_alumna, confirmada_admin, clases(fecha, horarios(hora))')
     .eq('alumna_id', alumnaId)
     .order('id', { ascending: false });
   if (error) throw error;
   return data.map((a) => ({
     id: a.id,
+    claseId: a.clase_id,
     checkinAlumna: a.checkin_alumna,
     confirmadaAdmin: a.confirmada_admin,
     fecha: a.clases.fecha,
@@ -107,13 +108,34 @@ export async function listarAlumnas(supabase) {
   return data;
 }
 
-export async function obtenerClaseDeHoy(supabase) {
+// Consultas en bloque para la vista de admin: una sola petición para
+// todas las alumnas, en vez de una por alumna.
+export async function listarPaquetesActivos(supabase) {
+  const { data, error } = await supabase
+    .from('paquetes')
+    .select('*')
+    .eq('activo', true)
+    .order('fecha_pago', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function listarAlumnaIdsConValoracion(supabase) {
+  const { data, error } = await supabase.from('valoraciones').select('alumna_id');
+  if (error) throw error;
+  return data.map((v) => v.alumna_id);
+}
+
+// Devuelve TODAS las clases de hoy (normalmente una, pero nada impide
+// activar dos horarios el mismo día; con .maybeSingle() eso tumbaba
+// la pantalla completa de la admin).
+export async function listarClasesDeHoy(supabase) {
   const { data, error } = await supabase
     .from('clases')
     .select('id, fecha, horarios(hora)')
     .eq('fecha', hoyISO())
     .eq('cancelada', false)
-    .maybeSingle();
+    .order('id', { ascending: true });
   if (error) throw error;
   return data;
 }

@@ -34,7 +34,9 @@ async function entrarConSesion(session) {
 
 async function manejarLogout() {
   await cerrarSesion();
-  mostrarPantalla('pantalla-auth');
+  // Recargar limpia el DOM ya renderizado (nombres, paquetes, pendientes),
+  // oculta el switch de vistas y evita listeners duplicados al volver a montar.
+  location.reload();
 }
 
 switchVistas.querySelectorAll('button').forEach((btn) => {
@@ -90,9 +92,15 @@ document.getElementById('form-registro').addEventListener('submit', async (e) =>
   }
 });
 
-const sesion = await obtenerSesionActual();
-if (sesion) {
-  await entrarConSesion(sesion);
-} else {
+try {
+  const sesion = await obtenerSesionActual();
+  if (sesion) {
+    await entrarConSesion(sesion);
+  } else {
+    mostrarPantalla('pantalla-auth');
+  }
+} catch (err) {
+  switchVistas.style.display = 'none';
   mostrarPantalla('pantalla-auth');
+  alert(`No pudimos abrir tu sesión: ${err.message}\n\nRecarga la página, por favor 🤍`);
 }

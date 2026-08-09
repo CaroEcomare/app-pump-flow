@@ -1,12 +1,14 @@
 import {
-  obtenerClaseDeHoy, listarReservasDeClase, confirmarAsistencia,
+  listarClasesDeHoy, listarReservasDeClase, confirmarAsistencia,
   listarAlumnas, obtenerFichaAlumna, activarPaquete, crearValoracion,
-  listarClasesProximas, obtenerPaqueteActivo,
+  listarClasesProximas, listarPaquetesActivos, listarAlumnaIdsConValoracion,
 } from './data.js';
 import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
+import { escaparHTML } from './lib/escape.js';
+import { wireTabs, mostrarErrorCerca } from './ui.js';
 import {
   estadoAsistenciaBadge, estadoPaquete, paqueteVenceEnDias,
-  siguienteNumeroValoracion, tieneValoraciones, inicialAvatar,
+  siguienteNumeroValoracion, inicialAvatar,
   puntosCupo, estadoClase,
 } from './lib/status.js';
 
@@ -31,58 +33,73 @@ const CAMPOS_VALORACION = [
   { key: 'observaciones', label: 'Observaciones', type: 'textarea' },
 ];
 
-let supabaseRef;
-
 export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
-  supabaseRef = supabase;
-  wireTabsAdmin();
+  wireTabs('pantalla-admin');
   document.getElementById('d-hoy').querySelector('.btn-logout')?.addEventListener('click', onCerrarSesion);
 
-  await Promise.all([renderHoy(supabase), renderAlumnas(supabase), renderClasesAdmin(supabase)]);
+  // Un solo bloque de consultas para las dos pantallas que lo necesitan.
+  const resumen = await cargarResumenAlumnas(supabase);
+  await Promise.all([renderHoy(supabase, resumen), renderAlumnas(supabase, resumen), renderClasesAdmin(supabase)]);
   document.getElementById('d-ficha').innerHTML = '<h1>Ficha</h1><div class="muted">Elige una alumna en la pestaña "Alumnas".</div>';
 }
 
-async function renderHoy(supabase) {
-  const clase = await obtenerClaseDeHoy(supabase);
+// Trae de una sola vez las alumnas, sus paquetes activos y quién ya tiene
+// valoración, en tres consultas totales (antes eran ~5 por alumna).
+async function cargarResumenAlumnas(supabase) {
+  const [todas, paquetes, idsValoradas] = await Promise.all([
+    listarAlumnas(supabase),
+    listarPaquetesActivos(supabase),
+    listarAlumnaIdsConValoracion(supabase),
+  ]);
+  const paquetePorAlumna = new Map();
+  paquetes.forEach((p) => {
+    // Vienen ordenados por fecha_pago desc: el primero de cada alumna es el vigente.
+    if (!paquetePorAlumna.has(p.alumna_id)) paquetePorAlumna.set(p.alumna_id, p);
+  });
+  return {
+    alumnas: todas.filter((a) => !a.es_admin),
+    paquetePorAlumna,
+    conValoracion: new Set(idsValoradas),
+  };
+}
+
+async function renderHoy(supabase, resumen) {
+  const [clases, datos] = await Promise.all([
+    listarClasesDeHoy(supabase),
+    resumen ?? cargarResumenAlumnas(supabase),
+  ]);
   const contLista = document.getElementById('d-hoy-lista');
   const contPend = document.getElementById('d-hoy-pendientes');
 
-  if (!clase) {
-    contLista.innerHTML = `<div class="card"><b style="color:var(--text-title)">Hoy no hay clase</b></div>`;
+  if (clases.length === 0) {
+    contLista.innerHTML = '<div class="card"><b style="color:var(--text-title)">Hoy no hay clase</b></div>';
   } else {
-    const reservas = await listarReservasDeClase(supabase, clase.id);
-    contLista.innerHTML = `
-      <div class="card">
-        <div class="row" style="margin-bottom:4px"><b style="color:var(--text-title)">Pasar lista</b><span class="badge">${reservas.filter((r) => r.asistencia?.confirmada_admin).length} de ${reservas.length}</span></div>
-        ${reservas.length === 0 ? '<div class="muted">Nadie ha apartado lugar todavía</div>' : reservas.map((r) => {
-          const badge = estadoAsistenciaBadge(r.asistencia);
-          const accion = badge === 'confirmada'
-            ? '<span class="badge ok">Confirmada</span>'
-            : `<button class="pillbtn valida" data-alumna-id="${r.alumnaId}" data-clase-id="${clase.id}" style="padding:7px 16px;min-height:36px;font-size:13px">Confirmar</button>`;
-          return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${inicialAvatar(r.nombre)}</span>${r.nombre}${badge === 'sin_checkin' ? ' <span class="badge warn">Sin check-in</span>' : ''}</div>${accion}</div>`;
-        }).join('')}
-      </div>`;
+    const listas = await Promise.all(clases.map((c) => listarReservasDeClase(supabase, c.id)));
+    contLista.innerHTML = clases.map((clase, i) => tarjetaPasarLista(clase, listas[i])).join('');
     contLista.querySelectorAll('.valida').forEach((btn) => {
       btn.addEventListener('click', async () => {
         btn.disabled = true;
-        await confirmarAsistencia(supabase, btn.dataset.alumnaId, Number(btn.dataset.claseId));
-        await renderHoy(supabase);
+        try {
+          await confirmarAsistencia(supabase, btn.dataset.alumnaId, Number(btn.dataset.claseId));
+          await renderHoy(supabase);
+        } catch (err) {
+          btn.disabled = false;
+          mostrarErrorCerca(btn.closest('.dato') ?? btn, `No se pudo confirmar: ${err.message}`);
+        }
       });
     });
   }
 
-  const alumnas = await listarAlumnas(supabase);
   const hoy = hoyISO();
   let pagosPorRecibir = 0;
   let paquetesPorVencer = 0;
   let valoracionesPendientes = 0;
-  await Promise.all(alumnas.filter((a) => !a.es_admin).map(async (a) => {
-    const ficha = await obtenerFichaAlumna(supabase, a.id);
-    const estado = estadoPaquete(ficha.paquete, hoy);
-    if (estado !== 'al_dia') pagosPorRecibir += 1;
-    if (paqueteVenceEnDias(ficha.paquete, hoy)) paquetesPorVencer += 1;
-    if (!tieneValoraciones(ficha.valoraciones)) valoracionesPendientes += 1;
-  }));
+  datos.alumnas.forEach((a) => {
+    const paquete = datos.paquetePorAlumna.get(a.id) ?? null;
+    if (estadoPaquete(paquete, hoy) !== 'al_dia') pagosPorRecibir += 1;
+    if (paqueteVenceEnDias(paquete, hoy)) paquetesPorVencer += 1;
+    if (!datos.conValoracion.has(a.id)) valoracionesPendientes += 1;
+  });
   contPend.innerHTML = `
     <div class="card">
       <b style="color:var(--text-title)">Pendientes de la semana</b>
@@ -92,23 +109,38 @@ async function renderHoy(supabase) {
     </div>`;
 }
 
-async function renderAlumnas(supabase) {
-  const alumnas = (await listarAlumnas(supabase)).filter((a) => !a.es_admin);
+function tarjetaPasarLista(clase, reservas) {
+  const confirmadas = reservas.filter((r) => r.asistencia?.confirmada_admin).length;
+  return `
+    <div class="card">
+      <div class="row" style="margin-bottom:4px"><b style="color:var(--text-title)">Pasar lista · ${escaparHTML(formatHora12(clase.horarios.hora))}</b><span class="badge">${confirmadas} de ${reservas.length}</span></div>
+      ${reservas.length === 0 ? '<div class="muted">Nadie ha apartado lugar todavía</div>' : reservas.map((r) => {
+        const badge = estadoAsistenciaBadge(r.asistencia);
+        const accion = badge === 'confirmada'
+          ? '<span class="badge ok">Confirmada</span>'
+          : `<button class="pillbtn valida" data-alumna-id="${escaparHTML(r.alumnaId)}" data-clase-id="${escaparHTML(clase.id)}" style="padding:7px 16px;min-height:36px;font-size:13px">Confirmar</button>`;
+        return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${escaparHTML(inicialAvatar(r.nombre))}</span>${escaparHTML(r.nombre)}${badge === 'sin_checkin' ? ' <span class="badge warn">Sin check-in</span>' : ''}</div>${accion}</div>`;
+      }).join('')}
+    </div>`;
+}
+
+async function renderAlumnas(supabase, resumen) {
+  const datos = resumen ?? await cargarResumenAlumnas(supabase);
   const hoy = hoyISO();
   const cont = document.getElementById('d-alumnas-lista');
-  const filas = await Promise.all(alumnas.map(async (a) => {
-    const paquete = await obtenerPaqueteActivo(supabase, a.id);
+  const filas = datos.alumnas.map((a) => {
+    const paquete = datos.paquetePorAlumna.get(a.id) ?? null;
     const estado = estadoPaquete(paquete, hoy);
     const badgeTexto = estado === 'al_dia' ? 'Al día' : estado === 'por_pagar' ? 'Por pagar' : 'Nueva';
     const badgeClase = estado === 'al_dia' ? 'ok' : estado === 'por_pagar' ? 'err' : 'warn';
-    const progreso = paquete ? `${paquete.clases_usadas} de ${paquete.clases_totales} clases` : 'Sin paquete activo';
+    const progreso = paquete ? `${escaparHTML(paquete.clases_usadas)} de ${escaparHTML(paquete.clases_totales)} clases` : 'Sin paquete activo';
     return `
-      <div class="card row alumna-fila" data-alumna-id="${a.id}" style="cursor:pointer">
-        <span class="avatar">${inicialAvatar(a.nombre)}</span>
-        <div style="flex:1"><b style="color:var(--text-title)">${a.nombre}</b><div class="muted">${progreso}</div></div>
+      <div class="card row alumna-fila" data-alumna-id="${escaparHTML(a.id)}" style="cursor:pointer">
+        <span class="avatar">${escaparHTML(inicialAvatar(a.nombre))}</span>
+        <div style="flex:1"><b style="color:var(--text-title)">${escaparHTML(a.nombre)}</b><div class="muted">${progreso}</div></div>
         <span class="badge ${badgeClase}">${badgeTexto}</span>
       </div>`;
-  }));
+  });
   cont.innerHTML = filas.join('') || '<div class="muted">Aún no tienes alumnas registradas</div>';
   cont.querySelectorAll('.alumna-fila').forEach((fila) => {
     fila.addEventListener('click', () => {
@@ -123,16 +155,16 @@ async function renderFicha(supabase, alumnaId) {
   const estado = estadoPaquete(paquete, hoyISO());
   const cont = document.getElementById('d-ficha');
   cont.innerHTML = `
-    <h1>${alumna.nombre}</h1>
-    <div class="muted">Alumna desde ${formatFechaCompleta(alumna.fecha_alta)}</div>
+    <h1>${escaparHTML(alumna.nombre)}</h1>
+    <div class="muted">Alumna desde ${escaparHTML(formatFechaCompleta(alumna.fecha_alta))}</div>
 
     <div class="card">
       <div class="row"><b style="color:var(--text-title)">Paquete</b><button class="pillbtn soft" id="btn-activar-paquete" style="padding:7px 16px;min-height:36px;font-size:13px">Activar mes</button></div>
       ${estado === 'sin_paquete'
         ? '<div class="muted" style="margin-top:8px">Sin paquete activo</div>'
-        : `<div class="dato"><span>Clases restantes</span><b>${paquete.clases_totales - paquete.clases_usadas} de ${paquete.clases_totales}</b></div>
-           <div class="dato"><span>Último pago</span><b>${paquete.monto ? `$${paquete.monto} · ` : ''}${paquete.forma_pago ?? ''} · ${paquete.fecha_pago ? formatDiaMesConDia(paquete.fecha_pago) : '—'}</b></div>
-           <div class="dato"><span>Siguiente pago</span><b>${paquete.vence ? formatDiaMesConDia(paquete.vence) : '—'}</b></div>`}
+        : `<div class="dato"><span>Clases restantes</span><b>${escaparHTML(paquete.clases_totales - paquete.clases_usadas)} de ${escaparHTML(paquete.clases_totales)}</b></div>
+           <div class="dato"><span>Último pago</span><b>${paquete.monto ? `$${escaparHTML(paquete.monto)} · ` : ''}${escaparHTML(paquete.forma_pago ?? '')} · ${paquete.fecha_pago ? escaparHTML(formatDiaMesConDia(paquete.fecha_pago)) : '—'}</b></div>
+           <div class="dato"><span>Siguiente pago</span><b>${paquete.vence ? escaparHTML(formatDiaMesConDia(paquete.vence)) : '—'}</b></div>`}
     </div>
 
     <div class="card">
@@ -147,7 +179,7 @@ async function renderFicha(supabase, alumnaId) {
         const badge = estadoAsistenciaBadge({ checkin_alumna: a.checkinAlumna, confirmada_admin: a.confirmadaAdmin });
         const texto = badge === 'confirmada' ? 'Confirmada' : badge === 'pendiente' ? 'Pendiente' : 'Sin check-in';
         const clase = badge === 'confirmada' ? 'ok' : badge === 'pendiente' ? 'warn' : '';
-        return `<div class="dato"><span>${formatDiaMesConDia(a.fecha)} · ${formatHora12(a.hora)}</span><span class="badge ${clase}">${texto}</span></div>`;
+        return `<div class="dato"><span>${escaparHTML(formatDiaMesConDia(a.fecha))} · ${escaparHTML(formatHora12(a.hora))}</span><span class="badge ${clase}">${texto}</span></div>`;
       }).join('') || '<div class="muted">Sin asistencias todavía</div>'}
     </div>`;
 
@@ -164,16 +196,16 @@ async function renderFicha(supabase, alumnaId) {
 function renderValoracion(v, index, nombreAlumna) {
   const esReciente = index === 0;
   const filas = CAMPOS_VALORACION.filter((c) => c.key !== 'observaciones')
-    .map((c) => `<div class="dato"><span>${c.label}</span><b>${v[c.key] ?? '—'}</b></div>`).join('');
+    .map((c) => `<div class="dato"><span>${c.label}</span><b>${v[c.key] === null || v[c.key] === undefined ? '—' : escaparHTML(v[c.key])}</b></div>`).join('');
   return `
     <div style="border:2px solid var(--border-soft);border-radius:var(--radius-md);overflow:hidden;margin-bottom:10px">
       <button class="acc" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--pf-lila-fondo);border:none;padding:12px 14px;cursor:pointer;font:var(--text-body-strong);font-size:14px;color:var(--text-title);text-align:left;min-height:44px">
-        Valoración ${v.numero} · ${formatFechaCompleta(v.fecha)}<span class="badge ${esReciente ? 'ok' : ''}">${esReciente ? 'Reciente' : 'Ver'}</span>
+        Valoración ${escaparHTML(v.numero)} · ${escaparHTML(formatFechaCompleta(v.fecha))}<span class="badge ${esReciente ? 'ok' : ''}">${esReciente ? 'Reciente' : 'Ver'}</span>
       </button>
       <div class="acc-body" style="display:none;padding:4px 14px 12px">
-        <div class="dato"><span>Nombre</span><b>${nombreAlumna}</b></div>
+        <div class="dato"><span>Nombre</span><b>${escaparHTML(nombreAlumna)}</b></div>
         ${filas}
-        <div class="dato" style="display:block"><span>Observaciones</span><div style="margin-top:4px;color:var(--text-body)">${v.observaciones ?? '—'}</div></div>
+        <div class="dato" style="display:block"><span>Observaciones</span><div style="margin-top:4px;color:var(--text-body)">${v.observaciones ? escaparHTML(v.observaciones) : '—'}</div></div>
       </div>
     </div>`;
 }
@@ -198,15 +230,22 @@ function abrirDialogValoracion(supabase, alumnaId, valoraciones) {
   document.getElementById('btn-cancelar-valoracion').addEventListener('click', () => dialog.close());
   document.getElementById('form-valoracion').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
     const formData = new FormData(e.target);
     const campos = { fecha: formData.get('fecha') };
     CAMPOS_VALORACION.forEach((c) => {
       const valor = formData.get(c.key);
       campos[c.key] = c.type === 'number' ? (valor === '' ? null : Number(valor)) : (valor || null);
     });
-    await crearValoracion(supabase, alumnaId, campos, numero);
-    dialog.close();
-    await renderFicha(supabase, alumnaId);
+    try {
+      await crearValoracion(supabase, alumnaId, campos, numero);
+      dialog.close();
+      await renderFicha(supabase, alumnaId);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo guardar la valoración: ${err.message}`);
+    }
   });
   dialog.showModal();
 }
@@ -239,17 +278,25 @@ function abrirDialogPaquete(supabase, alumnaId) {
   document.getElementById('btn-cancelar-paquete').addEventListener('click', () => dialog.close());
   document.getElementById('form-paquete').addEventListener('submit', async (e) => {
     e.preventDefault();
+    // Deshabilitar antes del await evita que un doble click cree dos paquetes activos.
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
     const formData = new FormData(e.target);
-    await activarPaquete(supabase, alumnaId, {
-      tipo: formData.get('tipo'),
-      clasesTotales: Number(formData.get('clasesTotales')),
-      monto: Number(formData.get('monto')),
-      formaPago: formData.get('formaPago'),
-      fechaPago: formData.get('fechaPago'),
-      vence: formData.get('vence'),
-    });
-    dialog.close();
-    await renderFicha(supabase, alumnaId);
+    try {
+      await activarPaquete(supabase, alumnaId, {
+        tipo: formData.get('tipo'),
+        clasesTotales: Number(formData.get('clasesTotales')),
+        monto: Number(formData.get('monto')),
+        formaPago: formData.get('formaPago'),
+        fechaPago: formData.get('fechaPago'),
+        vence: formData.get('vence'),
+      });
+      dialog.close();
+      await renderFicha(supabase, alumnaId);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo activar el paquete: ${err.message}`);
+    }
   });
   dialog.showModal();
 }
@@ -261,20 +308,8 @@ async function renderClasesAdmin(supabase) {
     const estado = estadoClase(c.cupo, c.reservasCount);
     return `
       <div class="card">
-        <div class="row"><b style="color:var(--text-title)">${formatDiaMesConDia(c.fecha)} ${formatHora12(c.horarios.hora)}</b><span class="badge ${estado === 'llena' ? 'err' : ''}">${estado === 'llena' ? 'Llena' : `${c.reservasCount} de ${c.cupo}`}</span></div>
+        <div class="row"><b style="color:var(--text-title)">${escaparHTML(formatDiaMesConDia(c.fecha))} ${escaparHTML(formatHora12(c.horarios.hora))}</b><span class="badge ${estado === 'llena' ? 'err' : ''}">${estado === 'llena' ? 'Llena' : `${escaparHTML(c.reservasCount)} de ${escaparHTML(c.cupo)}`}</span></div>
         <div class="cupos">${puntos}</div>
       </div>`;
   }).join('') || '<div class="muted">No hay clases próximas todavía</div>';
-}
-
-function wireTabsAdmin() {
-  const pantalla = document.getElementById('pantalla-admin');
-  pantalla.querySelectorAll('.tab').forEach((t) => {
-    t.addEventListener('click', () => {
-      pantalla.querySelectorAll('.tab').forEach((x) => x.classList.remove('on'));
-      pantalla.querySelectorAll('.screen').forEach((x) => x.classList.remove('active'));
-      t.classList.add('on');
-      pantalla.querySelector(`#${t.dataset.s}`).classList.add('active');
-    });
-  });
 }

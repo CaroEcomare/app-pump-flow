@@ -37,3 +37,51 @@ end;
 $$;
 
 grant execute on function generar_clases() to authenticated;
+
+-- ============================================
+-- Seguridad: que una alumna no pueda hacerse administradora
+-- ============================================
+-- La policy "alumna edita su perfil" deja que cada quien edite SU fila,
+-- pero no dice QUÉ columnas puede tocar: desde las herramientas del
+-- navegador, cualquier alumna podría ponerse es_admin = true.
+-- Con esto, la única actualización posible desde la app es a su nombre
+-- y su teléfono. (La app nunca actualiza "alumnas" desde el cliente, así
+-- que esto no rompe nada. Tú, desde el panel de Supabase, sigues pudiendo
+-- editar todo con normalidad.)
+revoke update on alumnas from authenticated;
+grant update (nombre, telefono) on alumnas to authenticated;
+
+-- ============================================
+-- Descontar la clase también cuando tú confirmas sin check-in previo
+-- ============================================
+-- El trigger que ya existe ("trg_descuenta") solo corre al ACTUALIZAR una
+-- asistencia. Cuando confirmas a una alumna que nunca hizo check-in, se
+-- CREA la fila, así que la clase nunca se descontaba de su paquete.
+-- Aquí actualizamos la función para que sirva en los dos casos y
+-- agregamos el trigger que faltaba, el de creación.
+create or replace function descuenta_clase()
+returns trigger language plpgsql as $$
+declare
+  antes_sin_confirmar boolean;
+begin
+  -- Ojo: "old" no existe cuando la fila apenas se está creando,
+  -- por eso se consulta solo en el caso de actualización.
+  if tg_op = 'INSERT' then
+    antes_sin_confirmar := true;
+  else
+    antes_sin_confirmar := old.confirmada_admin is null;
+  end if;
+
+  if new.confirmada_admin is not null and antes_sin_confirmar then
+    update paquetes set clases_usadas = clases_usadas + 1
+    where alumna_id = new.alumna_id and activo = true
+      and clases_usadas < clases_totales;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_descuenta_ins on asistencias;
+create trigger trg_descuenta_ins after insert on asistencias
+  for each row execute function descuenta_clase();
