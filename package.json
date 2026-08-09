@@ -1,0 +1,8 @@
+{
+  "name": "app-pump-flow",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test app/lib/*.test.js"
+  }
+}
