@@ -1,14 +1,14 @@
 import { hoyISO } from './lib/date-utils.js';
 
-export async function crearPerfilAlumna(supabase, { id, nombre, telefono }) {
-  const { error } = await supabase.from('alumnas').insert({ id, nombre, telefono });
+export async function crearPerfilAlumna(supabase, { id, nombre, telefono, plataforma }) {
+  const { error } = await supabase.from('alumnas').insert({ id, nombre, telefono, plataforma });
   if (error) throw error;
 }
 
 export async function obtenerPerfil(supabase, userId) {
   const { data, error } = await supabase
     .from('alumnas')
-    .select('id, nombre, telefono, es_admin, fecha_alta')
+    .select('id, nombre, telefono, es_admin, fecha_alta, plataforma')
     .eq('id', userId)
     .single();
   if (error) throw error;
@@ -18,7 +18,7 @@ export async function obtenerPerfil(supabase, userId) {
 export async function obtenerPerfilOpcional(supabase, userId) {
   const { data, error } = await supabase
     .from('alumnas')
-    .select('id, nombre, telefono, es_admin, fecha_alta')
+    .select('id, nombre, telefono, es_admin, fecha_alta, plataforma')
     .eq('id', userId)
     .maybeSingle();
   if (error) throw error;
@@ -102,7 +102,7 @@ export async function obtenerMisAsistencias(supabase, alumnaId) {
 export async function listarAlumnas(supabase) {
   const { data, error } = await supabase
     .from('alumnas')
-    .select('id, nombre, telefono, fecha_alta, es_admin')
+    .select('id, nombre, telefono, fecha_alta, es_admin, plataforma')
     .order('nombre', { ascending: true });
   if (error) throw error;
   return data;
@@ -142,7 +142,7 @@ export async function listarClasesDeHoy(supabase) {
 
 export async function listarReservasDeClase(supabase, claseId) {
   const [{ data: reservas, error: e1 }, { data: asistencias, error: e2 }] = await Promise.all([
-    supabase.from('reservas').select('id, alumna_id, alumnas(nombre)').eq('clase_id', claseId),
+    supabase.from('reservas').select('id, alumna_id, alumnas(nombre, plataforma)').eq('clase_id', claseId),
     supabase.from('asistencias').select('alumna_id, checkin_alumna, confirmada_admin').eq('clase_id', claseId),
   ]);
   if (e1) throw e1;
@@ -151,6 +151,7 @@ export async function listarReservasDeClase(supabase, claseId) {
   return reservas.map((r) => ({
     alumnaId: r.alumna_id,
     nombre: r.alumnas.nombre,
+    plataforma: r.alumnas.plataforma,
     asistencia: asistenciaPorAlumna.get(r.alumna_id) ?? null,
   }));
 }

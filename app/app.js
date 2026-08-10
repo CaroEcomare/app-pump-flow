@@ -83,6 +83,7 @@ document.getElementById('form-registro').addEventListener('submit', async (e) =>
       contrasena: document.getElementById('registro-contrasena').value,
       nombre: document.getElementById('registro-nombre').value,
       telefono: document.getElementById('registro-telefono').value,
+      plataforma: document.getElementById('registro-plataforma').value,
     });
     e.target.reset();
     exitoEl.style.display = 'block';

@@ -25,6 +25,13 @@
   <form id="form-registro" class="card" style="width:100%;max-width:340px;margin-top:16px;display:none">
     <label class="field"><span>Nombre</span><input class="input" type="text" id="registro-nombre" required></label>
     <label class="field"><span>Teléfono</span><input class="input" type="tel" id="registro-telefono"></label>
+    <label class="field"><span>¿Vienes de otra plataforma?</span>
+      <select class="input" id="registro-plataforma">
+        <option value="no">No</option>
+        <option value="wellhub">Wellhub</option>
+        <option value="totalpass">TotalPass</option>
+      </select>
+    </label>
     <label class="field"><span>Correo</span><input class="input" type="email" id="registro-correo" required></label>
     <label class="field"><span>Contraseña</span><input class="input" type="password" id="registro-contrasena" required minlength="6"></label>
     <div id="registro-error" class="badge err" style="display:none;margin-top:10px"></div>

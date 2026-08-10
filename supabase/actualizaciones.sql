@@ -85,3 +85,13 @@ $$;
 drop trigger if exists trg_descuenta_ins on asistencias;
 create trigger trg_descuenta_ins after insert on asistencias
   for each row execute function descuenta_clase();
+
+-- ============================================
+-- De dónde llega cada alumna (Wellhub, TotalPass, o directo)
+-- ============================================
+-- Guarda si viene de una plataforma externa, para tus reportes con
+-- Wellhub/TotalPass. No cambia el apartado de clases: cualquier alumna
+-- puede apartar su lugar sin importar esto ni si tiene paquete pagado,
+-- eso ya funcionaba así (tú decides en persona quién debe o no dinero).
+alter table alumnas add column if not exists plataforma text not null default 'no'
+  check (plataforma in ('no', 'wellhub', 'totalpass'));

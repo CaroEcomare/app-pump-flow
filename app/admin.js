@@ -108,6 +108,12 @@ async function renderHoy(supabase, resumen) {
     </div>`;
 }
 
+function etiquetaPlataforma(plataforma) {
+  if (plataforma === 'wellhub') return 'Wellhub';
+  if (plataforma === 'totalpass') return 'TotalPass';
+  return '';
+}
+
 function tarjetaPasarLista(clase, reservas, etiqueta) {
   const confirmadas = reservas.filter((r) => r.asistencia?.confirmada_admin).length;
   const titulo = etiqueta ?? `Pasar lista · ${formatHora12(clase.horarios.hora)}`;
@@ -119,7 +125,8 @@ function tarjetaPasarLista(clase, reservas, etiqueta) {
         const accion = badge === 'confirmada'
           ? '<span class="badge ok">Confirmada</span>'
           : `<button class="pillbtn valida" data-alumna-id="${escaparHTML(r.alumnaId)}" data-clase-id="${escaparHTML(clase.id)}" style="padding:7px 16px;min-height:36px;font-size:13px">Confirmar</button>`;
-        return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${escaparHTML(inicialAvatar(r.nombre))}</span>${escaparHTML(r.nombre)}${badge === 'sin_checkin' ? ' <span class="badge warn">Sin check-in</span>' : ''}</div>${accion}</div>`;
+        const etiquetaOrigen = etiquetaPlataforma(r.plataforma);
+        return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${escaparHTML(inicialAvatar(r.nombre))}</span>${escaparHTML(r.nombre)}${etiquetaOrigen ? ` <span class="badge">${escaparHTML(etiquetaOrigen)}</span>` : ''}${badge === 'sin_checkin' ? ' <span class="badge warn">Sin check-in</span>' : ''}</div>${accion}</div>`;
       }).join('')}
     </div>`;
 }
@@ -134,10 +141,11 @@ async function renderAlumnas(supabase, resumen) {
     const badgeTexto = estado === 'al_dia' ? 'Al día' : estado === 'por_pagar' ? 'Por pagar' : 'Nueva';
     const badgeClase = estado === 'al_dia' ? 'ok' : estado === 'por_pagar' ? 'err' : 'warn';
     const progreso = paquete ? `${escaparHTML(paquete.clases_usadas)} de ${escaparHTML(paquete.clases_totales)} clases` : 'Sin paquete activo';
+    const etiquetaOrigen = etiquetaPlataforma(a.plataforma);
     return `
       <div class="card row alumna-fila" data-alumna-id="${escaparHTML(a.id)}" style="cursor:pointer">
         <span class="avatar">${escaparHTML(inicialAvatar(a.nombre))}</span>
-        <div style="flex:1"><b style="color:var(--text-title)">${escaparHTML(a.nombre)}</b><div class="muted">${progreso}</div></div>
+        <div style="flex:1"><b style="color:var(--text-title)">${escaparHTML(a.nombre)}</b>${etiquetaOrigen ? ` <span class="badge">${escaparHTML(etiquetaOrigen)}</span>` : ''}<div class="muted">${progreso}</div></div>
         <span class="badge ${badgeClase}">${badgeTexto}</span>
       </div>`;
   });
@@ -154,8 +162,9 @@ async function renderFicha(supabase, alumnaId) {
   const { alumna, paquete, valoraciones, asistencias } = await obtenerFichaAlumna(supabase, alumnaId);
   const estado = estadoPaquete(paquete, hoyISO());
   const cont = document.getElementById('d-ficha');
+  const etiquetaOrigen = etiquetaPlataforma(alumna.plataforma);
   cont.innerHTML = `
-    <h1>${escaparHTML(alumna.nombre)}</h1>
+    <h1>${escaparHTML(alumna.nombre)}${etiquetaOrigen ? ` <span class="badge">${escaparHTML(etiquetaOrigen)}</span>` : ''}</h1>
     <div class="muted">Alumna desde ${escaparHTML(formatFechaCompleta(alumna.fecha_alta))}</div>
 
     <div class="card">
@@ -257,12 +266,12 @@ function abrirDialogPaquete(supabase, alumnaId) {
     <h1 style="font:var(--text-h3)">Activar mes</h1>
     <form id="form-paquete">
       <label class="field"><span>Tipo</span>
-        <select class="input" name="tipo">
-          <option value="mensualidad">Mensualidad</option>
-          <option value="introduccion">Introducción</option>
+        <select class="input" name="tipo" id="paquete-tipo">
+          <option value="grupal">Grupal (8 clases)</option>
+          <option value="personal">Personal (10 clases)</option>
         </select>
       </label>
-      <label class="field"><span>Clases totales</span><input class="input" type="number" name="clasesTotales" value="8" required></label>
+      <label class="field"><span>Clases totales</span><input class="input" type="number" name="clasesTotales" id="paquete-clases-totales" value="8" required></label>
       <label class="field"><span>Monto</span><input class="input" type="number" name="monto" step="0.01" required></label>
       <label class="field"><span>Forma de pago</span>
         <select class="input" name="formaPago">
@@ -276,6 +285,9 @@ function abrirDialogPaquete(supabase, alumnaId) {
       <button class="link-suave" type="button" id="btn-cancelar-paquete" style="width:100%;text-align:center">Cancelar</button>
     </form>`;
   document.getElementById('btn-cancelar-paquete').addEventListener('click', () => dialog.close());
+  document.getElementById('paquete-tipo').addEventListener('change', (e) => {
+    document.getElementById('paquete-clases-totales').value = e.target.value === 'personal' ? 10 : 8;
+  });
   document.getElementById('form-paquete').addEventListener('submit', async (e) => {
     e.preventDefault();
     // Deshabilitar antes del await evita que un doble click cree dos paquetes activos.

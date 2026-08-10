@@ -1,11 +1,11 @@
 import { supabase } from './supabase-client.js';
 import { crearPerfilAlumna, obtenerPerfil, obtenerPerfilOpcional } from './data.js';
 
-export async function registrar({ correo, contrasena, nombre, telefono }) {
+export async function registrar({ correo, contrasena, nombre, telefono, plataforma }) {
   const { data, error } = await supabase.auth.signUp({
     email: correo,
     password: contrasena,
-    options: { data: { nombre, telefono } },
+    options: { data: { nombre, telefono, plataforma } },
   });
   if (error) throw error;
   return data;
@@ -35,6 +35,7 @@ export async function asegurarPerfil(user) {
       id: user.id,
       nombre: user.user_metadata?.nombre ?? '',
       telefono: user.user_metadata?.telefono ?? '',
+      plataforma: user.user_metadata?.plataforma ?? 'no',
     });
     perfil = await obtenerPerfil(supabase, user.id);
   }
