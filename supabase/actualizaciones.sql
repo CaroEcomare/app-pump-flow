@@ -132,6 +132,7 @@ begin
   join clases c on c.id = r.clase_id
   join horarios h on h.id = c.horario_id
   where (c.fecha + h.hora) < now()
+    and c.cancelada = false
     and not exists (
       select 1 from asistencias a
       where a.alumna_id = r.alumna_id and a.clase_id = r.clase_id
