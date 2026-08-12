@@ -1,5 +1,5 @@
 import { supabase } from './supabase-client.js';
-import { crearPerfilAlumna, obtenerPerfil, obtenerPerfilOpcional } from './data.js';
+import { crearPerfilAlumna, obtenerPerfil, obtenerPerfilOpcional, resolverCorreoPorUsuario } from './data.js';
 
 export async function registrar({ correo, contrasena, nombre, telefono, plataforma }) {
   const { data, error } = await supabase.auth.signUp({
@@ -15,6 +15,15 @@ export async function iniciarSesion({ correo, contrasena }) {
   const { data, error } = await supabase.auth.signInWithPassword({ email: correo, password: contrasena });
   if (error) throw error;
   return data;
+}
+
+export async function iniciarSesionConIdentificador({ identificador, contrasena }) {
+  let correo = identificador;
+  if (!identificador.includes('@')) {
+    correo = await resolverCorreoPorUsuario(supabase, identificador);
+    if (!correo) throw new Error('Usuario o contraseña incorrectos');
+  }
+  return iniciarSesion({ correo, contrasena });
 }
 
 export async function cerrarSesion() {
