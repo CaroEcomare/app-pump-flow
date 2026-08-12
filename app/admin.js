@@ -2,7 +2,9 @@ import {
   listarClasesDeHoy, listarReservasDeClase, confirmarAsistencia,
   listarAlumnas, obtenerFichaAlumna, activarPaquete, crearValoracion,
   listarClasesProximas, listarPaquetesActivos, listarAlumnaIdsConValoracion,
+  actualizarClasesUsadas, crearAlumnaManual,
 } from './data.js';
+import { crearClienteTemporal } from './supabase-client.js';
 import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
 import { escaparHTML } from './lib/escape.js';
 import { wireTabs, mostrarErrorCerca } from './ui.js';
@@ -35,11 +37,57 @@ const CAMPOS_VALORACION = [
 export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
   wireTabs('pantalla-admin');
   document.getElementById('d-hoy').querySelector('.btn-logout')?.addEventListener('click', onCerrarSesion);
+  document.getElementById('btn-nueva-alumna-manual')?.addEventListener('click', () => abrirDialogAlumnaManual(supabase));
 
   // Un solo bloque de consultas para las dos pantallas que lo necesitan.
   const resumen = await cargarResumenAlumnas(supabase);
   await Promise.all([renderHoy(supabase, resumen), renderAlumnas(supabase, resumen), renderClasesAdmin(supabase)]);
-  document.getElementById('d-ficha').innerHTML = '<h1>Ficha</h1><div class="muted">Elige una alumna en la pestaña "Alumnas".</div>';
+  document.getElementById('d-ficha').innerHTML = '<h1>Ficha</h1><div class="muted">Elige a alguien en la pestaña "Alumnado".</div>';
+}
+
+function abrirDialogAlumnaManual(supabase) {
+  const dialog = document.getElementById('dialog-alumna-manual');
+  const body = document.getElementById('dialog-alumna-manual-body');
+  body.innerHTML = `
+    <h1 style="font:var(--text-h3)">Nueva cuenta manual</h1>
+    <form id="form-alumna-manual">
+      <label class="field"><span>Nombre</span><input class="input" type="text" name="nombre" required></label>
+      <label class="field"><span>Usuario</span><input class="input" type="text" name="username" required pattern="[a-zA-Z0-9_.]+" title="Solo letras, números, puntos y guiones bajos, sin espacios"></label>
+      <label class="field"><span>Contraseña</span><input class="input" type="password" name="contrasena" required minlength="6"></label>
+      <label class="field"><span>Teléfono</span><input class="input" type="tel" name="telefono"></label>
+      <label class="field"><span>¿Viene de otra plataforma?</span>
+        <select class="input" name="plataforma">
+          <option value="no">No</option>
+          <option value="wellhub">Wellhub</option>
+          <option value="totalpass">TotalPass</option>
+        </select>
+      </label>
+      <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">Crear cuenta</button>
+      <button class="link-suave" type="button" id="btn-cancelar-alumna-manual" style="width:100%;text-align:center">Cancelar</button>
+    </form>`;
+  document.getElementById('btn-cancelar-alumna-manual').addEventListener('click', () => dialog.close());
+  document.getElementById('form-alumna-manual').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
+    const formData = new FormData(e.target);
+    try {
+      const clienteTemporal = crearClienteTemporal();
+      await crearAlumnaManual(clienteTemporal, {
+        nombre: formData.get('nombre'),
+        username: formData.get('username'),
+        contrasena: formData.get('contrasena'),
+        telefono: formData.get('telefono'),
+        plataforma: formData.get('plataforma'),
+      });
+      dialog.close();
+      await renderAlumnas(supabase);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo crear la cuenta: ${err.message}`);
+    }
+  });
+  dialog.showModal();
 }
 
 // Trae de una sola vez las alumnas, sus paquetes activos y quién ya tiene
@@ -102,9 +150,9 @@ async function renderHoy(supabase, resumen) {
   contPend.innerHTML = `
     <div class="card">
       <b style="color:var(--text-title)">Pendientes de la semana</b>
-      <div class="dato"><span>Pagos por recibir</span><b>${pagosPorRecibir} alumna${pagosPorRecibir === 1 ? '' : 's'}</b></div>
-      <div class="dato"><span>Paquetes por vencer</span><b>${paquetesPorVencer} alumna${paquetesPorVencer === 1 ? '' : 's'}</b></div>
-      <div class="dato"><span>Valoraciones pendientes</span><b>${valoracionesPendientes} alumna${valoracionesPendientes === 1 ? '' : 's'}</b></div>
+      <div class="dato"><span>Pagos por recibir</span><b>${pagosPorRecibir} persona${pagosPorRecibir === 1 ? '' : 's'}</b></div>
+      <div class="dato"><span>Paquetes por vencer</span><b>${paquetesPorVencer} persona${paquetesPorVencer === 1 ? '' : 's'}</b></div>
+      <div class="dato"><span>Valoraciones pendientes</span><b>${valoracionesPendientes} persona${valoracionesPendientes === 1 ? '' : 's'}</b></div>
     </div>`;
 }
 
@@ -126,7 +174,7 @@ function tarjetaPasarLista(clase, reservas, etiqueta) {
           ? '<span class="badge ok">Confirmada</span>'
           : `<button class="pillbtn valida" data-alumna-id="${escaparHTML(r.alumnaId)}" data-clase-id="${escaparHTML(clase.id)}" style="padding:7px 16px;min-height:36px;font-size:13px">Confirmar</button>`;
         const etiquetaOrigen = etiquetaPlataforma(r.plataforma);
-        return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${escaparHTML(inicialAvatar(r.nombre))}</span>${escaparHTML(r.nombre)}${etiquetaOrigen ? ` <span class="badge">${escaparHTML(etiquetaOrigen)}</span>` : ''}${badge === 'sin_checkin' ? ' <span class="badge warn">Sin check-in</span>' : ''}</div>${accion}</div>`;
+        return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${escaparHTML(inicialAvatar(r.nombre))}</span>${escaparHTML(r.nombre)}${etiquetaOrigen ? ` <span class="badge">${escaparHTML(etiquetaOrigen)}</span>` : ''}</div>${accion}</div>`;
       }).join('')}
     </div>`;
 }
@@ -149,7 +197,7 @@ async function renderAlumnas(supabase, resumen) {
         <span class="badge ${badgeClase}">${badgeTexto}</span>
       </div>`;
   });
-  cont.innerHTML = filas.join('') || '<div class="muted">Aún no tienes alumnas registradas</div>';
+  cont.innerHTML = filas.join('') || '<div class="muted">Aún no tienes alumnado registrado</div>';
   cont.querySelectorAll('.alumna-fila').forEach((fila) => {
     fila.addEventListener('click', () => {
       renderFicha(supabase, fila.dataset.alumnaId);
@@ -165,7 +213,7 @@ async function renderFicha(supabase, alumnaId) {
   const etiquetaOrigen = etiquetaPlataforma(alumna.plataforma);
   cont.innerHTML = `
     <h1>${escaparHTML(alumna.nombre)}${etiquetaOrigen ? ` <span class="badge">${escaparHTML(etiquetaOrigen)}</span>` : ''}</h1>
-    <div class="muted">Alumna desde ${escaparHTML(formatFechaCompleta(alumna.fecha_alta))}</div>
+    <div class="muted">En Pump&Flow desde ${escaparHTML(formatFechaCompleta(alumna.fecha_alta))}</div>
 
     <div class="card">
       <div class="row"><b style="color:var(--text-title)">Paquete</b><button class="pillbtn soft" id="btn-activar-paquete" style="padding:7px 16px;min-height:36px;font-size:13px">Activar mes</button></div>
@@ -173,7 +221,11 @@ async function renderFicha(supabase, alumnaId) {
         ? '<div class="muted" style="margin-top:8px">Sin paquete activo</div>'
         : `<div class="dato"><span>Clases restantes</span><b>${escaparHTML(paquete.clases_totales - paquete.clases_usadas)} de ${escaparHTML(paquete.clases_totales)}</b></div>
            <div class="dato"><span>Último pago</span><b>${paquete.monto ? `$${escaparHTML(paquete.monto)} · ` : ''}${escaparHTML(paquete.forma_pago ?? '')} · ${paquete.fecha_pago ? escaparHTML(formatDiaMesConDia(paquete.fecha_pago)) : '—'}</b></div>
-           <div class="dato"><span>Siguiente pago</span><b>${paquete.vence ? escaparHTML(formatDiaMesConDia(paquete.vence)) : '—'}</b></div>`}
+           <div class="dato"><span>Siguiente pago</span><b>${paquete.vence ? escaparHTML(formatDiaMesConDia(paquete.vence)) : '—'}</b></div>
+           <form id="form-clases-usadas" class="row" style="margin-top:10px;gap:8px">
+             <label class="field" style="flex:1;margin-top:0"><span>Clases usadas</span><input class="input" type="number" min="0" name="clasesUsadas" value="${escaparHTML(paquete.clases_usadas)}"></label>
+             <button class="pillbtn soft" type="submit" style="padding:7px 16px;min-height:36px;font-size:13px;align-self:flex-end">Guardar</button>
+           </form>`}
     </div>
 
     <div class="card">
@@ -185,9 +237,9 @@ async function renderFicha(supabase, alumnaId) {
     <div class="card">
       <b style="color:var(--text-title)">Asistencias recientes</b>
       ${asistencias.slice(0, 5).map((a) => {
-        const badge = estadoAsistenciaBadge({ checkin_alumna: a.checkinAlumna, confirmada_admin: a.confirmadaAdmin });
-        const texto = badge === 'confirmada' ? 'Confirmada' : badge === 'pendiente' ? 'Pendiente' : 'Sin check-in';
-        const clase = badge === 'confirmada' ? 'ok' : badge === 'pendiente' ? 'warn' : '';
+        const badge = estadoAsistenciaBadge({ confirmada_admin: a.confirmadaAdmin });
+        const texto = badge === 'confirmada' ? 'Confirmada' : 'Pendiente';
+        const clase = badge === 'confirmada' ? 'ok' : 'warn';
         return `<div class="dato"><span>${escaparHTML(formatDiaMesConDia(a.fecha))} · ${escaparHTML(formatHora12(a.hora))}</span><span class="badge ${clase}">${texto}</span></div>`;
       }).join('') || '<div class="muted">Sin asistencias todavía</div>'}
     </div>`;
@@ -200,6 +252,21 @@ async function renderFicha(supabase, alumnaId) {
   });
   document.getElementById('btn-nueva-valoracion').addEventListener('click', () => abrirDialogValoracion(supabase, alumnaId, valoraciones));
   document.getElementById('btn-activar-paquete').addEventListener('click', () => abrirDialogPaquete(supabase, alumnaId));
+
+  const formClasesUsadas = document.getElementById('form-clases-usadas');
+  formClasesUsadas?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
+    const formData = new FormData(e.target);
+    try {
+      await actualizarClasesUsadas(supabase, paquete.id, Number(formData.get('clasesUsadas')));
+      await renderFicha(supabase, alumnaId);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo guardar: ${err.message}`);
+    }
+  });
 }
 
 function renderValoracion(v, index, nombreAlumna) {
