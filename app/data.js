@@ -1,14 +1,16 @@
 import { hoyISO } from './lib/date-utils.js';
 
-export async function crearPerfilAlumna(supabase, { id, nombre, telefono, plataforma }) {
-  const { error } = await supabase.from('alumnas').insert({ id, nombre, telefono, plataforma });
+export async function crearPerfilAlumna(supabase, { id, nombre, telefono, plataforma, username }) {
+  const { error } = await supabase
+    .from('alumnas')
+    .insert({ id, nombre, telefono, plataforma, username: username ?? null });
   if (error) throw error;
 }
 
 export async function obtenerPerfil(supabase, userId) {
   const { data, error } = await supabase
     .from('alumnas')
-    .select('id, nombre, telefono, es_admin, fecha_alta, plataforma')
+    .select('id, nombre, telefono, es_admin, fecha_alta, plataforma, username')
     .eq('id', userId)
     .single();
   if (error) throw error;
@@ -18,7 +20,7 @@ export async function obtenerPerfil(supabase, userId) {
 export async function obtenerPerfilOpcional(supabase, userId) {
   const { data, error } = await supabase
     .from('alumnas')
-    .select('id, nombre, telefono, es_admin, fecha_alta, plataforma')
+    .select('id, nombre, telefono, es_admin, fecha_alta, plataforma, username')
     .eq('id', userId)
     .maybeSingle();
   if (error) throw error;
@@ -54,18 +56,17 @@ export async function obtenerMisReservas(supabase, alumnaId) {
   }));
 }
 
-export async function hacerCheckin(supabase, alumnaId, claseId) {
-  const { error } = await supabase
-    .from('asistencias')
-    .upsert(
-      { alumna_id: alumnaId, clase_id: claseId, checkin_alumna: new Date().toISOString() },
-      { onConflict: 'alumna_id,clase_id' },
-    );
+export async function apartarLugar(supabase, alumnaId, claseId) {
+  const { error } = await supabase.from('reservas').insert({ alumna_id: alumnaId, clase_id: claseId });
   if (error) throw error;
 }
 
-export async function apartarLugar(supabase, alumnaId, claseId) {
-  const { error } = await supabase.from('reservas').insert({ alumna_id: alumnaId, clase_id: claseId });
+export async function cancelarReserva(supabase, alumnaId, claseId) {
+  const { error } = await supabase
+    .from('reservas')
+    .delete()
+    .eq('alumna_id', alumnaId)
+    .eq('clase_id', claseId);
   if (error) throw error;
 }
 
@@ -80,6 +81,11 @@ export async function obtenerPaqueteActivo(supabase, alumnaId) {
     .maybeSingle();
   if (error) throw error;
   return data;
+}
+
+export async function actualizarClasesUsadas(supabase, paqueteId, clasesUsadas) {
+  const { error } = await supabase.from('paquetes').update({ clases_usadas: clasesUsadas }).eq('id', paqueteId);
+  if (error) throw error;
 }
 
 export async function obtenerMisAsistencias(supabase, alumnaId) {
@@ -102,7 +108,7 @@ export async function obtenerMisAsistencias(supabase, alumnaId) {
 export async function listarAlumnas(supabase) {
   const { data, error } = await supabase
     .from('alumnas')
-    .select('id, nombre, telefono, fecha_alta, es_admin, plataforma')
+    .select('id, nombre, telefono, fecha_alta, es_admin, plataforma, username')
     .order('nombre', { ascending: true });
   if (error) throw error;
   return data;
@@ -214,4 +220,30 @@ export async function activarPaquete(supabase, alumnaId, { tipo, clasesTotales, 
 export async function generarClases(supabase) {
   const { error } = await supabase.rpc('generar_clases');
   if (error) throw error;
+}
+
+export async function procesarAsistenciasPasadas(supabase) {
+  const { error } = await supabase.rpc('procesar_asistencias_pasadas');
+  if (error) throw error;
+}
+
+export async function resolverCorreoPorUsuario(supabase, username) {
+  const { data, error } = await supabase.rpc('correo_de_usuario', { nombre_usuario: username });
+  if (error) throw error;
+  return data;
+}
+
+// clienteTemporal debe ser un cliente de Supabase creado con
+// { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+// (ver crearClienteTemporal en supabase-client.js), para no reemplazar la
+// sesión de quien está creando la cuenta (normalmente la administradora).
+export async function crearAlumnaManual(clienteTemporal, { nombre, username, contrasena, telefono, plataforma }) {
+  const correoInterno = `${username}@alumnado.pumpflow.app`;
+  const { data, error } = await clienteTemporal.auth.signUp({
+    email: correoInterno,
+    password: contrasena,
+    options: { data: { nombre, telefono, plataforma, username } },
+  });
+  if (error) throw error;
+  await crearPerfilAlumna(clienteTemporal, { id: data.user.id, nombre, telefono, plataforma, username });
 }
