@@ -45,6 +45,10 @@ export async function asegurarPerfil(user) {
       nombre: user.user_metadata?.nombre ?? '',
       telefono: user.user_metadata?.telefono ?? '',
       plataforma: user.user_metadata?.plataforma ?? 'no',
+      // Sin esto, una cuenta de alta manual cuyo perfil se tuviera que crear
+      // aquí (reintento) quedaría sin usuario y ya nunca podría entrar
+      // escribiendo su nombre de usuario.
+      username: user.user_metadata?.username ?? null,
     });
     perfil = await obtenerPerfil(supabase, user.id);
   }

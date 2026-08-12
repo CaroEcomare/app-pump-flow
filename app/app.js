@@ -86,6 +86,14 @@ document.getElementById('form-registro').addEventListener('submit', async (e) =>
       plataforma: document.getElementById('registro-plataforma').value,
     });
     e.target.reset();
+    // Normalmente la sesión llega lista y se entra directo. Solo viene vacía
+    // si en Supabase sigue encendida la confirmación por correo; en ese caso
+    // avisamos en vez de tronar al leer session.user.
+    if (!session) {
+      errorEl.textContent = 'Tu cuenta se creó. Revisa tu correo para confirmarla y luego inicia sesión.';
+      errorEl.style.display = 'block';
+      return;
+    }
     await entrarConSesion(session);
   } catch (err) {
     errorEl.textContent = err.message;

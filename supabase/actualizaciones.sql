@@ -7,6 +7,11 @@
 -- Permite que la administradora confirme la asistencia de una alumna
 -- aunque esa alumna nunca haya hecho su propio check-in (hoy solo la
 -- propia alumna puede crear su fila en "asistencias").
+-- (El "drop ... if exists" es solo para poder volver a correr este archivo
+-- completo las veces que haga falta: sin él, la segunda corrida se detiene
+-- aquí con "policy already exists" y ya no se aplica nada de lo de abajo.
+-- Se vuelve a crear igualita en la línea siguiente.)
+drop policy if exists "admin crea asistencia" on asistencias;
 create policy "admin crea asistencia" on asistencias
   for insert with check (es_admin());
 
@@ -142,3 +147,43 @@ end;
 $$;
 
 grant execute on function procesar_asistencias_pasadas() to authenticated;
+
+-- ============================================
+-- Corrección de zona horaria en el auto-descuento
+-- ============================================
+-- La versión de arriba comparaba (c.fecha + h.hora) —una fecha y hora SIN
+-- zona horaria— contra now(), que sí la trae. Postgres interpretaba la hora
+-- de la clase como UTC (lo que trae Supabase por default), no como hora de
+-- Michoacán (UTC-6), así que una clase de las 19:15 se daba por terminada
+-- desde las 13:15 hora local: se descontaba la clase a todo el mundo seis
+-- horas antes de que siquiera empezara, y en "Pasar lista" ya aparecían
+-- todas como confirmadas.
+-- Con "at time zone 'America/Mexico_City'" la fecha y hora de la clase se
+-- leen como hora de Michoacán antes de compararlas con now(). Es el único
+-- cambio respecto a la versión de arriba; "create or replace" la reemplaza
+-- sin necesidad de borrarla.
+create or replace function procesar_asistencias_pasadas()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  insert into asistencias (alumna_id, clase_id, confirmada_admin)
+  select r.alumna_id, r.clase_id, now()
+  from reservas r
+  join clases c on c.id = r.clase_id
+  join horarios h on h.id = c.horario_id
+  where ((c.fecha + h.hora) at time zone 'America/Mexico_City') < now()
+    and c.cancelada = false
+    and not exists (
+      select 1 from asistencias a
+      where a.alumna_id = r.alumna_id and a.clase_id = r.clase_id
+    )
+  on conflict (alumna_id, clase_id) do nothing;
+end;
+$$;
+
+-- El check-in de la alumna ya no existe en la app: nadie más que la admin
+-- (y la función automática de aquí arriba) debe poder escribir en
+-- "asistencias". Si se deja viva la política original, cualquier alumna
+-- podría crear a mano su propia fila de asistencia sin confirmar y, como
+-- procesar_asistencias_pasadas() se salta las que ya tienen fila, evitaría
+-- que se le descontara la clase.
+drop policy if exists "alumna hace checkin" on asistencias;

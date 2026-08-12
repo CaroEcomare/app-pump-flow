@@ -245,5 +245,11 @@ export async function crearAlumnaManual(clienteTemporal, { nombre, username, con
     options: { data: { nombre, telefono, plataforma, username } },
   });
   if (error) throw error;
+  // El perfil se crea con la sesión recién estrenada de la alumna; si Supabase
+  // todavía pide confirmación por correo, esa sesión no existe y la inserción
+  // fallaría por seguridad (RLS) con un error técnico. Mejor decirlo claro.
+  if (!data.session) {
+    throw new Error('Falta desactivar "Confirm email" en Supabase (Authentication → Providers → Email) antes de poder crear cuentas manuales.');
+  }
   await crearPerfilAlumna(clienteTemporal, { id: data.user.id, nombre, telefono, plataforma, username });
 }
