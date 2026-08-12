@@ -95,3 +95,49 @@ create trigger trg_descuenta_ins after insert on asistencias
 -- eso ya funcionaba así (tú decides en persona quién debe o no dinero).
 alter table alumnas add column if not exists plataforma text not null default 'no'
   check (plataforma in ('no', 'wellhub', 'totalpass'));
+
+-- ============================================
+-- Cuentas creadas por Caro con usuario y contraseña (sin correo real)
+-- ============================================
+-- Para alumnado que Caro da de alta ella misma, sin depender de que
+-- tengan o revisen un correo. El login acepta correo O usuario.
+alter table alumnas add column if not exists username text unique;
+
+-- Resuelve el correo interno asociado a un usuario, para poder iniciar
+-- sesión con nombre de usuario en vez de correo. Solo expone el correo
+-- de ESE usuario puntual, nada más de la tabla. Se ejecuta antes de
+-- iniciar sesión, por eso "anon" también necesita permiso.
+create or replace function correo_de_usuario(nombre_usuario text)
+returns text language sql security definer stable set search_path = public as $$
+  select email from auth.users where id = (
+    select id from alumnas where username = nombre_usuario
+  );
+$$;
+
+grant execute on function correo_de_usuario(text) to anon, authenticated;
+
+-- ============================================
+-- Auto-confirma asistencia de clases que ya pasaron y nadie resolvió
+-- ============================================
+-- Si nadie canceló su lugar y Caro no confirmó su asistencia, en cuanto
+-- la clase ya pasó de hora se cuenta como tomada (se descuenta igual el
+-- paquete, vía el trigger que ya existe, trg_descuenta_ins). Se llama
+-- sola cada vez que alguien abre la app, igual que generar_clases().
+create or replace function procesar_asistencias_pasadas()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  insert into asistencias (alumna_id, clase_id, confirmada_admin)
+  select r.alumna_id, r.clase_id, now()
+  from reservas r
+  join clases c on c.id = r.clase_id
+  join horarios h on h.id = c.horario_id
+  where (c.fecha + h.hora) < now()
+    and not exists (
+      select 1 from asistencias a
+      where a.alumna_id = r.alumna_id and a.clase_id = r.clase_id
+    )
+  on conflict (alumna_id, clase_id) do nothing;
+end;
+$$;
+
+grant execute on function procesar_asistencias_pasadas() to authenticated;
