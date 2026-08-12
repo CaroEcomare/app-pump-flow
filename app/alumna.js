@@ -31,7 +31,7 @@ async function renderInicio(supabase, alumnaId) {
     obtenerMisReservas(supabase, alumnaId),
     obtenerPaqueteActivo(supabase, alumnaId),
   ]);
-  const proxima = proximaReserva(reservas, hoyISO());
+  const proxima = proximaReserva(reservas);
   const contProxima = document.getElementById('a-inicio-proxima-clase');
   const contPaquete = document.getElementById('a-inicio-paquete');
 
@@ -58,7 +58,7 @@ async function renderInicio(supabase, alumnaId) {
 
 async function renderMisReservas(supabase, alumnaId) {
   const reservas = await obtenerMisReservas(supabase, alumnaId);
-  const futuras = reservasFuturas(reservas, hoyISO());
+  const futuras = reservasFuturas(reservas);
   const cont = document.getElementById('a-inicio-mis-reservas');
 
   if (futuras.length === 0) {

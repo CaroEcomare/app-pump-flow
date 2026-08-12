@@ -23,41 +23,46 @@ test('estadoClase distingue llena de disponible', () => {
   assert.equal(estadoClase(6, 5), 'disponible');
 });
 
-test('reservasFuturas ignora pasadas y ordena por fecha y hora', () => {
+test('reservasFuturas ignora clases ya pasadas, incluso el mismo día, y ordena por fecha y hora', () => {
+  const ahora = new Date(2026, 7, 11, 20, 0); // 11 de agosto de 2026, 8:00pm
   const reservas = [
-    { claseId: 1, fecha: '2026-08-01', hora: '10:00:00' },
-    { claseId: 2, fecha: '2026-08-15', hora: '19:15:00' },
-    { claseId: 3, fecha: '2026-08-11', hora: '19:15:00' },
-    { claseId: 4, fecha: '2026-08-11', hora: '10:00:00' },
+    { claseId: 1, fecha: '2026-08-01', hora: '10:00:00' }, // pasada, otro día
+    { claseId: 2, fecha: '2026-08-11', hora: '19:15:00' }, // hoy, ya pasó (7:15pm < 8:00pm)
+    { claseId: 3, fecha: '2026-08-15', hora: '19:15:00' }, // futura
+    { claseId: 4, fecha: '2026-08-11', hora: '21:00:00' }, // hoy, todavía no pasa
   ];
-  assert.deepEqual(reservasFuturas(reservas, '2026-08-05'), [reservas[3], reservas[2], reservas[1]]);
+  assert.deepEqual(reservasFuturas(reservas, ahora), [reservas[3], reservas[2]]);
 });
 
 test('reservasFuturas regresa arreglo vacío sin reservas futuras', () => {
-  assert.deepEqual(reservasFuturas([{ claseId: 1, fecha: '2026-01-01', hora: '10:00:00' }], '2026-08-11'), []);
-  assert.deepEqual(reservasFuturas([], '2026-08-11'), []);
+  const ahora = new Date(2026, 7, 11, 20, 0);
+  assert.deepEqual(reservasFuturas([{ claseId: 1, fecha: '2026-01-01', hora: '10:00:00' }], ahora), []);
+  assert.deepEqual(reservasFuturas([], ahora), []);
 });
 
 test('proximaReserva toma la más próxima futura', () => {
+  const ahora = new Date(2026, 7, 5, 8, 0);
   const reservas = [
     { claseId: 1, fecha: '2026-08-01', hora: '10:00:00' },
     { claseId: 2, fecha: '2026-08-15', hora: '19:15:00' },
     { claseId: 3, fecha: '2026-08-11', hora: '10:00:00' },
   ];
-  assert.deepEqual(proximaReserva(reservas, '2026-08-05'), reservas[2]);
+  assert.deepEqual(proximaReserva(reservas, ahora), reservas[2]);
 });
 
 test('proximaReserva desempata por hora cuando la fecha es igual', () => {
+  const ahora = new Date(2026, 7, 11, 6, 0);
   const reservas = [
     { claseId: 1, fecha: '2026-08-11', hora: '19:15:00' },
     { claseId: 2, fecha: '2026-08-11', hora: '10:00:00' },
   ];
-  assert.deepEqual(proximaReserva(reservas, '2026-08-11'), reservas[1]);
+  assert.deepEqual(proximaReserva(reservas, ahora), reservas[1]);
 });
 
 test('proximaReserva regresa null sin reservas futuras', () => {
-  assert.equal(proximaReserva([{ claseId: 1, fecha: '2026-01-01', hora: '10:00:00' }], '2026-08-11'), null);
-  assert.equal(proximaReserva([], '2026-08-11'), null);
+  const ahora = new Date(2026, 7, 11, 20, 0);
+  assert.equal(proximaReserva([{ claseId: 1, fecha: '2026-01-01', hora: '10:00:00' }], ahora), null);
+  assert.equal(proximaReserva([], ahora), null);
 });
 
 test('estadoPaquete distingue sin_paquete, al_dia y por_pagar', () => {

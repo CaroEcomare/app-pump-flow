@@ -187,3 +187,31 @@ $$;
 -- procesar_asistencias_pasadas() se salta las que ya tienen fila, evitaría
 -- que se le descontara la clase.
 drop policy if exists "alumna hace checkin" on asistencias;
+
+-- ============================================
+-- Darle a Caro todo el día de la clase para pasar lista, antes de que
+-- se auto-confirme como respaldo
+-- ============================================
+-- La versión de arriba se disparaba en cuanto la clase EMPEZABA, así que
+-- en cuanto alguien abría la app minutos después de que iniciara la clase,
+-- ya se auto-confirmaba antes de que Caro alcanzara a pasar lista ella
+-- misma. Ahora solo se auto-confirman las clases de días ANTERIORES a hoy
+-- (hora de Michoacán): Caro tiene el resto del día de la clase, completo,
+-- para confirmar a mano; si para el día siguiente sigue sin resolverse,
+-- ahí sí se descuenta sola como respaldo.
+create or replace function procesar_asistencias_pasadas()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  insert into asistencias (alumna_id, clase_id, confirmada_admin)
+  select r.alumna_id, r.clase_id, now()
+  from reservas r
+  join clases c on c.id = r.clase_id
+  where c.fecha < (now() at time zone 'America/Mexico_City')::date
+    and c.cancelada = false
+    and not exists (
+      select 1 from asistencias a
+      where a.alumna_id = r.alumna_id and a.clase_id = r.clase_id
+    )
+  on conflict (alumna_id, clase_id) do nothing;
+end;
+$$;

@@ -13,16 +13,16 @@ export function estadoClase(cupoTotal, reservasCount) {
   return reservasCount >= cupoTotal ? 'llena' : 'disponible';
 }
 
-export function reservasFuturas(reservas, hoyISOStr) {
+export function reservasFuturas(reservas, ahora = new Date()) {
   return reservas
-    .filter((r) => r.fecha >= hoyISOStr)
+    .filter((r) => horasHastaClase(r.fecha, r.hora, ahora) > 0)
     .sort((a, b) => (a.fecha === b.fecha
       ? a.hora.localeCompare(b.hora)
       : a.fecha.localeCompare(b.fecha)));
 }
 
-export function proximaReserva(reservas, hoyISOStr) {
-  return reservasFuturas(reservas, hoyISOStr)[0] ?? null;
+export function proximaReserva(reservas, ahora = new Date()) {
+  return reservasFuturas(reservas, ahora)[0] ?? null;
 }
 
 export function estadoPaquete(paquete, hoyISOStr) {
