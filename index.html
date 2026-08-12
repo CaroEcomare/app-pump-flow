@@ -16,7 +16,7 @@
   </div>
 
   <form id="form-login" class="card" style="width:100%;max-width:340px;margin-top:16px">
-    <label class="field"><span>Correo</span><input class="input" type="email" id="login-correo" required></label>
+    <label class="field"><span>Correo o usuario</span><input class="input" type="text" id="login-identificador" required></label>
     <label class="field"><span>Contraseña</span><input class="input" type="password" id="login-contrasena" required minlength="6"></label>
     <div id="login-error" class="badge err" style="display:none;margin-top:10px"></div>
     <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Entrar</button>
@@ -35,7 +35,6 @@
     <label class="field"><span>Correo</span><input class="input" type="email" id="registro-correo" required></label>
     <label class="field"><span>Contraseña</span><input class="input" type="password" id="registro-contrasena" required minlength="6"></label>
     <div id="registro-error" class="badge err" style="display:none;margin-top:10px"></div>
-    <div id="registro-exito" class="muted" style="display:none;margin-top:10px">Te mandamos un correo para confirmar tu cuenta. Ábrelo y luego inicia sesión aquí 🤍</div>
     <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Crear cuenta</button>
   </form>
 </div>
@@ -54,11 +53,10 @@
     <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
     <h1 id="a-inicio-saludo">Hola 🤍</h1>
     <div id="a-inicio-proxima-clase"></div>
+    <div id="a-inicio-mis-reservas"></div>
     <div id="a-inicio-paquete"></div>
-    <div class="card">
-      <b style="color:var(--text-title)">Tip de hoy ✨</b>
-      <div style="font:var(--text-small);margin-top:6px">Antes de tu apnea, exhala todo el aire con calma. Tu diafragma trabaja mejor sin prisa.</div>
-    </div>
+    <a class="pillbtn soft" style="width:100%;margin-top:14px;text-align:center;text-decoration:none;display:block;box-sizing:border-box" href="https://wa.me/524431331146?text=Hola%20Caro%20%F0%9F%A4%8D" target="_blank">Contáctame</a>
+    <a class="pillbtn" style="width:100%;margin-top:10px;text-align:center;text-decoration:none;display:block;box-sizing:border-box" href="https://chat.whatsapp.com/L3UWcyfbMScFiHUd9fhu5h?s=cl&p=i&ilr=0" target="_blank">Súmate a la comunidad</a>
   </div>
 
   <div class="screen" id="a-clases">
@@ -117,7 +115,7 @@
   </div>
 
   <div class="screen" id="d-alumnas">
-    <h1>Alumnas</h1>
+    <div class="row"><h1>Alumnado</h1><button class="pillbtn soft" id="btn-nueva-alumna-manual" style="padding:7px 16px;min-height:36px;font-size:13px">+ Nueva cuenta</button></div>
     <div id="d-alumnas-lista"></div>
   </div>
 
@@ -131,7 +129,7 @@
 
   <div class="tabbar">
     <button class="tab on" data-s="d-hoy"><i data-lucide="check-circle" class="ico"></i>Hoy</button>
-    <button class="tab" data-s="d-alumnas"><i data-lucide="users" class="ico"></i>Alumnas</button>
+    <button class="tab" data-s="d-alumnas"><i data-lucide="users" class="ico"></i>Alumnado</button>
     <button class="tab" data-s="d-ficha"><i data-lucide="clipboard-list" class="ico"></i>Ficha</button>
     <button class="tab" data-s="d-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
   </div>
@@ -140,6 +138,7 @@
 
 <dialog id="dialog-valoracion"><div class="dialog-body" id="dialog-valoracion-body"></div></dialog>
 <dialog id="dialog-paquete"><div class="dialog-body" id="dialog-paquete-body"></div></dialog>
+<dialog id="dialog-alumna-manual"><div class="dialog-body" id="dialog-alumna-manual-body"></div></dialog>
 
 <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
 <script>if (window.lucide) lucide.createIcons();</script>
