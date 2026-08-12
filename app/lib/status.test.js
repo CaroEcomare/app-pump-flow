@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  cupoDisponible, puntosCupo, estadoClase, proximaReserva,
+  cupoDisponible, puntosCupo, estadoClase, reservasFuturas, proximaReserva,
   estadoPaquete, paqueteVenceEnDias, estadoAsistenciaBadge,
+  horasHastaClase, puedeApartar, puedeCancelar,
   siguienteNumeroValoracion, tieneValoraciones, inicialAvatar,
 } from './status.js';
 
@@ -22,7 +23,22 @@ test('estadoClase distingue llena de disponible', () => {
   assert.equal(estadoClase(6, 5), 'disponible');
 });
 
-test('proximaReserva ignora pasadas y toma la más próxima futura', () => {
+test('reservasFuturas ignora pasadas y ordena por fecha y hora', () => {
+  const reservas = [
+    { claseId: 1, fecha: '2026-08-01', hora: '10:00:00' },
+    { claseId: 2, fecha: '2026-08-15', hora: '19:15:00' },
+    { claseId: 3, fecha: '2026-08-11', hora: '19:15:00' },
+    { claseId: 4, fecha: '2026-08-11', hora: '10:00:00' },
+  ];
+  assert.deepEqual(reservasFuturas(reservas, '2026-08-05'), [reservas[3], reservas[2], reservas[1]]);
+});
+
+test('reservasFuturas regresa arreglo vacío sin reservas futuras', () => {
+  assert.deepEqual(reservasFuturas([{ claseId: 1, fecha: '2026-01-01', hora: '10:00:00' }], '2026-08-11'), []);
+  assert.deepEqual(reservasFuturas([], '2026-08-11'), []);
+});
+
+test('proximaReserva toma la más próxima futura', () => {
   const reservas = [
     { claseId: 1, fecha: '2026-08-01', hora: '10:00:00' },
     { claseId: 2, fecha: '2026-08-15', hora: '19:15:00' },
@@ -58,10 +74,29 @@ test('paqueteVenceEnDias detecta ventana de 7 días por default', () => {
   assert.equal(paqueteVenceEnDias(null, '2026-08-11'), false);
 });
 
-test('estadoAsistenciaBadge cubre los tres estados', () => {
-  assert.equal(estadoAsistenciaBadge(null), 'sin_checkin');
-  assert.equal(estadoAsistenciaBadge({ checkin_alumna: '2026-08-11T19:00:00Z', confirmada_admin: null }), 'pendiente');
-  assert.equal(estadoAsistenciaBadge({ checkin_alumna: '2026-08-11T19:00:00Z', confirmada_admin: '2026-08-11T19:20:00Z' }), 'confirmada');
+test('estadoAsistenciaBadge solo distingue confirmada de pendiente', () => {
+  assert.equal(estadoAsistenciaBadge(null), 'pendiente');
+  assert.equal(estadoAsistenciaBadge({ confirmada_admin: null }), 'pendiente');
+  assert.equal(estadoAsistenciaBadge({ confirmada_admin: '2026-08-11T19:20:00Z' }), 'confirmada');
+});
+
+test('horasHastaClase calcula horas exactas hacia adelante y hacia atrás', () => {
+  const ahora = new Date(2026, 7, 11, 18, 15);
+  assert.equal(horasHastaClase('2026-08-11', '19:15:00', ahora), 1);
+  assert.equal(horasHastaClase('2026-08-11', '17:15:00', ahora), -1);
+  assert.equal(horasHastaClase('2026-08-12', '18:15:00', ahora), 24);
+});
+
+test('puedeApartar exige al menos 1 hora de anticipación', () => {
+  const ahora = new Date(2026, 7, 11, 18, 15);
+  assert.equal(puedeApartar('2026-08-11', '19:15:00', ahora), true);
+  assert.equal(puedeApartar('2026-08-11', '19:00:00', ahora), false);
+});
+
+test('puedeCancelar exige al menos 12 horas de anticipación', () => {
+  const ahora = new Date(2026, 7, 11, 6, 0);
+  assert.equal(puedeCancelar('2026-08-11', '19:15:00', ahora), true);
+  assert.equal(puedeCancelar('2026-08-11', '17:00:00', ahora), false);
 });
 
 test('siguienteNumeroValoracion empieza en 1 y sigue el máximo', () => {

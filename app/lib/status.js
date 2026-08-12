@@ -13,13 +13,16 @@ export function estadoClase(cupoTotal, reservasCount) {
   return reservasCount >= cupoTotal ? 'llena' : 'disponible';
 }
 
-export function proximaReserva(reservas, hoyISOStr) {
-  const futuras = reservas
+export function reservasFuturas(reservas, hoyISOStr) {
+  return reservas
     .filter((r) => r.fecha >= hoyISOStr)
     .sort((a, b) => (a.fecha === b.fecha
       ? a.hora.localeCompare(b.hora)
       : a.fecha.localeCompare(b.fecha)));
-  return futuras[0] ?? null;
+}
+
+export function proximaReserva(reservas, hoyISOStr) {
+  return reservasFuturas(reservas, hoyISOStr)[0] ?? null;
 }
 
 export function estadoPaquete(paquete, hoyISOStr) {
@@ -38,10 +41,22 @@ export function paqueteVenceEnDias(paquete, hoyISOStr, dias = 7) {
 }
 
 export function estadoAsistenciaBadge(asistencia) {
-  if (!asistencia) return 'sin_checkin';
-  if (asistencia.confirmada_admin) return 'confirmada';
-  if (asistencia.checkin_alumna) return 'pendiente';
-  return 'sin_checkin';
+  return asistencia?.confirmada_admin ? 'confirmada' : 'pendiente';
+}
+
+export function horasHastaClase(fecha, hora, ahora = new Date()) {
+  const [h, m] = hora.split(':').map(Number);
+  const inicio = parseFechaSQL(fecha);
+  inicio.setHours(h, m, 0, 0);
+  return (inicio.getTime() - ahora.getTime()) / (1000 * 60 * 60);
+}
+
+export function puedeApartar(fecha, hora, ahora = new Date()) {
+  return horasHastaClase(fecha, hora, ahora) >= 1;
+}
+
+export function puedeCancelar(fecha, hora, ahora = new Date()) {
+  return horasHastaClase(fecha, hora, ahora) >= 12;
 }
 
 export function siguienteNumeroValoracion(valoraciones) {
