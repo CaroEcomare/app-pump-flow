@@ -1,6 +1,6 @@
 import { supabase } from './supabase-client.js';
-import { obtenerSesionActual, asegurarPerfil, cerrarSesion, registrar, iniciarSesion } from './auth.js';
-import { generarClases } from './data.js';
+import { obtenerSesionActual, asegurarPerfil, cerrarSesion, registrar, iniciarSesionConIdentificador } from './auth.js';
+import { generarClases, procesarAsistenciasPasadas } from './data.js';
 import { montarVistaAlumna } from './alumna.js';
 import { montarVistaAdmin } from './admin.js';
 
@@ -19,6 +19,7 @@ function mostrarPantalla(id) {
 async function entrarConSesion(session) {
   const perfil = await asegurarPerfil(session.user);
   generarClases(supabase).catch((err) => console.warn('No se pudieron generar clases:', err.message));
+  procesarAsistenciasPasadas(supabase).catch((err) => console.warn('No se pudieron procesar asistencias pasadas:', err.message));
 
   if (perfil.es_admin) {
     switchVistas.style.display = 'flex';
@@ -61,8 +62,8 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
   const errorEl = document.getElementById('login-error');
   errorEl.style.display = 'none';
   try {
-    const { session } = await iniciarSesion({
-      correo: document.getElementById('login-correo').value,
+    const { session } = await iniciarSesionConIdentificador({
+      identificador: document.getElementById('login-identificador').value,
       contrasena: document.getElementById('login-contrasena').value,
     });
     await entrarConSesion(session);
@@ -75,10 +76,9 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
 document.getElementById('form-registro').addEventListener('submit', async (e) => {
   e.preventDefault();
   const errorEl = document.getElementById('registro-error');
-  const exitoEl = document.getElementById('registro-exito');
   errorEl.style.display = 'none';
   try {
-    await registrar({
+    const { session } = await registrar({
       correo: document.getElementById('registro-correo').value,
       contrasena: document.getElementById('registro-contrasena').value,
       nombre: document.getElementById('registro-nombre').value,
@@ -86,7 +86,7 @@ document.getElementById('form-registro').addEventListener('submit', async (e) =>
       plataforma: document.getElementById('registro-plataforma').value,
     });
     e.target.reset();
-    exitoEl.style.display = 'block';
+    await entrarConSesion(session);
   } catch (err) {
     errorEl.textContent = err.message;
     errorEl.style.display = 'block';
