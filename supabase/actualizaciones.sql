@@ -215,3 +215,12 @@ begin
   on conflict (alumna_id, clase_id) do nothing;
 end;
 $$;
+
+-- ============================================
+-- Clases especiales (sin horario fijo detrás)
+-- ============================================
+-- Hasta ahora la hora de una clase siempre venía de su horario semanal.
+-- Para poder agregar una clase puntual (una sola vez, sin horario fijo),
+-- la clase necesita poder guardar su propia hora. horario_id ya podía
+-- quedar vacío (nunca tuvo "not null"), así que no hace falta tocar eso.
+alter table clases add column if not exists hora time;

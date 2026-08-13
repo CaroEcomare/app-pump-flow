@@ -33,26 +33,32 @@ export async function listarClasesProximas(supabase, semanas = 4) {
   limite.setDate(limite.getDate() + semanas * 7);
   const { data, error } = await supabase
     .from('clases')
-    .select('id, fecha, cupo, horario_id, horarios(hora), reservas(id)')
+    .select('id, fecha, cupo, horario_id, hora, horarios(hora), reservas(id)')
     .eq('cancelada', false)
     .gte('fecha', hoy)
     .lte('fecha', hoyISO(limite))
     .order('fecha', { ascending: true });
   if (error) throw error;
-  return data.map((c) => ({ ...c, reservasCount: c.reservas.length }));
+  return data.map((c) => ({
+    id: c.id,
+    fecha: c.fecha,
+    cupo: c.cupo,
+    hora: c.horarios?.hora ?? c.hora,
+    reservasCount: c.reservas.length,
+  }));
 }
 
 export async function obtenerMisReservas(supabase, alumnaId) {
   const { data, error } = await supabase
     .from('reservas')
-    .select('id, clase_id, clases(fecha, horarios(hora))')
+    .select('id, clase_id, clases(fecha, hora, horarios(hora))')
     .eq('alumna_id', alumnaId);
   if (error) throw error;
   return data.map((r) => ({
     reservaId: r.id,
     claseId: r.clase_id,
     fecha: r.clases.fecha,
-    hora: r.clases.horarios.hora,
+    hora: r.clases.horarios?.hora ?? r.clases.hora,
   }));
 }
 
@@ -67,6 +73,32 @@ export async function cancelarReserva(supabase, alumnaId, claseId) {
     .delete()
     .eq('alumna_id', alumnaId)
     .eq('clase_id', claseId);
+  if (error) throw error;
+}
+
+// Cancela la clase completa: ya no se puede apartar, y a quien ya la tenía
+// apartada se le quita la reserva sola (no se le cobra nada, y ya no la ve).
+export async function cancelarClase(supabase, claseId) {
+  const { error: e1 } = await supabase.from('clases').update({ cancelada: true }).eq('id', claseId);
+  if (e1) throw e1;
+  const { error: e2 } = await supabase.from('reservas').delete().eq('clase_id', claseId);
+  if (e2) throw e2;
+}
+
+// Horario fijo nuevo: se repite cada semana ese día/hora hasta que se
+// desactive. generar_clases() la va poblando sola de ahí en adelante.
+export async function crearHorarioRecurrente(supabase, { diaSemana, hora, cupo }) {
+  const { error } = await supabase
+    .from('horarios')
+    .insert({ dia_semana: diaSemana, hora, cupo, activo: true });
+  if (error) throw error;
+}
+
+// Clase puntual, sin horario fijo detrás (por eso guarda su propia hora).
+export async function crearClaseEspecial(supabase, { fecha, hora, cupo }) {
+  const { error } = await supabase
+    .from('clases')
+    .insert({ fecha, hora, cupo, horario_id: null, cancelada: false });
   if (error) throw error;
 }
 
@@ -91,7 +123,7 @@ export async function actualizarClasesUsadas(supabase, paqueteId, clasesUsadas) 
 export async function obtenerMisAsistencias(supabase, alumnaId) {
   const { data, error } = await supabase
     .from('asistencias')
-    .select('id, clase_id, checkin_alumna, confirmada_admin, clases(fecha, horarios(hora))')
+    .select('id, clase_id, checkin_alumna, confirmada_admin, clases(fecha, hora, horarios(hora))')
     .eq('alumna_id', alumnaId)
     .order('id', { ascending: false });
   if (error) throw error;
@@ -101,7 +133,7 @@ export async function obtenerMisAsistencias(supabase, alumnaId) {
     checkinAlumna: a.checkin_alumna,
     confirmadaAdmin: a.confirmada_admin,
     fecha: a.clases.fecha,
-    hora: a.clases.horarios.hora,
+    hora: a.clases.horarios?.hora ?? a.clases.hora,
   }));
 }
 
@@ -138,12 +170,12 @@ export async function listarAlumnaIdsConValoracion(supabase) {
 export async function listarClasesDeHoy(supabase) {
   const { data, error } = await supabase
     .from('clases')
-    .select('id, fecha, horarios(hora)')
+    .select('id, fecha, hora, horarios(hora)')
     .eq('fecha', hoyISO())
     .eq('cancelada', false)
     .order('id', { ascending: true });
   if (error) throw error;
-  return data;
+  return data.map((c) => ({ id: c.id, fecha: c.fecha, hora: c.horarios?.hora ?? c.hora }));
 }
 
 export async function listarReservasDeClase(supabase, claseId) {

@@ -1,8 +1,9 @@
 import {
-  listarClasesDeHoy, listarReservasDeClase, confirmarAsistencia,
+  listarClasesDeHoy, listarReservasDeClase, confirmarAsistencia, cancelarReserva,
   listarAlumnas, obtenerFichaAlumna, activarPaquete, crearValoracion,
   listarClasesProximas, listarPaquetesActivos, listarAlumnaIdsConValoracion,
-  actualizarClasesUsadas, crearAlumnaManual,
+  actualizarClasesUsadas, crearAlumnaManual, cancelarClase,
+  crearHorarioRecurrente, crearClaseEspecial, generarClases,
 } from './data.js';
 import { crearClienteTemporal } from './supabase-client.js';
 import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
@@ -38,6 +39,7 @@ export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
   wireTabs('pantalla-admin');
   document.getElementById('d-hoy').querySelector('.btn-logout')?.addEventListener('click', onCerrarSesion);
   document.getElementById('btn-nueva-alumna-manual')?.addEventListener('click', () => abrirDialogAlumnaManual(supabase));
+  document.getElementById('btn-agregar-clase')?.addEventListener('click', () => abrirDialogAgregarClase(supabase));
 
   // Un solo bloque de consultas para las dos pantallas que lo necesitan.
   const resumen = await cargarResumenAlumnas(supabase);
@@ -123,18 +125,7 @@ async function renderHoy(supabase, resumen) {
   } else {
     const listas = await Promise.all(clases.map((c) => listarReservasDeClase(supabase, c.id)));
     contLista.innerHTML = clases.map((clase, i) => tarjetaPasarLista(clase, listas[i])).join('');
-    contLista.querySelectorAll('.valida').forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        try {
-          await confirmarAsistencia(supabase, btn.dataset.alumnaId, Number(btn.dataset.claseId));
-          await renderHoy(supabase);
-        } catch (err) {
-          btn.disabled = false;
-          mostrarErrorCerca(btn.closest('.dato') ?? btn, `No se pudo confirmar: ${err.message}`);
-        }
-      });
-    });
+    wirePasarLista(contLista, supabase, () => renderHoy(supabase));
   }
 
   const hoy = hoyISO();
@@ -162,21 +153,54 @@ function etiquetaPlataforma(plataforma) {
   return '';
 }
 
-function tarjetaPasarLista(clase, reservas, etiqueta) {
+function tarjetaPasarLista(clase, reservas, etiqueta, opciones = {}) {
   const confirmadas = reservas.filter((r) => r.asistencia?.confirmada_admin).length;
-  const titulo = etiqueta ?? `Pasar lista · ${formatHora12(clase.horarios.hora)}`;
+  const titulo = etiqueta ?? `Pasar lista · ${formatHora12(clase.hora)}`;
   return `
     <div class="card">
       <div class="row" style="margin-bottom:4px"><b style="color:var(--text-title)">${escaparHTML(titulo)}</b><span class="badge">${confirmadas} de ${reservas.length}</span></div>
+      ${opciones.mostrarCancelarClase ? `<button class="link-suave cancelar-clase" data-clase-id="${escaparHTML(clase.id)}" style="padding:4px 0;margin-bottom:6px">Cancelar esta clase</button>` : ''}
       ${reservas.length === 0 ? '<div class="muted">Nadie ha apartado lugar todavía</div>' : reservas.map((r) => {
         const badge = estadoAsistenciaBadge(r.asistencia);
-        const accion = badge === 'confirmada'
+        const acciones = badge === 'confirmada'
           ? '<span class="badge ok">Confirmada</span>'
-          : `<button class="pillbtn valida" data-alumna-id="${escaparHTML(r.alumnaId)}" data-clase-id="${escaparHTML(clase.id)}" style="padding:7px 16px;min-height:36px;font-size:13px">Confirmar</button>`;
+          : `<div style="display:flex;gap:6px">
+              <button class="pillbtn valida" data-alumna-id="${escaparHTML(r.alumnaId)}" data-clase-id="${escaparHTML(clase.id)}" style="padding:7px 14px;min-height:36px;font-size:13px">Confirmar</button>
+              <button class="pillbtn soft rechaza" data-alumna-id="${escaparHTML(r.alumnaId)}" data-clase-id="${escaparHTML(clase.id)}" style="padding:7px 14px;min-height:36px;font-size:13px">Cancelar</button>
+            </div>`;
         const etiquetaOrigen = etiquetaPlataforma(r.plataforma);
-        return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${escaparHTML(inicialAvatar(r.nombre))}</span>${escaparHTML(r.nombre)}${etiquetaOrigen ? ` <span class="badge">${escaparHTML(etiquetaOrigen)}</span>` : ''}</div>${accion}</div>`;
+        return `<div class="dato"><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:13px">${escaparHTML(inicialAvatar(r.nombre))}</span>${escaparHTML(r.nombre)}${etiquetaOrigen ? ` <span class="badge">${escaparHTML(etiquetaOrigen)}</span>` : ''}</div>${acciones}</div>`;
       }).join('')}
     </div>`;
+}
+
+// Confirmar/cancelar la asistencia de una alumna en una clase: se usa
+// tanto en "Hoy" como en "Clases", así que la lógica vive en un solo lugar.
+function wirePasarLista(cont, supabase, alRenderizar) {
+  cont.querySelectorAll('.valida').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        await confirmarAsistencia(supabase, btn.dataset.alumnaId, Number(btn.dataset.claseId));
+        await alRenderizar();
+      } catch (err) {
+        btn.disabled = false;
+        mostrarErrorCerca(btn.closest('.dato') ?? btn, `No se pudo confirmar: ${err.message}`);
+      }
+    });
+  });
+  cont.querySelectorAll('.rechaza').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        await cancelarReserva(supabase, btn.dataset.alumnaId, Number(btn.dataset.claseId));
+        await alRenderizar();
+      } catch (err) {
+        btn.disabled = false;
+        mostrarErrorCerca(btn.closest('.dato') ?? btn, `No se pudo cancelar: ${err.message}`);
+      }
+    });
+  });
 }
 
 async function renderAlumnas(supabase, resumen) {
@@ -387,19 +411,90 @@ async function renderClasesAdmin(supabase) {
   cont.innerHTML = clases.map((c, i) => tarjetaPasarLista(
     c,
     listas[i],
-    `${formatDiaMesConDia(c.fecha)} · ${formatHora12(c.horarios.hora)}`,
+    `${formatDiaMesConDia(c.fecha)} · ${formatHora12(c.hora)}`,
+    { mostrarCancelarClase: true },
   )).join('') || '<div class="muted">No hay clases próximas todavía</div>';
 
-  cont.querySelectorAll('.valida').forEach((btn) => {
+  wirePasarLista(cont, supabase, () => renderClasesAdmin(supabase));
+
+  cont.querySelectorAll('.cancelar-clase').forEach((btn) => {
     btn.addEventListener('click', async () => {
+      if (!confirm('¿Cancelar esta clase? A quien ya la tenía apartada se le quita el lugar y no se le cobra.')) return;
       btn.disabled = true;
       try {
-        await confirmarAsistencia(supabase, btn.dataset.alumnaId, Number(btn.dataset.claseId));
+        await cancelarClase(supabase, Number(btn.dataset.claseId));
         await renderClasesAdmin(supabase);
       } catch (err) {
         btn.disabled = false;
-        mostrarErrorCerca(btn.closest('.dato') ?? btn, `No se pudo confirmar: ${err.message}`);
+        mostrarErrorCerca(btn, `No se pudo cancelar la clase: ${err.message}`);
       }
     });
   });
+}
+
+function abrirDialogAgregarClase(supabase) {
+  const dialog = document.getElementById('dialog-agregar-clase');
+  const body = document.getElementById('dialog-agregar-clase-body');
+  body.innerHTML = `
+    <h1 style="font:var(--text-h3)">Agregar clase</h1>
+    <form id="form-agregar-clase">
+      <label class="field"><span>Tipo</span>
+        <select class="input" name="tipo" id="clase-tipo">
+          <option value="recurrente">Cada semana</option>
+          <option value="especial">Solo esta vez (especial)</option>
+        </select>
+      </label>
+      <label class="field" id="campo-dia-semana"><span>Día de la semana</span>
+        <select class="input" name="diaSemana">
+          <option value="0">Domingo</option>
+          <option value="1">Lunes</option>
+          <option value="2">Martes</option>
+          <option value="3">Miércoles</option>
+          <option value="4">Jueves</option>
+          <option value="5">Viernes</option>
+          <option value="6">Sábado</option>
+        </select>
+      </label>
+      <label class="field" id="campo-fecha" style="display:none"><span>Fecha</span><input class="input" type="date" name="fecha"></label>
+      <label class="field"><span>Hora</span><input class="input" type="time" name="hora" required></label>
+      <label class="field"><span>Cupo</span><input class="input" type="number" name="cupo" value="6" min="1" required></label>
+      <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">Agregar</button>
+      <button class="link-suave" type="button" id="btn-cancelar-agregar-clase" style="width:100%;text-align:center">Cancelar</button>
+    </form>`;
+  document.getElementById('btn-cancelar-agregar-clase').addEventListener('click', () => dialog.close());
+  document.getElementById('clase-tipo').addEventListener('change', (e) => {
+    const esEspecial = e.target.value === 'especial';
+    document.getElementById('campo-dia-semana').style.display = esEspecial ? 'none' : 'grid';
+    document.getElementById('campo-fecha').style.display = esEspecial ? 'grid' : 'none';
+    document.getElementById('campo-fecha').querySelector('input').required = esEspecial;
+  });
+  document.getElementById('form-agregar-clase').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
+    const formData = new FormData(e.target);
+    const tipo = formData.get('tipo');
+    try {
+      if (tipo === 'recurrente') {
+        await crearHorarioRecurrente(supabase, {
+          diaSemana: Number(formData.get('diaSemana')),
+          hora: formData.get('hora'),
+          cupo: Number(formData.get('cupo')),
+        });
+        await generarClases(supabase);
+      } else {
+        await crearClaseEspecial(supabase, {
+          fecha: formData.get('fecha'),
+          hora: formData.get('hora'),
+          cupo: Number(formData.get('cupo')),
+        });
+      }
+      dialog.close();
+      await renderClasesAdmin(supabase);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo agregar la clase: ${err.message}`);
+    }
+  });
+  dialog.showModal();
 }

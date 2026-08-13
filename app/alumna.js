@@ -109,29 +109,44 @@ async function renderClases(supabase, alumnaId) {
     const puntos = puntosCupo(c.cupo, c.reservasCount)
       .map((ocupado) => `<i class="cupo ${ocupado ? '' : 'libre'}"></i>`).join('');
     const disponibles = cupoDisponible(c.cupo, c.reservasCount);
-    const dentroDeVentana = puedeApartar(c.fecha, c.horarios.hora);
+    const dentroDeVentana = puedeApartar(c.fecha, c.hora);
     let boton;
     if (yaReservada) {
-      boton = `<button class="pillbtn soft" style="width:100%" disabled>Tu lugar está apartado ✨</button>`;
+      boton = puedeCancelar(c.fecha, c.hora)
+        ? `<button class="pillbtn soft cancelar-desde-clases" style="width:100%" data-clase-id="${escaparHTML(c.id)}">Cancelar</button>`
+        : `<button class="pillbtn soft" style="width:100%" disabled>Tu lugar está apartado ✨</button>`;
     } else if (estado === 'llena') {
       boton = `<button class="pillbtn soft" style="width:100%" disabled>Sin lugares</button>`;
     } else if (!dentroDeVentana) {
-      const mensaje = encodeURIComponent(`Hola Caro, quiero checar disponibilidad para la clase del ${formatDiaMesConDia(c.fecha)} a las ${formatHora12(c.horarios.hora)} 🤍`);
+      const mensaje = encodeURIComponent(`Hola Caro, quiero checar disponibilidad para la clase del ${formatDiaMesConDia(c.fecha)} a las ${formatHora12(c.hora)} 🤍`);
       boton = `<a class="pillbtn soft" style="width:100%;text-align:center;text-decoration:none;display:block;box-sizing:border-box" href="https://wa.me/524431331146?text=${mensaje}" target="_blank">Mándame mensaje para verificar disponibilidad</a>`;
     } else {
-      boton = `<button class="pillbtn" style="width:100%" data-clase-id="${escaparHTML(c.id)}">Aparto mi espacio</button>`;
+      boton = `<button class="pillbtn apartar-clase" style="width:100%" data-clase-id="${escaparHTML(c.id)}">Aparto mi espacio</button>`;
     }
     return `
       <div class="card" style="${estado === 'llena' && !yaReservada ? 'opacity:.6' : ''}">
         <div class="row"><b style="color:var(--text-title)">${escaparHTML(formatDiaMesConDia(c.fecha))}</b>
-          <span class="badge ${estado === 'llena' ? 'err' : ''}">${estado === 'llena' ? 'Llena' : escaparHTML(formatHora12(c.horarios.hora))}</span></div>
+          <span class="badge ${estado === 'llena' ? 'err' : ''}">${estado === 'llena' ? 'Llena' : escaparHTML(formatHora12(c.hora))}</span></div>
         <div class="cupos">${puntos}</div>
         <div class="muted" style="margin:6px 0 12px">${estado === 'llena' ? 'Sin lugares' : `${disponibles} lugar${disponibles === 1 ? '' : 'es'} disponible${disponibles === 1 ? '' : 's'}`}</div>
         ${boton}
       </div>`;
   }).join('') || '<div class="muted">Aún no hay clases programadas, vuelve pronto 🤍</div>';
 
-  cont.querySelectorAll('button[data-clase-id]').forEach((btn) => {
+  cont.querySelectorAll('.cancelar-desde-clases').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        await cancelarReserva(supabase, alumnaId, Number(btn.dataset.claseId));
+        await Promise.all([renderClases(supabase, alumnaId), renderInicio(supabase, alumnaId)]);
+      } catch (err) {
+        btn.disabled = false;
+        mostrarErrorCerca(btn, `No se pudo cancelar: ${err.message}`);
+      }
+    });
+  });
+
+  cont.querySelectorAll('.apartar-clase').forEach((btn) => {
     btn.addEventListener('click', async () => {
       btn.disabled = true;
       try {
