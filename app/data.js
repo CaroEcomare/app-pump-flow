@@ -33,7 +33,7 @@ export async function listarClasesProximas(supabase, semanas = 4) {
   limite.setDate(limite.getDate() + semanas * 7);
   const { data, error } = await supabase
     .from('clases')
-    .select('id, fecha, cupo, horario_id, hora, horarios(hora), reservas(id)')
+    .select('id, fecha, cupo, horario_id, hora, alumna_id, horarios(hora), alumnas(nombre), reservas(id)')
     .eq('cancelada', false)
     .gte('fecha', hoy)
     .lte('fecha', hoyISO(limite))
@@ -44,6 +44,7 @@ export async function listarClasesProximas(supabase, semanas = 4) {
     fecha: c.fecha,
     cupo: c.cupo,
     hora: c.horarios?.hora ?? c.hora,
+    alumnaAsignada: c.alumna_id ? { id: c.alumna_id, nombre: c.alumnas?.nombre ?? '' } : null,
     reservasCount: c.reservas.length,
   }));
 }
@@ -87,18 +88,20 @@ export async function cancelarClase(supabase, claseId) {
 
 // Horario fijo nuevo: se repite cada semana ese día/hora hasta que se
 // desactive. generar_clases() la va poblando sola de ahí en adelante.
-export async function crearHorarioRecurrente(supabase, { diaSemana, hora, cupo }) {
+// Si alumnaId viene, es un horario personal: solo esa alumna lo ve (lo
+// hace cumplir la política de seguridad en Supabase, no solo la pantalla).
+export async function crearHorarioRecurrente(supabase, { diaSemana, hora, cupo, alumnaId }) {
   const { error } = await supabase
     .from('horarios')
-    .insert({ dia_semana: diaSemana, hora, cupo, activo: true });
+    .insert({ dia_semana: diaSemana, hora, cupo, activo: true, alumna_id: alumnaId ?? null });
   if (error) throw error;
 }
 
 // Clase puntual, sin horario fijo detrás (por eso guarda su propia hora).
-export async function crearClaseEspecial(supabase, { fecha, hora, cupo }) {
+export async function crearClaseEspecial(supabase, { fecha, hora, cupo, alumnaId }) {
   const { error } = await supabase
     .from('clases')
-    .insert({ fecha, hora, cupo, horario_id: null, cancelada: false });
+    .insert({ fecha, hora, cupo, horario_id: null, cancelada: false, alumna_id: alumnaId ?? null });
   if (error) throw error;
 }
 
@@ -170,12 +173,17 @@ export async function listarAlumnaIdsConValoracion(supabase) {
 export async function listarClasesDeHoy(supabase) {
   const { data, error } = await supabase
     .from('clases')
-    .select('id, fecha, hora, horarios(hora)')
+    .select('id, fecha, hora, alumna_id, horarios(hora), alumnas(nombre)')
     .eq('fecha', hoyISO())
     .eq('cancelada', false)
     .order('id', { ascending: true });
   if (error) throw error;
-  return data.map((c) => ({ id: c.id, fecha: c.fecha, hora: c.horarios?.hora ?? c.hora }));
+  return data.map((c) => ({
+    id: c.id,
+    fecha: c.fecha,
+    hora: c.horarios?.hora ?? c.hora,
+    alumnaAsignada: c.alumna_id ? { id: c.alumna_id, nombre: c.alumnas?.nombre ?? '' } : null,
+  }));
 }
 
 export async function listarReservasDeClase(supabase, claseId) {

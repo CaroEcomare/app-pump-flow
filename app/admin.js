@@ -159,6 +159,7 @@ function tarjetaPasarLista(clase, reservas, etiqueta, opciones = {}) {
   return `
     <div class="card">
       <div class="row" style="margin-bottom:4px"><b style="color:var(--text-title)">${escaparHTML(titulo)}</b><span class="badge">${confirmadas} de ${reservas.length}</span></div>
+      ${clase.alumnaAsignada ? `<div style="margin-bottom:6px"><span class="badge">Personal · ${escaparHTML(clase.alumnaAsignada.nombre)}</span></div>` : ''}
       ${opciones.mostrarCancelarClase ? `<button class="link-suave cancelar-clase" data-clase-id="${escaparHTML(clase.id)}" style="padding:4px 0;margin-bottom:6px">Cancelar esta clase</button>` : ''}
       ${reservas.length === 0 ? '<div class="muted">Nadie ha apartado lugar todavía</div>' : reservas.map((r) => {
         const badge = estadoAsistenciaBadge(r.asistencia);
@@ -432,9 +433,10 @@ async function renderClasesAdmin(supabase) {
   });
 }
 
-function abrirDialogAgregarClase(supabase) {
+async function abrirDialogAgregarClase(supabase) {
   const dialog = document.getElementById('dialog-agregar-clase');
   const body = document.getElementById('dialog-agregar-clase-body');
+  const alumnado = (await listarAlumnas(supabase)).filter((a) => !a.es_admin);
   body.innerHTML = `
     <h1 style="font:var(--text-h3)">Agregar clase</h1>
     <form id="form-agregar-clase">
@@ -457,7 +459,13 @@ function abrirDialogAgregarClase(supabase) {
       </label>
       <label class="field" id="campo-fecha" style="display:none"><span>Fecha</span><input class="input" type="date" name="fecha"></label>
       <label class="field"><span>Hora</span><input class="input" type="time" name="hora" required></label>
-      <label class="field"><span>Cupo</span><input class="input" type="number" name="cupo" value="6" min="1" required></label>
+      <label class="field"><span>¿Para quién es?</span>
+        <select class="input" name="alumnaId" id="clase-para-quien">
+          <option value="">Todas (grupal)</option>
+          ${alumnado.map((a) => `<option value="${escaparHTML(a.id)}">${escaparHTML(a.nombre)}</option>`).join('')}
+        </select>
+      </label>
+      <label class="field"><span>Cupo</span><input class="input" type="number" name="cupo" id="clase-cupo" value="6" min="1" required></label>
       <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">Agregar</button>
       <button class="link-suave" type="button" id="btn-cancelar-agregar-clase" style="width:100%;text-align:center">Cancelar</button>
     </form>`;
@@ -468,18 +476,23 @@ function abrirDialogAgregarClase(supabase) {
     document.getElementById('campo-fecha').style.display = esEspecial ? 'grid' : 'none';
     document.getElementById('campo-fecha').querySelector('input').required = esEspecial;
   });
+  document.getElementById('clase-para-quien').addEventListener('change', (e) => {
+    if (e.target.value) document.getElementById('clase-cupo').value = 1;
+  });
   document.getElementById('form-agregar-clase').addEventListener('submit', async (e) => {
     e.preventDefault();
     const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
     if (boton) boton.disabled = true;
     const formData = new FormData(e.target);
     const tipo = formData.get('tipo');
+    const alumnaId = formData.get('alumnaId') || null;
     try {
       if (tipo === 'recurrente') {
         await crearHorarioRecurrente(supabase, {
           diaSemana: Number(formData.get('diaSemana')),
           hora: formData.get('hora'),
           cupo: Number(formData.get('cupo')),
+          alumnaId,
         });
         await generarClases(supabase);
       } else {
@@ -487,6 +500,7 @@ function abrirDialogAgregarClase(supabase) {
           fecha: formData.get('fecha'),
           hora: formData.get('hora'),
           cupo: Number(formData.get('cupo')),
+          alumnaId,
         });
       }
       dialog.close();

@@ -224,3 +224,45 @@ $$;
 -- la clase necesita poder guardar su propia hora. horario_id ya podía
 -- quedar vacío (nunca tuvo "not null"), así que no hace falta tocar eso.
 alter table clases add column if not exists hora time;
+
+-- ============================================
+-- Clases personales (privadas para una sola alumna)
+-- ============================================
+-- Un horario o una clase especial puede quedar asignado a una sola
+-- alumna. Si "alumna_id" está vacío, la clase sigue siendo grupal
+-- (visible para todo el mundo, como hasta ahora).
+alter table horarios add column if not exists alumna_id uuid references alumnas on delete cascade;
+alter table clases add column if not exists alumna_id uuid references alumnas on delete cascade;
+
+-- generar_clases() ahora copia el "dueño" del horario a cada clase que
+-- genera, para no tener que ir a consultar el horario cada vez que se
+-- decide quién puede ver una clase.
+create or replace function generar_clases()
+returns void language plpgsql security definer set search_path = public as $$
+declare
+  h record;
+  fecha_cursor date;
+  fecha_limite date := current_date + interval '4 weeks';
+begin
+  for h in select * from horarios where activo = true loop
+    fecha_cursor := current_date;
+    while fecha_cursor <= fecha_limite loop
+      if extract(dow from fecha_cursor) = h.dia_semana then
+        insert into clases (horario_id, fecha, cupo, alumna_id)
+        values (h.id, fecha_cursor, h.cupo, h.alumna_id)
+        on conflict (horario_id, fecha) do nothing;
+      end if;
+      fecha_cursor := fecha_cursor + 1;
+    end loop;
+  end loop;
+end;
+$$;
+
+-- Antes cualquiera podía ver cualquier clase (para que se vieran los
+-- cupos de todo el mundo). Ahora: la administradora sigue viendo todo;
+-- una alumna ve las clases grupales (alumna_id vacío) más las que sean
+-- suyas, nada más. Es una restricción real de la base de datos, no solo
+-- algo escondido en la pantalla.
+drop policy if exists "ver clases" on clases;
+create policy "ver clases" on clases
+  for select using (es_admin() or alumna_id is null or alumna_id = auth.uid());
