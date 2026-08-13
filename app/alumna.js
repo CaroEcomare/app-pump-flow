@@ -97,10 +97,17 @@ async function renderMisReservas(supabase, alumnaId) {
 }
 
 async function renderClases(supabase, alumnaId) {
-  const [clases, reservas] = await Promise.all([
+  const [clasesVisibles, reservas] = await Promise.all([
     listarClasesProximas(supabase, SEMANAS_PARA_RESERVAR),
     obtenerMisReservas(supabase, alumnaId),
   ]);
+  // Si tiene al menos una clase personal asignada, solo ve esas (nada de
+  // grupales); si no tiene ninguna, ve las grupales de siempre. Las clases
+  // de alguien más nunca llegan aquí, eso ya lo bloquea RLS en Supabase.
+  const tienePersonales = clasesVisibles.some((c) => c.alumnaAsignada?.id === alumnaId);
+  const clases = tienePersonales
+    ? clasesVisibles.filter((c) => c.alumnaAsignada?.id === alumnaId)
+    : clasesVisibles;
   const idsReservados = new Set(reservas.map((r) => r.claseId));
   const cont = document.getElementById('a-clases-lista');
   cont.innerHTML = clases.map((c) => {
