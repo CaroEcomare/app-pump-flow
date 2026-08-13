@@ -68,22 +68,49 @@
   <div class="screen" id="a-contenido">
     <h1>Contenido</h1>
     <div class="chips">
-      <button class="chip on">Hipopresivos</button><button class="chip">Meditaciones</button>
+      <button class="chip on" data-categoria="hipopresivos">Hipopresivos</button><button class="chip" data-categoria="meditaciones">Meditaciones</button>
     </div>
-    <div class="card">
-      <div class="video"><span class="play">▶</span></div>
-      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Fundamentos: qué son</b><span class="badge ok">Visto</span></div>
-      <div class="muted">Liga de YouTube</div>
+    <div id="contenido-hipopresivos">
+      <div class="card">
+        <div class="video"><span class="play">▶</span></div>
+        <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Fundamentos: qué son</b><span class="badge ok">Visto</span></div>
+        <div class="muted">Liga de YouTube</div>
+      </div>
+      <div class="card">
+        <div class="video"><span class="play">▶</span></div>
+        <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Cómo se respira</b></div>
+        <div class="muted">Liga de YouTube</div>
+      </div>
     </div>
-    <div class="card">
-      <div class="video"><span class="play">▶</span></div>
-      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Cómo se respira</b></div>
-      <div class="muted">Liga de YouTube</div>
-    </div>
-    <div class="card">
-      <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
-      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación de 10 minutos</b><span class="badge">Nueva ✨</span></div>
-      <div class="muted">Para cerrar tu día con calma</div>
+    <div id="contenido-meditaciones" style="display:none">
+      <a href="https://youtu.be/ZLpswRDqL9I?si=APvBLR0r__YA_On4" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 1</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
+      <a href="https://youtu.be/Cij8O35fsTg?si=Cz47OHZ5Ajp92aRW" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 2</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
+      <a href="https://youtu.be/I7sQXAvh6EA?si=4adbqm83B1vTzUS0" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 3</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
+      <a href="https://youtu.be/U_1H_rOAaGs?si=XmLpEyanyud6kk91" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 4</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
     </div>
   </div>
 

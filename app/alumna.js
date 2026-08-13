@@ -18,6 +18,7 @@ export async function montarVistaAlumna({ supabase, alumnaId, nombre, onCerrarSe
 
   wireTabs('pantalla-alumna');
   wireLogout('a-espacio', onCerrarSesion);
+  wireChipsContenido();
 
   await Promise.all([
     renderInicio(supabase, alumnaId),
@@ -216,4 +217,21 @@ function renderDatosPaquete(paquete, estado) {
 function wireLogout(screenId, onCerrarSesion) {
   if (!onCerrarSesion) return;
   document.getElementById(screenId).querySelector('.btn-logout')?.addEventListener('click', onCerrarSesion);
+}
+
+function wireChipsContenido() {
+  const chips = document.querySelectorAll('#a-contenido .chip');
+  const grupos = {
+    hipopresivos: document.getElementById('contenido-hipopresivos'),
+    meditaciones: document.getElementById('contenido-meditaciones'),
+  };
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      chips.forEach((c) => c.classList.remove('on'));
+      chip.classList.add('on');
+      Object.entries(grupos).forEach(([categoria, el]) => {
+        if (el) el.style.display = categoria === chip.dataset.categoria ? 'block' : 'none';
+      });
+    });
+  });
 }
