@@ -212,6 +212,21 @@ export async function confirmarAsistencia(supabase, alumnaId, claseId) {
   if (error) throw error;
 }
 
+// Registra a mano una asistencia de una fecha pasada (ej. paquetes que se
+// venían gastando sin quedar registrado qué día se usó cada clase). Crea
+// una clase especial personal para esa fecha —invisible en "Clases" por
+// ser pasada— y de inmediato la confirma, reusando el mismo camino que
+// el botón "Confirmar" (dispara el descuento del paquete igual que siempre).
+export async function marcarAsistenciaManual(supabase, alumnaId, fecha) {
+  const { data, error } = await supabase
+    .from('clases')
+    .insert({ fecha, hora: '12:00', cupo: 1, horario_id: null, cancelada: false, alumna_id: alumnaId })
+    .select('id')
+    .single();
+  if (error) throw error;
+  await confirmarAsistencia(supabase, alumnaId, data.id);
+}
+
 export async function listarValoraciones(supabase, alumnaId) {
   const { data, error } = await supabase
     .from('valoraciones')

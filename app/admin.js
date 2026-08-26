@@ -4,6 +4,7 @@ import {
   listarClasesProximas, listarPaquetesActivos, listarAlumnaIdsConValoracion,
   actualizarClasesUsadas, crearAlumnaManual, cancelarClase,
   crearHorarioRecurrente, crearClaseEspecial, generarClases,
+  marcarAsistenciaManual,
 } from './data.js';
 import { crearClienteTemporal } from './supabase-client.js';
 import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
@@ -250,7 +251,8 @@ async function renderFicha(supabase, alumnaId) {
            <form id="form-clases-usadas" class="row" style="margin-top:10px;gap:8px">
              <label class="field" style="flex:1;margin-top:0"><span>Clases usadas</span><input class="input" type="number" min="0" name="clasesUsadas" value="${escaparHTML(paquete.clases_usadas)}"></label>
              <button class="pillbtn soft" type="submit" style="padding:7px 16px;min-height:36px;font-size:13px;align-self:flex-end">Guardar</button>
-           </form>`}
+           </form>
+           <button class="link-suave" id="btn-marcar-asistencia-manual" style="padding:4px 0;margin-top:8px">+ Marcar asistencia de un día pasado</button>`}
     </div>
 
     <div class="card">
@@ -277,6 +279,7 @@ async function renderFicha(supabase, alumnaId) {
   });
   document.getElementById('btn-nueva-valoracion').addEventListener('click', () => abrirDialogValoracion(supabase, alumnaId, valoraciones));
   document.getElementById('btn-activar-paquete').addEventListener('click', () => abrirDialogPaquete(supabase, alumnaId));
+  document.getElementById('btn-marcar-asistencia-manual')?.addEventListener('click', () => abrirDialogAsistenciaManual(supabase, alumnaId));
 
   const formClasesUsadas = document.getElementById('form-clases-usadas');
   formClasesUsadas?.addEventListener('submit', async (e) => {
@@ -346,6 +349,34 @@ function abrirDialogValoracion(supabase, alumnaId, valoraciones) {
     } catch (err) {
       if (boton) boton.disabled = false;
       mostrarErrorCerca(boton ?? e.target, `No se pudo guardar la valoración: ${err.message}`);
+    }
+  });
+  dialog.showModal();
+}
+
+function abrirDialogAsistenciaManual(supabase, alumnaId) {
+  const dialog = document.getElementById('dialog-asistencia-manual');
+  const body = document.getElementById('dialog-asistencia-manual-body');
+  body.innerHTML = `
+    <h1 style="font:var(--text-h3)">Marcar asistencia de un día pasado</h1>
+    <form id="form-asistencia-manual">
+      <label class="field"><span>Fecha</span><input class="input" type="date" name="fecha" value="${hoyISO()}" max="${hoyISO()}" required></label>
+      <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">Marcar asistencia</button>
+      <button class="link-suave" type="button" id="btn-cancelar-asistencia-manual" style="width:100%;text-align:center">Cancelar</button>
+    </form>`;
+  document.getElementById('btn-cancelar-asistencia-manual').addEventListener('click', () => dialog.close());
+  document.getElementById('form-asistencia-manual').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
+    const formData = new FormData(e.target);
+    try {
+      await marcarAsistenciaManual(supabase, alumnaId, formData.get('fecha'));
+      dialog.close();
+      await renderFicha(supabase, alumnaId);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo marcar la asistencia: ${err.message}`);
     }
   });
   dialog.showModal();
