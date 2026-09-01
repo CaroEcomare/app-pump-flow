@@ -242,14 +242,25 @@ export async function crearValoracion(supabase, alumnaId, campos, numero) {
   if (error) throw error;
 }
 
+export async function listarPaquetes(supabase, alumnaId) {
+  const { data, error } = await supabase
+    .from('paquetes')
+    .select('*')
+    .eq('alumna_id', alumnaId)
+    .order('fecha_pago', { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
 export async function obtenerFichaAlumna(supabase, alumnaId) {
-  const [alumna, paquete, valoraciones, asistencias] = await Promise.all([
+  const [alumna, paquete, valoraciones, asistencias, paquetes] = await Promise.all([
     obtenerPerfil(supabase, alumnaId),
     obtenerPaqueteActivo(supabase, alumnaId),
     listarValoraciones(supabase, alumnaId),
     obtenerMisAsistencias(supabase, alumnaId),
+    listarPaquetes(supabase, alumnaId),
   ]);
-  return { alumna, paquete, valoraciones, asistencias };
+  return { alumna, paquete, valoraciones, asistencias, paquetes };
 }
 
 export async function activarPaquete(supabase, alumnaId, { tipo, clasesTotales, monto, formaPago, fechaPago, vence }) {

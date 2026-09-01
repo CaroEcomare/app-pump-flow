@@ -71,3 +71,30 @@ export function tieneValoraciones(valoraciones) {
 export function inicialAvatar(nombre) {
   return (nombre?.trim()?.[0] ?? '?').toUpperCase();
 }
+
+// Une cada asistencia con el paquete que estaba activo en esa fecha (el de
+// fecha_pago más reciente que no la rebase), asumiendo que un paquete cubre
+// desde su fecha_pago hasta que empieza el siguiente. Grupos más recientes
+// primero; lo anterior al primer paquete cae en un grupo aparte (paquete: null).
+export function agruparAsistenciasPorPaquete(asistencias, paquetes) {
+  const ordenados = paquetes
+    .filter((p) => p.fecha_pago)
+    .slice()
+    .sort((a, b) => a.fecha_pago.localeCompare(b.fecha_pago));
+
+  const grupos = ordenados.map((paquete, i) => {
+    const siguiente = ordenados[i + 1];
+    return {
+      paquete,
+      asistencias: asistencias.filter((a) => a.fecha >= paquete.fecha_pago
+        && (!siguiente || a.fecha < siguiente.fecha_pago)),
+    };
+  }).reverse();
+
+  const sinPaquete = ordenados.length
+    ? asistencias.filter((a) => a.fecha < ordenados[0].fecha_pago)
+    : asistencias.slice();
+  if (sinPaquete.length) grupos.push({ paquete: null, asistencias: sinPaquete });
+
+  return grupos;
+}

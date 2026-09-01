@@ -12,7 +12,7 @@ import { escaparHTML } from './lib/escape.js';
 import { wireTabs, mostrarErrorCerca } from './ui.js';
 import {
   estadoAsistenciaBadge, estadoPaquete, paqueteVenceEnDias,
-  siguienteNumeroValoracion, inicialAvatar,
+  siguienteNumeroValoracion, inicialAvatar, agruparAsistenciasPorPaquete,
 } from './lib/status.js';
 
 const CAMPOS_VALORACION = [
@@ -233,7 +233,7 @@ async function renderAlumnas(supabase, resumen) {
 }
 
 async function renderFicha(supabase, alumnaId) {
-  const { alumna, paquete, valoraciones, asistencias } = await obtenerFichaAlumna(supabase, alumnaId);
+  const { alumna, paquete, valoraciones, asistencias, paquetes } = await obtenerFichaAlumna(supabase, alumnaId);
   const estado = estadoPaquete(paquete, hoyISO());
   const cont = document.getElementById('d-ficha');
   const etiquetaOrigen = etiquetaPlataforma(alumna.plataforma);
@@ -262,13 +262,8 @@ async function renderFicha(supabase, alumnaId) {
     </div>
 
     <div class="card">
-      <b style="color:var(--text-title)">Asistencias recientes</b>
-      ${asistencias.slice(0, 5).map((a) => {
-        const badge = estadoAsistenciaBadge({ confirmada_admin: a.confirmadaAdmin });
-        const texto = badge === 'confirmada' ? 'Confirmada' : 'Pendiente';
-        const clase = badge === 'confirmada' ? 'ok' : 'warn';
-        return `<div class="dato"><span>${escaparHTML(formatDiaMesConDia(a.fecha))} · ${escaparHTML(formatHora12(a.hora))}</span><span class="badge ${clase}">${texto}</span></div>`;
-      }).join('') || '<div class="muted">Sin asistencias todavía</div>'}
+      <b style="color:var(--text-title)">Asistencias</b>
+      ${agruparAsistenciasPorPaquete(asistencias, paquetes).map((g) => renderGrupoAsistencias(g)).join('') || '<div class="muted">Sin asistencias todavía</div>'}
     </div>`;
 
   cont.querySelectorAll('.acc').forEach((btn) => {
@@ -311,6 +306,25 @@ function renderValoracion(v, index, nombreAlumna) {
         ${filas}
         <div class="dato" style="display:block"><span>Observaciones</span><div style="margin-top:4px;color:var(--text-body)">${v.observaciones ? escaparHTML(v.observaciones) : '—'}</div></div>
       </div>
+    </div>`;
+}
+
+function renderGrupoAsistencias(grupo) {
+  const titulo = grupo.paquete
+    ? `Paquete desde ${escaparHTML(formatDiaMesConDia(grupo.paquete.fecha_pago))}`
+    : 'Antes de tener paquete registrado';
+  const filas = grupo.asistencias.map((a) => {
+    const badge = estadoAsistenciaBadge({ confirmada_admin: a.confirmadaAdmin });
+    const texto = badge === 'confirmada' ? 'Confirmada' : 'Pendiente';
+    const clase = badge === 'confirmada' ? 'ok' : 'warn';
+    return `<div class="dato"><span>${escaparHTML(formatDiaMesConDia(a.fecha))} · ${escaparHTML(formatHora12(a.hora))}</span><span class="badge ${clase}">${texto}</span></div>`;
+  }).join('');
+  return `
+    <div style="border:2px solid var(--border-soft);border-radius:var(--radius-md);overflow:hidden;margin-bottom:10px">
+      <button class="acc" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--pf-lila-fondo);border:none;padding:12px 14px;cursor:pointer;font:var(--text-body-strong);font-size:14px;color:var(--text-title);text-align:left;min-height:44px">
+        ${titulo}<span class="badge">${grupo.asistencias.length} clase${grupo.asistencias.length === 1 ? '' : 's'}</span>
+      </button>
+      <div class="acc-body" style="display:none;padding:4px 14px 12px">${filas}</div>
     </div>`;
 }
 

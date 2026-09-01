@@ -5,6 +5,7 @@ import {
   estadoPaquete, paqueteVenceEnDias, estadoAsistenciaBadge,
   horasHastaClase, puedeApartar, puedeCancelar,
   siguienteNumeroValoracion, tieneValoraciones, inicialAvatar,
+  agruparAsistenciasPorPaquete,
 } from './status.js';
 
 test('cupoDisponible resta ocupados del total, nunca negativo', () => {
@@ -117,4 +118,45 @@ test('tieneValoraciones', () => {
 test('inicialAvatar toma la primera letra en mayúscula', () => {
   assert.equal(inicialAvatar('mariana López'), 'M');
   assert.equal(inicialAvatar(''), '?');
+});
+
+test('agruparAsistenciasPorPaquete reparte asistencias por el rango de cada paquete, más reciente primero', () => {
+  const paquetes = [
+    { id: 1, fecha_pago: '2026-06-25' },
+    { id: 2, fecha_pago: '2026-07-25' },
+  ];
+  const asistencias = [
+    { id: 10, fecha: '2026-06-30' },
+    { id: 11, fecha: '2026-07-10' },
+    { id: 12, fecha: '2026-07-28' },
+  ];
+  const grupos = agruparAsistenciasPorPaquete(asistencias, paquetes);
+  assert.deepEqual(grupos, [
+    { paquete: paquetes[1], asistencias: [asistencias[2]] },
+    { paquete: paquetes[0], asistencias: [asistencias[0], asistencias[1]] },
+  ]);
+});
+
+test('agruparAsistenciasPorPaquete manda a "sin paquete" lo anterior al primer paquete', () => {
+  const paquetes = [{ id: 1, fecha_pago: '2026-06-25' }];
+  const asistencias = [
+    { id: 9, fecha: '2026-06-01' },
+    { id: 10, fecha: '2026-06-30' },
+  ];
+  const grupos = agruparAsistenciasPorPaquete(asistencias, paquetes);
+  assert.deepEqual(grupos, [
+    { paquete: paquetes[0], asistencias: [asistencias[1]] },
+    { paquete: null, asistencias: [asistencias[0]] },
+  ]);
+});
+
+test('agruparAsistenciasPorPaquete no agrega grupo "sin paquete" si no hay huérfanas', () => {
+  const paquetes = [{ id: 1, fecha_pago: '2026-06-25' }];
+  const asistencias = [{ id: 10, fecha: '2026-06-30' }];
+  const grupos = agruparAsistenciasPorPaquete(asistencias, paquetes);
+  assert.equal(grupos.length, 1);
+});
+
+test('agruparAsistenciasPorPaquete regresa arreglo vacío sin paquetes ni asistencias', () => {
+  assert.deepEqual(agruparAsistenciasPorPaquete([], []), []);
 });
