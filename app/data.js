@@ -291,6 +291,37 @@ export async function activarPaquete(supabase, alumnaId, { tipo, clasesTotales, 
   if (error) throw error;
 }
 
+export async function actualizarFechaPago(supabase, paqueteId, fechaPago) {
+  const { error } = await supabase.from('paquetes').update({ fecha_pago: fechaPago }).eq('id', paqueteId);
+  if (error) throw error;
+}
+
+export async function actualizarPagado(supabase, paqueteId, pagado) {
+  const { error } = await supabase.from('paquetes').update({ pagado }).eq('id', paqueteId);
+  if (error) throw error;
+}
+
+// Paquete de historial (ej. de antes de usar la app): no toca el paquete
+// activo, solo agrega un registro más para que las asistencias viejas se
+// puedan agrupar correctamente por fecha de pago.
+export async function agregarPaqueteHistorico(supabase, alumnaId, {
+  tipo, clasesTotales, clasesUsadas, monto, formaPago, fechaPago, vence, pagado,
+}) {
+  const { error } = await supabase.from('paquetes').insert({
+    alumna_id: alumnaId,
+    tipo,
+    clases_totales: clasesTotales,
+    clases_usadas: clasesUsadas,
+    monto,
+    forma_pago: formaPago,
+    fecha_pago: fechaPago,
+    vence,
+    activo: false,
+    pagado,
+  });
+  if (error) throw error;
+}
+
 export async function generarClases(supabase) {
   const { error } = await supabase.rpc('generar_clases');
   if (error) throw error;

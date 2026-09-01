@@ -292,3 +292,18 @@ $$;
 drop trigger if exists trg_devuelve_clase on asistencias;
 create trigger trg_devuelve_clase after delete on asistencias
   for each row execute function devuelve_clase();
+
+-- ============================================
+-- Marcar un paquete como pagado o pendiente de pago
+-- ============================================
+-- Antes "Por pagar" solo salía cuando ya se pasaba la fecha de
+-- vencimiento. Hace falta poder marcarlo a mano para casos como un
+-- paquete que se activó sin cobrar todavía (ej. de prueba) pero que ya
+-- tiene clases tomadas. Por default los paquetes quedan pagados, que es
+-- como se han creado siempre hasta ahora.
+alter table paquetes add column if not exists pagado boolean not null default true;
+
+-- La policy "admin activa paquetes" ya cubre "for all" (select, insert,
+-- update, delete) para la admin, así que no hace falta ninguna policy
+-- nueva para editar la fecha de pago, el estado de pago, o agregar
+-- paquetes de historial: ya estaba permitido.

@@ -27,6 +27,7 @@ export function proximaReserva(reservas, ahora = new Date()) {
 
 export function estadoPaquete(paquete, hoyISOStr) {
   if (!paquete || !paquete.activo) return 'sin_paquete';
+  if (paquete.pagado === false) return 'por_pagar';
   if (paquete.vence && paquete.vence < hoyISOStr) return 'por_pagar';
   return 'al_dia';
 }

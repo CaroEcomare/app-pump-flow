@@ -5,6 +5,7 @@ import {
   actualizarClasesUsadas, crearAlumnaManual, cancelarClase,
   crearHorarioRecurrente, crearClaseEspecial, generarClases,
   marcarAsistenciaManual, borrarAsistencia,
+  actualizarFechaPago, actualizarPagado, agregarPaqueteHistorico,
 } from './data.js';
 import { crearClienteTemporal } from './supabase-client.js';
 import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
@@ -242,17 +243,28 @@ async function renderFicha(supabase, alumnaId) {
     <div class="muted">En Pump&Flow desde ${escaparHTML(formatFechaCompleta(alumna.fecha_alta))}</div>
 
     <div class="card">
-      <div class="row"><b style="color:var(--text-title)">Paquete</b><button class="pillbtn soft" id="btn-activar-paquete" style="padding:7px 16px;min-height:36px;font-size:13px">Activar mes</button></div>
+      <div class="row">
+        <b style="color:var(--text-title)">Paquete</b>
+        <span style="display:flex;gap:8px">
+          <button class="pillbtn soft" id="btn-paquete-historico" style="padding:7px 16px;min-height:36px;font-size:13px">+ Paquete pasado</button>
+          <button class="pillbtn soft" id="btn-activar-paquete" style="padding:7px 16px;min-height:36px;font-size:13px">Activar mes</button>
+        </span>
+      </div>
       ${estado === 'sin_paquete'
         ? '<div class="muted" style="margin-top:8px">Sin paquete activo</div>'
         : `<div class="dato"><span>Clases restantes</span><b>${escaparHTML(paquete.clases_totales - paquete.clases_usadas)} de ${escaparHTML(paquete.clases_totales)}</b></div>
-           <div class="dato"><span>Último pago</span><b>${paquete.monto ? `$${escaparHTML(paquete.monto)} · ` : ''}${escaparHTML(paquete.forma_pago ?? '')} · ${paquete.fecha_pago ? escaparHTML(formatDiaMesConDia(paquete.fecha_pago)) : '—'}</b></div>
+           <div class="dato"><span>Último pago</span><b>${paquete.monto ? `$${escaparHTML(paquete.monto)} · ` : ''}${escaparHTML(paquete.forma_pago ?? '')}</b></div>
            <div class="dato"><span>Siguiente pago</span><b>${paquete.vence ? escaparHTML(formatDiaMesConDia(paquete.vence)) : '—'}</b></div>
            <form id="form-clases-usadas" class="row" style="margin-top:10px;gap:8px">
              <label class="field" style="flex:1;margin-top:0"><span>Clases usadas</span><input class="input" type="number" min="0" name="clasesUsadas" value="${escaparHTML(paquete.clases_usadas)}"></label>
              <button class="pillbtn soft" type="submit" style="padding:7px 16px;min-height:36px;font-size:13px;align-self:flex-end">Guardar</button>
            </form>
-           <button class="link-suave" id="btn-marcar-asistencia-manual" style="padding:4px 0;margin-top:8px">+ Marcar asistencia de un día pasado</button>`}
+           <form id="form-fecha-pago" class="row" style="margin-top:10px;gap:8px">
+             <label class="field" style="flex:1;margin-top:0"><span>Fecha de pago</span><input class="input" type="date" name="fechaPago" value="${escaparHTML(paquete.fecha_pago ?? '')}"></label>
+             <button class="pillbtn soft" type="submit" style="padding:7px 16px;min-height:36px;font-size:13px;align-self:flex-end">Guardar</button>
+           </form>
+           <button class="link-suave" id="btn-marcar-asistencia-manual" style="padding:4px 0;margin-top:8px">+ Marcar asistencia de un día pasado</button><br>
+           <button class="link-suave" id="btn-toggle-pagado" style="padding:4px 0">${paquete.pagado === false ? 'Marcar como pagado' : 'Marcar como pendiente de pago'}</button>`}
     </div>
 
     <div class="card">
@@ -287,7 +299,19 @@ async function renderFicha(supabase, alumnaId) {
   });
   document.getElementById('btn-nueva-valoracion').addEventListener('click', () => abrirDialogValoracion(supabase, alumnaId, valoraciones));
   document.getElementById('btn-activar-paquete').addEventListener('click', () => abrirDialogPaquete(supabase, alumnaId));
+  document.getElementById('btn-paquete-historico').addEventListener('click', () => abrirDialogPaquete(supabase, alumnaId, { historico: true }));
   document.getElementById('btn-marcar-asistencia-manual')?.addEventListener('click', () => abrirDialogAsistenciaManual(supabase, alumnaId));
+  document.getElementById('btn-toggle-pagado')?.addEventListener('click', async (e) => {
+    const boton = e.target;
+    boton.disabled = true;
+    try {
+      await actualizarPagado(supabase, paquete.id, paquete.pagado === false);
+      await renderFicha(supabase, alumnaId);
+    } catch (err) {
+      boton.disabled = false;
+      mostrarErrorCerca(boton, `No se pudo actualizar: ${err.message}`);
+    }
+  });
 
   const formClasesUsadas = document.getElementById('form-clases-usadas');
   formClasesUsadas?.addEventListener('submit', async (e) => {
@@ -297,6 +321,21 @@ async function renderFicha(supabase, alumnaId) {
     const formData = new FormData(e.target);
     try {
       await actualizarClasesUsadas(supabase, paquete.id, Number(formData.get('clasesUsadas')));
+      await renderFicha(supabase, alumnaId);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo guardar: ${err.message}`);
+    }
+  });
+
+  const formFechaPago = document.getElementById('form-fecha-pago');
+  formFechaPago?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
+    const formData = new FormData(e.target);
+    try {
+      await actualizarFechaPago(supabase, paquete.id, formData.get('fechaPago'));
       await renderFicha(supabase, alumnaId);
     } catch (err) {
       if (boton) boton.disabled = false;
@@ -415,11 +454,11 @@ function abrirDialogAsistenciaManual(supabase, alumnaId) {
   dialog.showModal();
 }
 
-function abrirDialogPaquete(supabase, alumnaId) {
+function abrirDialogPaquete(supabase, alumnaId, { historico = false } = {}) {
   const dialog = document.getElementById('dialog-paquete');
   const body = document.getElementById('dialog-paquete-body');
   body.innerHTML = `
-    <h1 style="font:var(--text-h3)">Activar mes</h1>
+    <h1 style="font:var(--text-h3)">${historico ? 'Agregar paquete pasado' : 'Activar mes'}</h1>
     <form id="form-paquete">
       <label class="field"><span>Tipo</span>
         <select class="input" name="tipo" id="paquete-tipo">
@@ -428,6 +467,7 @@ function abrirDialogPaquete(supabase, alumnaId) {
         </select>
       </label>
       <label class="field"><span>Clases totales</span><input class="input" type="number" name="clasesTotales" id="paquete-clases-totales" value="8" required></label>
+      ${historico ? '<label class="field"><span>Clases usadas</span><input class="input" type="number" name="clasesUsadas" id="paquete-clases-usadas" value="8" required></label>' : ''}
       <label class="field"><span>Monto</span><input class="input" type="number" name="monto" step="0.01" required></label>
       <label class="field"><span>Forma de pago</span>
         <select class="input" name="formaPago">
@@ -435,14 +475,17 @@ function abrirDialogPaquete(supabase, alumnaId) {
           <option value="efectivo">Efectivo</option>
         </select>
       </label>
-      <label class="field"><span>Fecha de pago</span><input class="input" type="date" name="fechaPago" value="${hoyISO()}" required></label>
+      <label class="field"><span>Fecha de pago</span><input class="input" type="date" name="fechaPago" value="${historico ? '' : hoyISO()}" required></label>
       <label class="field"><span>Vence</span><input class="input" type="date" name="vence" required></label>
-      <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">Activar paquete</button>
+      <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">${historico ? 'Agregar paquete' : 'Activar paquete'}</button>
       <button class="link-suave" type="button" id="btn-cancelar-paquete" style="width:100%;text-align:center">Cancelar</button>
     </form>`;
   document.getElementById('btn-cancelar-paquete').addEventListener('click', () => dialog.close());
   document.getElementById('paquete-tipo').addEventListener('change', (e) => {
-    document.getElementById('paquete-clases-totales').value = e.target.value === 'personal' ? 10 : 8;
+    const clasesTotales = e.target.value === 'personal' ? 10 : 8;
+    document.getElementById('paquete-clases-totales').value = clasesTotales;
+    const campoClasesUsadas = document.getElementById('paquete-clases-usadas');
+    if (campoClasesUsadas) campoClasesUsadas.value = clasesTotales;
   });
   document.getElementById('form-paquete').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -451,14 +494,23 @@ function abrirDialogPaquete(supabase, alumnaId) {
     if (boton) boton.disabled = true;
     const formData = new FormData(e.target);
     try {
-      await activarPaquete(supabase, alumnaId, {
+      const datosPaquete = {
         tipo: formData.get('tipo'),
         clasesTotales: Number(formData.get('clasesTotales')),
         monto: Number(formData.get('monto')),
         formaPago: formData.get('formaPago'),
         fechaPago: formData.get('fechaPago'),
         vence: formData.get('vence'),
-      });
+      };
+      if (historico) {
+        await agregarPaqueteHistorico(supabase, alumnaId, {
+          ...datosPaquete,
+          clasesUsadas: Number(formData.get('clasesUsadas')),
+          pagado: true,
+        });
+      } else {
+        await activarPaquete(supabase, alumnaId, datosPaquete);
+      }
       dialog.close();
       await renderFicha(supabase, alumnaId);
     } catch (err) {

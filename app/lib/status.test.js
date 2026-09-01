@@ -73,6 +73,14 @@ test('estadoPaquete distingue sin_paquete, al_dia y por_pagar', () => {
   assert.equal(estadoPaquete({ activo: true, vence: '2026-08-01' }, '2026-08-11'), 'por_pagar');
 });
 
+test('estadoPaquete es por_pagar si "pagado" es false, aunque no haya vencido', () => {
+  assert.equal(estadoPaquete({ activo: true, pagado: false, vence: '2026-09-01' }, '2026-08-11'), 'por_pagar');
+});
+
+test('estadoPaquete es al_dia si "pagado" es true explícitamente y no ha vencido', () => {
+  assert.equal(estadoPaquete({ activo: true, pagado: true, vence: '2026-09-01' }, '2026-08-11'), 'al_dia');
+});
+
 test('paqueteVenceEnDias detecta ventana de 7 días por default', () => {
   assert.equal(paqueteVenceEnDias({ activo: true, vence: '2026-08-15' }, '2026-08-11'), true);
   assert.equal(paqueteVenceEnDias({ activo: true, vence: '2026-08-25' }, '2026-08-11'), false);
