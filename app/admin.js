@@ -4,7 +4,7 @@ import {
   listarClasesProximas, listarPaquetesActivos, listarAlumnaIdsConValoracion,
   actualizarClasesUsadas, crearAlumnaManual, cancelarClase,
   crearHorarioRecurrente, crearClaseEspecial, generarClases,
-  marcarAsistenciaManual,
+  marcarAsistenciaManual, borrarAsistencia,
 } from './data.js';
 import { crearClienteTemporal } from './supabase-client.js';
 import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
@@ -272,6 +272,19 @@ async function renderFicha(supabase, alumnaId) {
       body.style.display = body.style.display === 'none' ? 'block' : 'none';
     });
   });
+  cont.querySelectorAll('.btn-borrar-asistencia').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('¿Borrar esta clase? Si estaba confirmada, se le regresa a su paquete.')) return;
+      btn.disabled = true;
+      try {
+        await borrarAsistencia(supabase, Number(btn.dataset.asistenciaId));
+        await renderFicha(supabase, alumnaId);
+      } catch (err) {
+        btn.disabled = false;
+        mostrarErrorCerca(btn, `No se pudo borrar: ${err.message}`);
+      }
+    });
+  });
   document.getElementById('btn-nueva-valoracion').addEventListener('click', () => abrirDialogValoracion(supabase, alumnaId, valoraciones));
   document.getElementById('btn-activar-paquete').addEventListener('click', () => abrirDialogPaquete(supabase, alumnaId));
   document.getElementById('btn-marcar-asistencia-manual')?.addEventListener('click', () => abrirDialogAsistenciaManual(supabase, alumnaId));
@@ -317,7 +330,13 @@ function renderGrupoAsistencias(grupo) {
     const badge = estadoAsistenciaBadge({ confirmada_admin: a.confirmadaAdmin });
     const texto = badge === 'confirmada' ? 'Confirmada' : 'Pendiente';
     const clase = badge === 'confirmada' ? 'ok' : 'warn';
-    return `<div class="dato"><span>${escaparHTML(formatDiaMesConDia(a.fecha))} · ${escaparHTML(formatHora12(a.hora))}</span><span class="badge ${clase}">${texto}</span></div>`;
+    return `<div class="dato">
+      <span>${escaparHTML(formatDiaMesConDia(a.fecha))} · ${escaparHTML(formatHora12(a.hora))}</span>
+      <span style="display:flex;align-items:center;gap:10px">
+        <span class="badge ${clase}">${texto}</span>
+        <button class="link-suave btn-borrar-asistencia" data-asistencia-id="${escaparHTML(a.id)}" style="padding:0;color:var(--pf-error)">Borrar</button>
+      </span>
+    </div>`;
   }).join('');
   return `
     <div style="border:2px solid var(--border-soft);border-radius:var(--radius-md);overflow:hidden;margin-bottom:10px">

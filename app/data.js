@@ -212,6 +212,14 @@ export async function confirmarAsistencia(supabase, alumnaId, claseId) {
   if (error) throw error;
 }
 
+// Borra una asistencia que se confirmó por error (ej. pruebas). El trigger
+// "trg_devuelve_clase" en Supabase se encarga de regresarle la clase a su
+// paquete si estaba confirmada — aquí solo se borra la fila.
+export async function borrarAsistencia(supabase, asistenciaId) {
+  const { error } = await supabase.from('asistencias').delete().eq('id', asistenciaId);
+  if (error) throw error;
+}
+
 // Registra a mano una asistencia de una fecha pasada (ej. paquetes que se
 // venían gastando sin quedar registrado qué día se usó cada clase). Crea
 // una clase especial personal para esa fecha —invisible en "Clases" por

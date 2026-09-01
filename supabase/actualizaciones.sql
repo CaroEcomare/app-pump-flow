@@ -266,3 +266,29 @@ $$;
 drop policy if exists "ver clases" on clases;
 create policy "ver clases" on clases
   for select using (es_admin() or alumna_id is null or alumna_id = auth.uid());
+
+-- ============================================
+-- Borrar una asistencia confirmada por error (ej. pruebas)
+-- ============================================
+-- Deja que la admin borre una fila de "asistencias" (hoy nadie tenía
+-- permiso para hacerlo). Si esa asistencia ya estaba confirmada, un
+-- trigger de borrado le regresa la clase a su paquete activo, en espejo
+-- del trigger que ya existe y se la resta al confirmarla.
+drop policy if exists "admin borra asistencia" on asistencias;
+create policy "admin borra asistencia" on asistencias
+  for delete using (es_admin());
+
+create or replace function devuelve_clase()
+returns trigger language plpgsql as $$
+begin
+  if old.confirmada_admin is not null then
+    update paquetes set clases_usadas = greatest(clases_usadas - 1, 0)
+    where alumna_id = old.alumna_id and activo = true;
+  end if;
+  return old;
+end;
+$$;
+
+drop trigger if exists trg_devuelve_clase on asistencias;
+create trigger trg_devuelve_clase after delete on asistencias
+  for each row execute function devuelve_clase();
