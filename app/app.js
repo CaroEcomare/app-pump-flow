@@ -3,6 +3,7 @@ import { obtenerSesionActual, asegurarPerfil, cerrarSesion, registrar, iniciarSe
 import { generarClases, procesarAsistenciasPasadas } from './data.js';
 import { montarVistaAlumna } from './alumna.js';
 import { montarVistaAdmin } from './admin.js';
+import { montarClaseMuestra } from './clase-muestra.js';
 
 const pantallaAuth = document.getElementById('pantalla-auth');
 const pantallaAlumna = document.getElementById('pantalla-alumna');
@@ -10,9 +11,7 @@ const pantallaAdmin = document.getElementById('pantalla-admin');
 const switchVistas = document.getElementById('switch-vistas');
 
 function mostrarPantalla(id) {
-  pantallaAuth.classList.remove('on');
-  pantallaAlumna.classList.remove('on');
-  pantallaAdmin.classList.remove('on');
+  document.querySelectorAll('.pantalla').forEach((p) => p.classList.remove('on'));
   document.getElementById(id).classList.add('on');
 }
 
@@ -101,15 +100,21 @@ document.getElementById('form-registro').addEventListener('submit', async (e) =>
   }
 });
 
-try {
-  const sesion = await obtenerSesionActual();
-  if (sesion) {
-    await entrarConSesion(sesion);
-  } else {
+const params = new URLSearchParams(location.search);
+if (params.get('agenda') === 'clase-muestra') {
+  mostrarPantalla('pantalla-clase-muestra');
+  await montarClaseMuestra({ supabase });
+} else {
+  try {
+    const sesion = await obtenerSesionActual();
+    if (sesion) {
+      await entrarConSesion(sesion);
+    } else {
+      mostrarPantalla('pantalla-auth');
+    }
+  } catch (err) {
+    switchVistas.style.display = 'none';
     mostrarPantalla('pantalla-auth');
+    alert(`No pudimos abrir tu sesión: ${err.message}\n\nRecarga la página, por favor 🤍`);
   }
-} catch (err) {
-  switchVistas.style.display = 'none';
-  mostrarPantalla('pantalla-auth');
-  alert(`No pudimos abrir tu sesión: ${err.message}\n\nRecarga la página, por favor 🤍`);
 }
