@@ -307,3 +307,73 @@ alter table paquetes add column if not exists pagado boolean not null default tr
 -- update, delete) para la admin, así que no hace falta ninguna policy
 -- nueva para editar la fecha de pago, el estado de pago, o agregar
 -- paquetes de historial: ya estaba permitido.
+
+-- ============================================
+-- Clase muestra: agendar público, sin cuenta
+-- ============================================
+-- Disponibilidad fija semanal que define Caro (mismo patrón que
+-- "horarios" para las clases regulares, pero sin cupo: cada franja es
+-- de una sola persona, así que no hace falta ese campo).
+create table if not exists disponibilidad_clase_muestra (
+  id serial primary key,
+  dia_semana int not null check (dia_semana between 0 and 6),
+  hora time not null,
+  activo boolean not null default true
+);
+alter table disponibilidad_clase_muestra enable row level security;
+
+drop policy if exists "ver disponibilidad clase muestra" on disponibilidad_clase_muestra;
+create policy "ver disponibilidad clase muestra" on disponibilidad_clase_muestra
+  for select using (true);
+
+drop policy if exists "admin administra disponibilidad clase muestra" on disponibilidad_clase_muestra;
+create policy "admin administra disponibilidad clase muestra" on disponibilidad_clase_muestra
+  for all using (es_admin());
+
+-- Citas agendadas por prospectos. Sin alumna_id: quien agenda no tiene
+-- cuenta todavía.
+create table if not exists citas_clase_muestra (
+  id serial primary key,
+  fecha date not null,
+  hora time not null,
+  nombre text not null,
+  telefono text,
+  cancelada boolean not null default false,
+  created_at timestamptz not null default now()
+);
+alter table citas_clase_muestra enable row level security;
+
+-- Evita que dos personas agenden el mismo horario si le dan "enviar" casi
+-- al mismo tiempo (la segunda inserción truena con un error claro, que la
+-- pantalla pública ya sabe mostrar). No aplica a citas ya canceladas, para
+-- que ese horario se pueda volver a agendar después.
+create unique index if not exists citas_clase_muestra_fecha_hora_activa
+  on citas_clase_muestra (fecha, hora) where cancelada = false;
+
+-- Cualquiera puede agendar (no puede crear una cita ya cancelada).
+drop policy if exists "cualquiera agenda clase muestra" on citas_clase_muestra;
+create policy "cualquiera agenda clase muestra" on citas_clase_muestra
+  for insert with check (cancelada = false);
+
+-- Solo la admin ve el detalle completo (nombre, teléfono) y puede cancelar.
+drop policy if exists "admin ve citas clase muestra" on citas_clase_muestra;
+create policy "admin ve citas clase muestra" on citas_clase_muestra
+  for select using (es_admin());
+
+drop policy if exists "admin cancela clase muestra" on citas_clase_muestra;
+create policy "admin cancela clase muestra" on citas_clase_muestra
+  for update using (es_admin());
+
+-- El público necesita saber qué horarios YA NO están libres, sin ver
+-- nombres ni teléfonos de nadie más. Esta función expone nada más
+-- fecha+hora de las citas no canceladas — "security definer" hace que
+-- corra con permisos de quien la creó (la admin), no de quien la llama,
+-- así que no choca con la policy de "select" de arriba.
+create or replace function slots_ocupados_clase_muestra()
+returns table(fecha date, hora time)
+language sql security definer stable set search_path = public as $$
+  select fecha, hora from citas_clase_muestra
+  where cancelada = false and fecha >= current_date;
+$$;
+
+grant execute on function slots_ocupados_clase_muestra() to anon, authenticated;
