@@ -1,4 +1,4 @@
-import { parseFechaSQL } from './date-utils.js';
+import { parseFechaSQL, hoyISO } from './date-utils.js';
 
 export function cupoDisponible(cupoTotal, reservasCount) {
   return Math.max(0, cupoTotal - reservasCount);
@@ -98,4 +98,23 @@ export function agruparAsistenciasPorPaquete(asistencias, paquetes) {
   if (sinPaquete.length) grupos.push({ paquete: null, asistencias: sinPaquete });
 
   return grupos;
+}
+
+export function slotsDisponiblesClaseMuestra(disponibilidad, ocupados, hoy, dias = 14) {
+  const ocupadosSet = new Set(ocupados.map((o) => `${o.fecha}_${o.hora}`));
+  const slots = [];
+  for (let i = 0; i < dias; i += 1) {
+    const fecha = new Date(hoy);
+    fecha.setDate(fecha.getDate() + i);
+    const fechaISO = hoyISO(fecha);
+    const diaSemana = fecha.getDay();
+    disponibilidad
+      .filter((d) => d.diaSemana === diaSemana)
+      .forEach((d) => {
+        if (ocupadosSet.has(`${fechaISO}_${d.hora}`)) return;
+        if (!puedeApartar(fechaISO, d.hora, hoy)) return;
+        slots.push({ fecha: fechaISO, hora: d.hora });
+      });
+  }
+  return slots.sort((a, b) => (a.fecha === b.fecha ? a.hora.localeCompare(b.hora) : a.fecha.localeCompare(b.fecha)));
 }
