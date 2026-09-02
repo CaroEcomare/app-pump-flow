@@ -39,6 +39,14 @@
   </form>
 </div>
 
+<div class="pantalla" id="pantalla-clase-muestra" style="align-items:center;justify-content:center;padding:24px">
+  <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
+  <div class="card" style="width:100%;max-width:340px">
+    <h1 style="font:var(--text-h3);margin-bottom:4px">Agenda tu clase muestra</h1>
+    <div id="clase-muestra-contenido"></div>
+  </div>
+</div>
+
 <div style="display:none;justify-content:center;padding:10px;position:sticky;top:0;background:var(--surface-page);z-index:5" id="switch-vistas">
   <div class="switch claro">
     <button class="on" data-pantalla="pantalla-admin">Vista administradora</button>
@@ -151,11 +159,43 @@
     <div id="d-clases-lista"></div>
   </div>
 
+  <div class="screen" id="d-muestra">
+    <h1>Clase muestra</h1>
+    <div class="card">
+      <b style="color:var(--text-title)">Tu link para compartir</b>
+      <div class="dato"><span id="d-muestra-link" style="word-break:break-all"></span></div>
+    </div>
+    <div class="card">
+      <b style="color:var(--text-title)">Disponibilidad</b>
+      <div id="d-muestra-disponibilidad" style="margin-top:8px"></div>
+      <form id="form-disponibilidad-clase-muestra" class="row" style="margin-top:10px;gap:8px">
+        <label class="field" style="flex:1;margin-top:0"><span>Día</span>
+          <select class="input" name="diaSemana">
+            <option value="0">Domingo</option>
+            <option value="1">Lunes</option>
+            <option value="2">Martes</option>
+            <option value="3">Miércoles</option>
+            <option value="4">Jueves</option>
+            <option value="5">Viernes</option>
+            <option value="6">Sábado</option>
+          </select>
+        </label>
+        <label class="field" style="flex:1;margin-top:0"><span>Hora</span><input class="input" type="time" name="hora" required></label>
+        <button class="pillbtn soft" type="submit" style="padding:7px 16px;min-height:36px;font-size:13px;align-self:flex-end">Agregar</button>
+      </form>
+    </div>
+    <div class="card">
+      <b style="color:var(--text-title)">Próximas citas</b>
+      <div id="d-muestra-citas" style="margin-top:8px"></div>
+    </div>
+  </div>
+
   <div class="tabbar">
     <button class="tab on" data-s="d-hoy"><i data-lucide="check-circle" class="ico"></i>Hoy</button>
     <button class="tab" data-s="d-alumnas"><i data-lucide="users" class="ico"></i>Alumnado</button>
     <button class="tab" data-s="d-ficha"><i data-lucide="clipboard-list" class="ico"></i>Ficha</button>
     <button class="tab" data-s="d-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
+    <button class="tab" data-s="d-muestra"><i data-lucide="calendar-plus" class="ico"></i>Muestra</button>
   </div>
 </div>
 </div>
