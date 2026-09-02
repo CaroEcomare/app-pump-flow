@@ -6,6 +6,8 @@ import {
   crearHorarioRecurrente, crearClaseEspecial, generarClases,
   marcarAsistenciaManual, borrarAsistencia,
   actualizarFechaPago, actualizarPagado, agregarPaqueteHistorico,
+  listarDisponibilidadClaseMuestra, crearDisponibilidadClaseMuestra,
+  desactivarDisponibilidadClaseMuestra, listarCitasClaseMuestra, cancelarCitaClaseMuestra,
 } from './data.js';
 import { crearClienteTemporal } from './supabase-client.js';
 import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from './lib/date-utils.js';
@@ -37,6 +39,8 @@ const CAMPOS_VALORACION = [
   { key: 'observaciones', label: 'Observaciones', type: 'textarea' },
 ];
 
+const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
 export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
   wireTabs('pantalla-admin');
   document.getElementById('d-hoy').querySelector('.btn-logout')?.addEventListener('click', onCerrarSesion);
@@ -45,7 +49,7 @@ export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
 
   // Un solo bloque de consultas para las dos pantallas que lo necesitan.
   const resumen = await cargarResumenAlumnas(supabase);
-  await Promise.all([renderHoy(supabase, resumen), renderAlumnas(supabase, resumen), renderClasesAdmin(supabase)]);
+  await Promise.all([renderHoy(supabase, resumen), renderAlumnas(supabase, resumen), renderClasesAdmin(supabase), renderMuestraAdmin(supabase)]);
   document.getElementById('d-ficha').innerHTML = '<h1>Ficha</h1><div class="muted">Elige a alguien en la pestaña "Alumnado".</div>';
 }
 
@@ -627,4 +631,73 @@ async function abrirDialogAgregarClase(supabase) {
     }
   });
   dialog.showModal();
+}
+
+async function renderMuestraAdmin(supabase) {
+  const link = `${location.origin}${location.pathname}?agenda=clase-muestra`;
+  document.getElementById('d-muestra-link').textContent = link;
+
+  const [disponibilidad, citas] = await Promise.all([
+    listarDisponibilidadClaseMuestra(supabase),
+    listarCitasClaseMuestra(supabase),
+  ]);
+
+  const contDisponibilidad = document.getElementById('d-muestra-disponibilidad');
+  contDisponibilidad.innerHTML = disponibilidad.map((d) => `
+    <div class="dato">
+      <span>${escaparHTML(DIAS_SEMANA[d.dia_semana])} · ${escaparHTML(formatHora12(d.hora))}</span>
+      <button class="link-suave btn-quitar-disponibilidad" data-id="${escaparHTML(d.id)}" style="padding:0;color:var(--pf-error)">Quitar</button>
+    </div>`).join('') || '<div class="muted">Sin horarios definidos todavía</div>';
+
+  const contCitas = document.getElementById('d-muestra-citas');
+  contCitas.innerHTML = citas.map((c) => `
+    <div class="dato">
+      <span>${escaparHTML(formatDiaMesConDia(c.fecha))} · ${escaparHTML(formatHora12(c.hora))} · ${escaparHTML(c.nombre)}${c.telefono ? ` · ${escaparHTML(c.telefono)}` : ''}</span>
+      <button class="link-suave btn-cancelar-clase-muestra" data-id="${escaparHTML(c.id)}" style="padding:0;color:var(--pf-error)">Cancelar</button>
+    </div>`).join('') || '<div class="muted">Sin citas próximas</div>';
+
+  contDisponibilidad.querySelectorAll('.btn-quitar-disponibilidad').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('¿Quitar este horario de disponibilidad para clase muestra?')) return;
+      btn.disabled = true;
+      try {
+        await desactivarDisponibilidadClaseMuestra(supabase, Number(btn.dataset.id));
+        await renderMuestraAdmin(supabase);
+      } catch (err) {
+        btn.disabled = false;
+        mostrarErrorCerca(btn, `No se pudo quitar: ${err.message}`);
+      }
+    });
+  });
+
+  contCitas.querySelectorAll('.btn-cancelar-clase-muestra').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('¿Cancelar esta clase muestra?')) return;
+      btn.disabled = true;
+      try {
+        await cancelarCitaClaseMuestra(supabase, Number(btn.dataset.id));
+        await renderMuestraAdmin(supabase);
+      } catch (err) {
+        btn.disabled = false;
+        mostrarErrorCerca(btn, `No se pudo cancelar: ${err.message}`);
+      }
+    });
+  });
+
+  document.getElementById('form-disponibilidad-clase-muestra').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
+    const formData = new FormData(e.target);
+    try {
+      await crearDisponibilidadClaseMuestra(supabase, {
+        diaSemana: Number(formData.get('diaSemana')),
+        hora: formData.get('hora'),
+      });
+      await renderMuestraAdmin(supabase);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo agregar: ${err.message}`);
+    }
+  });
 }
