@@ -358,3 +358,62 @@ export async function crearAlumnaManual(clienteTemporal, { nombre, username, con
   }
   await crearPerfilAlumna(clienteTemporal, { id: data.user.id, nombre, telefono, plataforma, username });
 }
+
+export async function listarDisponibilidadClaseMuestra(supabase) {
+  const { data, error } = await supabase
+    .from('disponibilidad_clase_muestra')
+    .select('*')
+    .eq('activo', true)
+    .order('dia_semana', { ascending: true })
+    .order('hora', { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+export async function crearDisponibilidadClaseMuestra(supabase, { diaSemana, hora }) {
+  const { error } = await supabase
+    .from('disponibilidad_clase_muestra')
+    .insert({ dia_semana: diaSemana, hora, activo: true });
+  if (error) throw error;
+}
+
+export async function desactivarDisponibilidadClaseMuestra(supabase, id) {
+  const { error } = await supabase
+    .from('disponibilidad_clase_muestra')
+    .update({ activo: false })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+export async function listarSlotsOcupadosClaseMuestra(supabase) {
+  const { data, error } = await supabase.rpc('slots_ocupados_clase_muestra');
+  if (error) throw error;
+  return data;
+}
+
+export async function agendarClaseMuestra(supabase, { fecha, hora, nombre, telefono }) {
+  const { error } = await supabase
+    .from('citas_clase_muestra')
+    .insert({ fecha, hora, nombre, telefono });
+  if (error) throw error;
+}
+
+export async function listarCitasClaseMuestra(supabase) {
+  const { data, error } = await supabase
+    .from('citas_clase_muestra')
+    .select('*')
+    .eq('cancelada', false)
+    .gte('fecha', hoyISO())
+    .order('fecha', { ascending: true })
+    .order('hora', { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+export async function cancelarCitaClaseMuestra(supabase, citaId) {
+  const { error } = await supabase
+    .from('citas_clase_muestra')
+    .update({ cancelada: true })
+    .eq('id', citaId);
+  if (error) throw error;
+}
