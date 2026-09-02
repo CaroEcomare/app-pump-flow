@@ -46,6 +46,22 @@ export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
   document.getElementById('d-hoy').querySelector('.btn-logout')?.addEventListener('click', onCerrarSesion);
   document.getElementById('btn-nueva-alumna-manual')?.addEventListener('click', () => abrirDialogAlumnaManual(supabase));
   document.getElementById('btn-agregar-clase')?.addEventListener('click', () => abrirDialogAgregarClase(supabase));
+  document.getElementById('form-disponibilidad-clase-muestra')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
+    if (boton) boton.disabled = true;
+    const formData = new FormData(e.target);
+    try {
+      await crearDisponibilidadClaseMuestra(supabase, {
+        diaSemana: Number(formData.get('diaSemana')),
+        hora: formData.get('hora'),
+      });
+      await renderMuestraAdmin(supabase);
+    } catch (err) {
+      if (boton) boton.disabled = false;
+      mostrarErrorCerca(boton ?? e.target, `No se pudo agregar: ${err.message}`);
+    }
+  });
 
   // Un solo bloque de consultas para las dos pantallas que lo necesitan.
   const resumen = await cargarResumenAlumnas(supabase);
@@ -682,22 +698,5 @@ async function renderMuestraAdmin(supabase) {
         mostrarErrorCerca(btn, `No se pudo cancelar: ${err.message}`);
       }
     });
-  });
-
-  document.getElementById('form-disponibilidad-clase-muestra').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
-    if (boton) boton.disabled = true;
-    const formData = new FormData(e.target);
-    try {
-      await crearDisponibilidadClaseMuestra(supabase, {
-        diaSemana: Number(formData.get('diaSemana')),
-        hora: formData.get('hora'),
-      });
-      await renderMuestraAdmin(supabase);
-    } catch (err) {
-      if (boton) boton.disabled = false;
-      mostrarErrorCerca(boton ?? e.target, `No se pudo agregar: ${err.message}`);
-    }
   });
 }
