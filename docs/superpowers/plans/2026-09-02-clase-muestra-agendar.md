@@ -664,9 +664,15 @@ git commit -m "feat: vista admin para disponibilidad y citas de clase muestra"
 
 **Files:** ninguno (solo verificación manual)
 
-**Nota:** este plan corre en un worktree aislado. Esta tarea se ejecuta DESPUÉS de que `finishing-a-development-branch` integre la rama a `main` y esos commits se suban — no como parte del loop de subagentes, porque necesita el sitio real (GitHub Pages, que sirve desde `main`) y la base de datos real de Supabase.
+**Nota:** este plan corre en un worktree aislado. Esta tarea se ejecuta DESPUÉS de que `finishing-a-development-branch` integre la rama a `main` — no como parte del loop de subagentes, porque necesita el sitio real (GitHub Pages, que sirve desde `main`) y la base de datos real de Supabase.
 
-- [ ] **Step 1: Push a producción**
+**Orden importante:** el SQL se pega ANTES de subir el código a producción. Si el código llega primero, la pestaña "Muestra" del admin (que ahora aísla su propio error, pero de todas formas no sirve de nada sin las tablas) y la pantalla pública no van a funcionar hasta que exista el esquema — mejor que nunca haya una ventana donde el código esté ahí pero la base de datos no.
+
+- [ ] **Step 1: Pegar el SQL en Supabase**
+
+Copia **todo** el contenido de `supabase/actualizaciones.sql` y pégalo en el SQL Editor de Supabase → Run. Debe decir "Success. No rows returned". Verifica en el Table Editor que aparecen `disponibilidad_clase_muestra` y `citas_clase_muestra`.
+
+- [ ] **Step 2: Push a producción**
 
 ```bash
 git push origin main
@@ -674,22 +680,22 @@ git push origin main
 
 Espera a que el deploy de GitHub Pages termine (normalmente menos de un minuto).
 
-- [ ] **Step 2: Definir disponibilidad**
+- [ ] **Step 3: Definir disponibilidad**
 
 Entra a tu cuenta de admin en la app real, pestaña "Muestra". Agrega 1-2 franjas de disponibilidad (ej. hoy más tarde, o mañana). Confirma que aparecen en la lista.
 
-- [ ] **Step 3: Agendar como prospecto**
+- [ ] **Step 4: Agendar como prospecto**
 
 Copia el link que aparece en "Tu link para compartir" y ábrelo en una ventana privada/incógnito (para simular que no tienes sesión iniciada). Confirma que ves los horarios que acabas de definir, agenda uno con un nombre y teléfono de prueba, y confirma que aparece el mensaje de "¡Listo!".
 
-- [ ] **Step 4: Verificar en el admin**
+- [ ] **Step 5: Verificar en el admin**
 
 Vuelve a tu sesión de admin, pestaña "Muestra". Confirma que la cita de prueba aparece en "Próximas citas" con el nombre y teléfono correctos, y que ese horario ya no aparece como disponible si vuelves a abrir el link público.
 
-- [ ] **Step 5: Cancelar la cita de prueba**
+- [ ] **Step 6: Cancelar la cita de prueba**
 
 Dale "Cancelar" a esa cita desde el admin. Confirma que desaparece de la lista, y que si vuelves a abrir el link público, ese horario vuelve a estar disponible.
 
-- [ ] **Step 6: Limpiar los datos de prueba**
+- [ ] **Step 7: Limpiar los datos de prueba**
 
 En el Table Editor de Supabase, borra cualquier fila de prueba que haya quedado en `disponibilidad_clase_muestra` y `citas_clase_muestra` (si no las borraste ya desde la app), para no dejar horarios ni citas falsas en el negocio real de Caro.
