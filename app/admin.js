@@ -56,6 +56,8 @@ export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
         diaSemana: Number(formData.get('diaSemana')),
         hora: formData.get('hora'),
       });
+      e.target.reset();
+      if (boton) boton.disabled = false;
       await renderMuestraAdmin(supabase);
     } catch (err) {
       if (boton) boton.disabled = false;
@@ -65,7 +67,14 @@ export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
 
   // Un solo bloque de consultas para las dos pantallas que lo necesitan.
   const resumen = await cargarResumenAlumnas(supabase);
-  await Promise.all([renderHoy(supabase, resumen), renderAlumnas(supabase, resumen), renderClasesAdmin(supabase), renderMuestraAdmin(supabase)]);
+  await Promise.all([
+    renderHoy(supabase, resumen),
+    renderAlumnas(supabase, resumen),
+    renderClasesAdmin(supabase),
+    renderMuestraAdmin(supabase).catch((err) => {
+      document.getElementById('d-muestra-citas').textContent = `No se pudo cargar: ${err.message}`;
+    }),
+  ]);
   document.getElementById('d-ficha').innerHTML = '<h1>Ficha</h1><div class="muted">Elige a alguien en la pestaña "Alumnado".</div>';
 }
 

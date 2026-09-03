@@ -194,6 +194,16 @@ test('slotsDisponiblesClaseMuestra excluye horarios de hoy con menos de 1 hora d
   assert.deepEqual(slots, [{ fecha: '2026-08-17', hora: '10:00:00' }]);
 });
 
+test('slotsDisponiblesClaseMuestra usa 14 días por default si se omite el argumento', () => {
+  const hoy = new Date(2026, 7, 10, 8, 0);
+  const disponibilidad = [{ diaSemana: 1, hora: '10:00:00' }];
+  const slots = slotsDisponiblesClaseMuestra(disponibilidad, [], hoy);
+  assert.deepEqual(slots, [
+    { fecha: '2026-08-10', hora: '10:00:00' },
+    { fecha: '2026-08-17', hora: '10:00:00' },
+  ]);
+});
+
 test('slotsDisponiblesClaseMuestra ordena por fecha y luego por hora', () => {
   const hoy = new Date(2026, 7, 10, 8, 0);
   const disponibilidad = [

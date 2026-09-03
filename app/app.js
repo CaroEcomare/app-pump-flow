@@ -5,9 +5,6 @@ import { montarVistaAlumna } from './alumna.js';
 import { montarVistaAdmin } from './admin.js';
 import { montarClaseMuestra } from './clase-muestra.js';
 
-const pantallaAuth = document.getElementById('pantalla-auth');
-const pantallaAlumna = document.getElementById('pantalla-alumna');
-const pantallaAdmin = document.getElementById('pantalla-admin');
 const switchVistas = document.getElementById('switch-vistas');
 
 function mostrarPantalla(id) {
@@ -103,7 +100,11 @@ document.getElementById('form-registro').addEventListener('submit', async (e) =>
 const params = new URLSearchParams(location.search);
 if (params.get('agenda') === 'clase-muestra') {
   mostrarPantalla('pantalla-clase-muestra');
-  await montarClaseMuestra({ supabase });
+  try {
+    await montarClaseMuestra({ supabase });
+  } catch (err) {
+    document.getElementById('clase-muestra-contenido').innerHTML = '<div class="muted" style="margin-top:12px">No pudimos cargar los horarios. Escríbele a Caro directo, por favor 🤍</div>';
+  }
 } else {
   try {
     const sesion = await obtenerSesionActual();

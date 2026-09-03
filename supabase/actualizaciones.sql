@@ -373,7 +373,76 @@ create or replace function slots_ocupados_clase_muestra()
 returns table(fecha date, hora time)
 language sql security definer stable set search_path = public as $$
   select fecha, hora from citas_clase_muestra
-  where cancelada = false and fecha >= current_date;
+  where cancelada = false and fecha >= (now() at time zone 'America/Mexico_City')::date;
 $$;
 
 grant execute on function slots_ocupados_clase_muestra() to anon, authenticated;
+
+-- ============================================
+-- Corrección de zona horaria en slots_ocupados_clase_muestra
+-- ============================================
+-- Igual que en procesar_asistencias_pasadas() más arriba: "current_date"
+-- corre en UTC (hora de Supabase), no en hora de Michoacán (UTC-6). Desde
+-- ~18:00 hora local, "current_date" en UTC ya es mañana, así que las citas
+-- de hoy que faltan por pasar dejaban de contar como ocupadas y la
+-- pantalla pública volvía a ofrecer un horario ya apartado. Comparando
+-- contra la fecha en "America/Mexico_City" en vez de current_date se
+-- arregla; "create or replace" reemplaza la versión de arriba sin
+-- necesidad de borrarla.
+
+-- ============================================
+-- Restringir columnas que el público puede llenar al agendar clase muestra
+-- ============================================
+-- La policy "cualquiera agenda clase muestra" ya evita crear una cita
+-- cancelada, pero no dice QUÉ columnas puede llenar quien agenda: por
+-- default anon/authenticated tienen permiso sobre toda la tabla, así que
+-- alguien podría mandar su propio "id" o "created_at" desde las
+-- herramientas del navegador. Un id bajo elegido a propósito podría
+-- chocar con la secuencia y tronar futuras inserciones legítimas con un
+-- error de llave primaria. Mismo patrón que "alumnas" más arriba.
+revoke insert on citas_clase_muestra from anon, authenticated;
+grant insert (fecha, hora, nombre, telefono) on citas_clase_muestra to anon, authenticated;
+
+-- ============================================
+-- No permitir duplicar una franja de disponibilidad
+-- ============================================
+-- Nada impedía agregar "Lunes 10:00" dos veces. El índice es parcial
+-- (solo cuenta filas con activo = true) para seguir permitiendo reactivar
+-- una franja que antes se desactivó.
+create unique index if not exists disponibilidad_clase_muestra_unica
+  on disponibilidad_clase_muestra (dia_semana, hora) where activo;
+
+-- ============================================
+-- Validar en la base de datos que la cita de clase muestra es real
+-- ============================================
+-- La ventana de 14 días, que la franja exista en disponibilidad_clase_muestra
+-- y la anticipación de 1 hora viven solo en el JS del cliente
+-- (slotsDisponiblesClaseMuestra). Sin esto, anon podía insertar cualquier
+-- fecha/hora, incluyendo fechas de dentro de un año o horarios que no
+-- corresponden a ninguna franja real: un script contra el link público
+-- podría llenar el índice único de (fecha, hora) para todo el año que
+-- viene, bloqueando permanentemente a prospectos reales y llenando la
+-- lista de citas de la admin de basura.
+create or replace function valida_cita_clase_muestra()
+returns trigger language plpgsql as $$
+declare
+  hoy_mx date := (now() at time zone 'America/Mexico_City')::date;
+begin
+  if new.fecha < hoy_mx or new.fecha > hoy_mx + interval '14 days' then
+    raise exception 'Esa fecha no está disponible para clase muestra';
+  end if;
+  if not exists (
+    select 1 from disponibilidad_clase_muestra
+    where activo = true
+      and dia_semana = extract(dow from new.fecha)
+      and hora = new.hora
+  ) then
+    raise exception 'Ese horario no está disponible para clase muestra';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_valida_cita_clase_muestra on citas_clase_muestra;
+create trigger trg_valida_cita_clase_muestra before insert on citas_clase_muestra
+  for each row execute function valida_cita_clase_muestra();

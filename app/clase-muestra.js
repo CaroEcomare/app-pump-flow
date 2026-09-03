@@ -56,6 +56,10 @@ function renderFormulario(supabase, cont, slot) {
       cont.innerHTML = `<div class="badge ok" style="display:block;text-align:center;padding:14px;margin-top:12px">¡Listo! Tu clase muestra quedó agendada para ${escaparHTML(formatDiaMesConDia(slot.fecha))} a las ${escaparHTML(formatHora12(slot.hora))}. Caro te espera 🤍</div>`;
     } catch (err) {
       if (boton) boton.disabled = false;
+      if (err.code === '23505') {
+        mostrarErrorCerca(boton ?? e.target, 'Ese horario acaba de apartarse. Elige otro, por favor 🤍');
+        return;
+      }
       mostrarErrorCerca(boton ?? e.target, `No se pudo agendar: ${err.message}`);
     }
   });
