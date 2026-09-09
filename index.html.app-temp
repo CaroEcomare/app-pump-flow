@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pump&Flow</title>
+<link rel="stylesheet" href="app/styles.css">
+</head>
+<body>
+
+<div class="pantalla on" id="pantalla-auth" style="align-items:center;justify-content:center;padding:24px">
+  <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
+  <div class="switch claro" id="switch-auth">
+    <button class="on" data-modo="login">Iniciar sesión</button>
+    <button data-modo="registro">Crear cuenta</button>
+  </div>
+
+  <form id="form-login" class="card" style="width:100%;max-width:340px;margin-top:16px">
+    <label class="field"><span>Correo o usuario</span><input class="input" type="text" id="login-identificador" required></label>
+    <label class="field"><span>Contraseña</span><input class="input" type="password" id="login-contrasena" required minlength="6"></label>
+    <div id="login-error" class="badge err" style="display:none;margin-top:10px"></div>
+    <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Entrar</button>
+  </form>
+
+  <form id="form-registro" class="card" style="width:100%;max-width:340px;margin-top:16px;display:none">
+    <label class="field"><span>Nombre</span><input class="input" type="text" id="registro-nombre" required></label>
+    <label class="field"><span>Teléfono</span><input class="input" type="tel" id="registro-telefono"></label>
+    <label class="field"><span>¿Vienes de otra plataforma?</span>
+      <select class="input" id="registro-plataforma">
+        <option value="no">No</option>
+        <option value="wellhub">Wellhub</option>
+        <option value="totalpass">TotalPass</option>
+      </select>
+    </label>
+    <label class="field"><span>Correo</span><input class="input" type="email" id="registro-correo" required></label>
+    <label class="field"><span>Contraseña</span><input class="input" type="password" id="registro-contrasena" required minlength="6"></label>
+    <div id="registro-error" class="badge err" style="display:none;margin-top:10px"></div>
+    <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Crear cuenta</button>
+  </form>
+</div>
+
+<div class="pantalla" id="pantalla-clase-muestra" style="align-items:center;justify-content:center;padding:24px">
+  <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
+  <div class="card" style="width:100%;max-width:340px">
+    <h1 style="font:var(--text-h3);margin-bottom:4px">Agenda tu clase muestra</h1>
+    <div id="clase-muestra-contenido"></div>
+  </div>
+</div>
+
+<div style="display:none;justify-content:center;padding:10px;position:sticky;top:0;background:var(--surface-page);z-index:5" id="switch-vistas">
+  <div class="switch claro">
+    <button class="on" data-pantalla="pantalla-admin">Vista administradora</button>
+    <button data-pantalla="pantalla-alumna">Vista alumna</button>
+  </div>
+</div>
+
+<!-- ══════════ ALUMNA ══════════ -->
+<div class="pantalla" id="pantalla-alumna">
+<div class="contenedor-app">
+  <div class="screen active" id="a-inicio">
+    <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
+    <h1 id="a-inicio-saludo">Hola 🤍</h1>
+    <div id="a-inicio-proxima-clase"></div>
+    <div id="a-inicio-mis-reservas"></div>
+    <div id="a-inicio-paquete"></div>
+    <a class="pillbtn soft" style="width:100%;margin-top:14px;text-align:center;text-decoration:none;display:block;box-sizing:border-box" href="https://wa.me/524431331146?text=Hola%20Caro%20%F0%9F%A4%8D" target="_blank">Contáctame</a>
+    <a class="pillbtn" style="width:100%;margin-top:10px;text-align:center;text-decoration:none;display:block;box-sizing:border-box" href="https://chat.whatsapp.com/L3UWcyfbMScFiHUd9fhu5h?s=cl&p=i&ilr=0" target="_blank">Súmate a la comunidad</a>
+  </div>
+
+  <div class="screen" id="a-clases">
+    <h1>Aparta tu espacio</h1>
+    <div class="muted">Cada clase tiene cupo para 6 personas</div>
+    <div id="a-clases-lista"></div>
+  </div>
+
+  <div class="screen" id="a-contenido">
+    <h1>Contenido</h1>
+    <div class="chips">
+      <button class="chip on" data-categoria="hipopresivos">Hipopresivos</button><button class="chip" data-categoria="meditaciones">Meditaciones</button>
+    </div>
+    <div id="contenido-hipopresivos">
+      <a href="https://youtu.be/u6Ph4_OKB0U" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Pautas posturales y respiratorias</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
+    </div>
+    <div id="contenido-meditaciones" style="display:none">
+      <a href="https://youtu.be/ZLpswRDqL9I?si=APvBLR0r__YA_On4" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 1</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
+      <a href="https://youtu.be/Cij8O35fsTg?si=Cz47OHZ5Ajp92aRW" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 2</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
+      <a href="https://youtu.be/I7sQXAvh6EA?si=4adbqm83B1vTzUS0" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 3</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
+      <a href="https://youtu.be/U_1H_rOAaGs?si=XmLpEyanyud6kk91" target="_blank" style="text-decoration:none;display:block">
+        <div class="card">
+          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
+          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 4</b></div>
+          <div class="muted">Ver en YouTube</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="screen" id="a-espacio">
+    <h1>Tu espacio</h1>
+    <div id="a-espacio-paquete"></div>
+    <div id="a-espacio-asistencias"></div>
+    <button class="link-suave btn-logout">Cerrar sesión</button>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab on" data-s="a-inicio"><i data-lucide="heart" class="ico"></i>Inicio</button>
+    <button class="tab" data-s="a-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
+    <button class="tab" data-s="a-contenido"><i data-lucide="play-circle" class="ico"></i>Contenido</button>
+    <button class="tab" data-s="a-espacio"><i data-lucide="user" class="ico"></i>Tu espacio</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ ADMIN ══════════ -->
+<div class="pantalla" id="pantalla-admin">
+<div class="contenedor-app">
+  <div class="screen active" id="d-hoy">
+    <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
+    <h1>Hola 🤍</h1>
+    <div id="d-hoy-lista"></div>
+    <div id="d-hoy-pendientes"></div>
+    <button class="link-suave btn-logout">Cerrar sesión</button>
+  </div>
+
+  <div class="screen" id="d-alumnas">
+    <div class="row"><h1>Alumnado</h1><button class="pillbtn soft" id="btn-nueva-alumna-manual" style="padding:7px 16px;min-height:36px;font-size:13px">+ Nueva cuenta</button></div>
+    <div id="d-alumnas-lista"></div>
+  </div>
+
+  <div class="screen" id="d-ficha"></div>
+
+  <div class="screen" id="d-clases">
+    <div class="row"><h1>Tus clases</h1><button class="pillbtn soft" id="btn-agregar-clase" style="padding:7px 16px;min-height:36px;font-size:13px">+ Agregar clase</button></div>
+    <div class="muted">Cupo de 6 por clase</div>
+    <div id="d-clases-lista"></div>
+  </div>
+
+  <div class="screen" id="d-muestra">
+    <h1>Clase muestra</h1>
+    <div class="card">
+      <b style="color:var(--text-title)">Tu link para compartir</b>
+      <div class="dato"><span id="d-muestra-link" style="word-break:break-all"></span></div>
+    </div>
+    <div class="card">
+      <b style="color:var(--text-title)">Disponibilidad</b>
+      <div id="d-muestra-disponibilidad" style="margin-top:8px"></div>
+      <form id="form-disponibilidad-clase-muestra" class="row" style="margin-top:10px;gap:8px">
+        <label class="field" style="flex:1;margin-top:0"><span>Día</span>
+          <select class="input" name="diaSemana">
+            <option value="0">Domingo</option>
+            <option value="1">Lunes</option>
+            <option value="2">Martes</option>
+            <option value="3">Miércoles</option>
+            <option value="4">Jueves</option>
+            <option value="5">Viernes</option>
+            <option value="6">Sábado</option>
+          </select>
+        </label>
+        <label class="field" style="flex:1;margin-top:0"><span>Hora</span><input class="input" type="time" name="hora" required></label>
+        <button class="pillbtn soft" type="submit" style="padding:7px 16px;min-height:36px;font-size:13px;align-self:flex-end">Agregar</button>
+      </form>
+    </div>
+    <div class="card">
+      <b style="color:var(--text-title)">Próximas citas</b>
+      <div id="d-muestra-citas" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab on" data-s="d-hoy"><i data-lucide="check-circle" class="ico"></i>Hoy</button>
+    <button class="tab" data-s="d-alumnas"><i data-lucide="users" class="ico"></i>Alumnado</button>
+    <button class="tab" data-s="d-ficha"><i data-lucide="clipboard-list" class="ico"></i>Ficha</button>
+    <button class="tab" data-s="d-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
+    <button class="tab" data-s="d-muestra"><i data-lucide="calendar-plus" class="ico"></i>Muestra</button>
+  </div>
+</div>
+</div>
+
+<dialog id="dialog-valoracion"><div class="dialog-body" id="dialog-valoracion-body"></div></dialog>
+<dialog id="dialog-paquete"><div class="dialog-body" id="dialog-paquete-body"></div></dialog>
+<dialog id="dialog-alumna-manual"><div class="dialog-body" id="dialog-alumna-manual-body"></div></dialog>
+<dialog id="dialog-agregar-clase"><div class="dialog-body" id="dialog-agregar-clase-body"></div></dialog>
+<dialog id="dialog-asistencia-manual"><div class="dialog-body" id="dialog-asistencia-manual-body"></div></dialog>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
+<script type="module" src="app/app.js"></script>
+</body>
+</html>

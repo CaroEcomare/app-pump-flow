@@ -1,0 +1,20 @@
+/* Pump&Flow — Tipografía
+   Originales de marca: Neighbor Bold Italic (display/logo), Poppins (texto), IvyEpic Thin (detalles).
+   SUSTITUTOS temporales hasta recibir archivos: Baloo 2 ≈ Neighbor. Poppins es la real. */
+:root {
+  --font-display: "Baloo 2", "Poppins", sans-serif; /* sustituto de Neighbor Bd Italic */
+  --font-body: "Poppins", sans-serif;
+
+  --text-display-xl: 700 56px/1.05 var(--font-display);
+  --text-display: 700 40px/1.1 var(--font-display);
+  --text-h1: 700 32px/1.15 var(--font-display);
+  --text-h2: 600 24px/1.25 var(--font-body);
+  --text-h3: 600 20px/1.3 var(--font-body);
+  --text-body-lg: 400 18px/1.6 var(--font-body);
+  --text-body: 400 16px/1.6 var(--font-body);
+  --text-body-strong: 600 16px/1.5 var(--font-body);
+  --text-small: 400 14px/1.5 var(--font-body);
+  --text-caption: 500 12px/1.4 var(--font-body);
+  --text-button: 600 16px/1 var(--font-body);
+  --letter-spacing-caps: 0.08em; /* para etiquetas en mayúsculas */
+}

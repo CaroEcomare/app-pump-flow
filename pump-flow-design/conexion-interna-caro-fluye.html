@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Conexión Interna · Caro Fluye</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #f8eeff 0%, #fde8f4 40%, #ebe0ff 100%);
+    display: flex; flex-direction: column; align-items: center;
+    overflow-x: hidden;
+  }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: #d4a0e8; border-radius: 2px; }
+
+  /* Círculos de fondo */
+  body::before {
+    content: '';
+    position: fixed; top: -80px; right: -60px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: rgba(224,64,160,0.07); pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; bottom: -60px; left: -40px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(124,77,187,0.08); pointer-events: none; z-index: 0;
+  }
+
+  .container {
+    width: 100%; max-width: 440px;
+    padding: 0 20px 56px;
+    position: relative; z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 36px 0 20px;
+  }
+  .header-eyebrow {
+    font-size: 10px; letter-spacing: 0.3em; color: #a07cc0;
+    text-transform: uppercase; font-weight: 800; margin-bottom: 6px;
+  }
+  .header-title {
+    font-size: 30px; color: #2d1b4e;
+    font-weight: 900; line-height: 1.2;
+  }
+  .header-sub {
+    font-size: 14px; color: #6b4a8a;
+    font-weight: 600; margin-top: 6px;
+  }
+
+  /* FILTROS */
+  .filtros {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 28px;
+  }
+  .btn-filtro {
+    padding: 7px 16px; border-radius: 20px;
+    border: 2px solid transparent;
+    background: rgba(255,255,255,0.6);
+    color: #6b4a8a;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px; font-weight: 800;
+    cursor: pointer; transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .btn-filtro.activo, .btn-filtro:hover {
+    background: rgba(255,255,255,0.95);
+  }
+
+  /* CARTA WRAPPER */
+  .carta-wrapper {
+    perspective: 1400px;
+    width: 100%; max-width: 320px;
+    height: 460px; margin: 0 auto;
+    cursor: pointer; user-select: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .carta-wrapper.salida {
+    opacity: 0; transform: translateY(-10px) scale(0.97);
+  }
+  .carta-inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.35,0.1,0.25,1.3);
+  }
+  .carta-inner.flipped { transform: rotateY(180deg); }
+  .carta-face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .carta-face.back { /* dorso */ }
+  .carta-face.front {
+    transform: rotateY(180deg);
+  }
+
+  /* SVG carta ondulada */
+  .carta-svg { display: block; width: 100%; height: 100%; }
+
+  /* Contenido superpuesto sobre el SVG */
+  .carta-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    padding: 28px 26px 24px;
+  }
+  /* Dorso */
+  .dorso-rayas {
+    width: 62%; display: flex; flex-direction: column; gap: 6px;
+  }
+  .dorso-raya {
+    height: 6px; border-radius: 3px;
+    background: rgba(255,255,255,0.22);
+  }
+  .dorso-flow {
+    font-size: 28px; font-weight: 800;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 0.04em;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  }
+  .dorso-hint {
+    font-size: 13px; color: rgba(255,255,255,0.55);
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+
+  /* Frente */
+  .stripe-top, .stripe-bottom {
+    position: absolute; left: 10%; right: 10%; height: 10px;
+  }
+  .stripe-top { top: 0; border-radius: 0 0 6px 6px; }
+  .stripe-bottom { bottom: 0; border-radius: 6px 6px 0 0; }
+
+  .badge-bloque {
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    border: 1.5px solid transparent;
+  }
+  .frase-area {
+    flex: 1; display: flex; align-items: center;
+    padding: 12px 0;
+  }
+  .frase-texto {
+    font-size: 19px; font-weight: 700; line-height: 1.5;
+    color: #2d1b4e; text-align: center;
+  }
+  .divisor {
+    width: 100%; height: 1px;
+    margin: 4px 0 12px;
+  }
+  .ritual-box {
+    border-radius: 12px; padding: 12px 14px; width: 100%;
+  }
+  .ritual-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .ritual-texto {
+    font-size: 12.5px; line-height: 1.6; color: #6b4a8a;
+  }
+  .marca {
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.12em; margin-top: 10px; opacity: 0.6;
+  }
+
+  /* HINT */
+  .hint {
+    text-align: center; font-size: 12px; color: #a07cc0;
+    font-weight: 700; letter-spacing: 0.08em; margin: 16px 0 0;
+    transition: opacity 0.3s;
+  }
+
+  /* BOTONES NAVEGACIÓN */
+  .nav-row {
+    display: flex; gap: 12px;
+    justify-content: center; margin-top: 24px; flex-wrap: wrap;
+  }
+  .btn-round {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 2px solid rgba(180,120,220,0.3);
+    background: rgba(255,255,255,0.7);
+    color: #6b4a8a; font-size: 20px;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.2s; backdrop-filter: blur(4px);
+  }
+  .btn-round:hover { background: rgba(255,255,255,1); }
+  .btn-mezclar { transition: transform 0.3s; }
+  .btn-mezclar:hover { transform: rotate(180deg); background: rgba(255,255,255,1); }
+
+  .btn-siguiente {
+    flex: 1; max-width: 180px; height: 48px;
+    border-radius: 24px; border: none;
+    color: #fff; font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 800;
+    cursor: pointer; letter-spacing: 0.04em;
+    transition: all 0.2s;
+  }
+  .btn-siguiente:hover { transform: scale(1.04); }
+
+  /* PROGRESO */
+  .progreso-row {
+    margin-top: 24px;
+  }
+  .progreso-labels {
+    display: flex; justify-content: space-between; margin-bottom: 6px;
+  }
+  .progreso-label {
+    font-size: 11px; color: #a07cc0;
+    font-weight: 700; letter-spacing: 0.08em;
+  }
+  .progreso-track {
+    height: 5px; background: rgba(180,120,220,0.15); border-radius: 3px;
+  }
+  .progreso-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* GRID BLOQUES */
+  .grid-bloques {
+    display: grid; grid-template-columns: repeat(2,1fr);
+    gap: 10px; margin-top: 24px;
+  }
+  .btn-bloque {
+    background: rgba(255,255,255,0.65);
+    border: 1.5px solid rgba(200,160,230,0.25);
+    border-radius: 14px; padding: 12px 14px;
+    cursor: pointer; text-align: left;
+    backdrop-filter: blur(6px);
+    transition: all 0.2s; font-family: 'Nunito', sans-serif;
+  }
+  .btn-bloque:hover { background: rgba(255,255,255,0.9); }
+  .btn-bloque-icon { font-size: 16px; margin-bottom: 2px; }
+  .btn-bloque-nombre { font-size: 12px; font-weight: 800; }
+  .btn-bloque-count { font-size: 11px; color: #a07cc0; font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fadein { animation: fadeIn 0.45s ease; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">Pump &amp; Flow</div>
+    <h1 class="header-title">Conexión Interna</h1>
+    <p class="header-sub">Caro Fluye · <span id="total-count"></span> tarjetas</p>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filtros" id="filtros"></div>
+
+  <!-- CARTA -->
+  <div class="carta-wrapper" id="carta-wrapper" onclick="toggleFlip()">
+    <div class="carta-inner" id="carta-inner">
+
+      <!-- DORSO -->
+      <div class="carta-face back">
+        <svg class="carta-svg" id="svg-dorso" viewBox="0 0 320 460" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="sh-d" x="-10%" y="-10%" width="130%" height="130%">
+              <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="rgba(120,60,180,0.18)"/>
+            </filter>
+          </defs>
+          <path id="path-dorso" filter="url(#sh-d)"/>
+        </svg>
+        <div class="carta-content" style="justify-content:center; gap:18px;">
+          <div class="dorso-rayas">
+            <div class="dorso-raya"></div>
+            <div class="dorso-raya"></div>
+            <div class="dorso-raya"></div>
+            <div class="dorso-raya"></div>
+            <div class="dorso-raya"></div>
+          </div>
+          <div class="dorso-flow">Flow</div>
+          <div class="dorso-hint">Toca para revelar</div>
+        </div>
+      </div>
+
+      <!-- FRENTE -->
+      <div class="carta-face front">
+        <svg class="carta-svg" id="svg-frente" viewBox="0 0 320 460" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="sh-f" x="-10%" y="-10%" width="130%" height="130%">
+              <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="rgba(120,60,180,0.14)"/>
+            </filter>
+          </defs>
+          <path id="path-frente" fill="#ffffff" filter="url(#sh-f)"/>
+        </svg>
+        <div id="stripe-top" class="stripe-top"></div>
+        <div id="stripe-bottom" class="stripe-bottom"></div>
+        <div class="carta-content">
+          <div id="badge" class="badge-bloque"></div>
+          <div class="frase-area">
+            <p id="frase" class="frase-texto"></p>
+          </div>
+          <div id="divisor" class="divisor"></div>
+          <div id="ritual-box" class="ritual-box">
+            <div id="ritual-label" class="ritual-label">Micro-ritual</div>
+            <p id="ritual" class="ritual-texto"></p>
+          </div>
+          <p id="marca" class="marca">CARO FLUYE</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HINT -->
+  <p class="hint" id="hint">Toca la carta para revelarla</p>
+
+  <!-- NAVEGACIÓN -->
+  <div class="nav-row">
+    <button class="btn-round" onclick="navAnterior()" title="Anterior">‹</button>
+    <button class="btn-siguiente" id="btn-sig" onclick="navSiguiente()">Nueva carta ✦</button>
+    <button class="btn-round btn-mezclar" onclick="mezclar()" title="Mezclar">⟳</button>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="progreso-row">
+    <div class="progreso-labels">
+      <span class="progreso-label" id="label-bloque">Mazo completo</span>
+      <span class="progreso-label" id="label-num"></span>
+    </div>
+    <div class="progreso-track">
+      <div class="progreso-fill" id="progreso-fill"></div>
+    </div>
+  </div>
+
+  <!-- GRID BLOQUES -->
+  <div class="grid-bloques" id="grid-bloques"></div>
+
+</div>
+
+<script>
+// ─── DATOS ───────────────────────────────────────────────────────────────────
+const BLOQUES = [
+  {
+    nombre: "Conexión", color: "#e040a0", colorLight: "#fce4f4", icon: "✦",
+    tarjetas: [
+      { frase: "Tu cuerpo no es un obstáculo; es tu vehículo sagrado.", ritual: "Cierra los ojos. Coloca una mano en tu pecho y otra en tu abdomen. Visualiza tu pulso como una luz dorada que recorre cada centímetro de tu piel. Siente cómo cada latido te ancla a la vida." },
+      { frase: "Agradece este espacio de silencio que te has regalado hoy.", ritual: "Cierra los ojos. Haz una inhalación profunda y, al exhalar, imagina que sueltas una maleta pesada. Quédate en la quietud por tres respiraciones completas, disfrutando del vacío." },
+      { frase: "Tu postura cuenta la historia de quien eres. Honra esa historia.", ritual: "Cierra los ojos. Al inhalar, imagina un hilo invisible tirando de la coronilla hacia el cielo, alargando tu columna. Siente cómo tu historia se expande y se llena de dignidad con cada vértebra que separas." },
+      { frase: "Hoy tu cuerpo hizo su mejor esfuerzo. Acéptalo con ternura.", ritual: "Cierra los ojos. Acaricia suavemente tus hombros con las manos cruzadas. Al exhalar, suelta cualquier juicio sobre tu desempeño hoy y repítete: \"Estoy bien exactamente así\"." },
+      { frase: "Respira profundamente: estás aquí, estás presente, estás viva.", ritual: "Cierra los ojos. Sigue el camino del aire desde la nariz hasta tus pulmones. Imagina que el aire es paz líquida que llena cada rincón de tu ser. Al exhalar, siente cómo tus pies se funden con el suelo." },
+      { frase: "Tu centro es tu lugar más seguro.", ritual: "Cierra los ojos. Lleva toda tu atención a tu zona abdominal. Imagina un pequeño sol cálido naciendo en tu ombligo que se expande por todo tu cuerpo, protegiéndote e iluminándote." },
+      { frase: "Tu cuerpo sabe cómo sanar; solo necesita tu permiso.", ritual: "Cierra los ojos. Identifica cualquier zona de tensión. Al exhalar, imagina que envías luz curativa a esa zona y repite: \"Doy permiso a mi cuerpo para relajarse y sanar\". Siente cómo la mandíbula se afloja." },
+      { frase: "Menos tensión muscular, más intención espiritual.", ritual: "Cierra los ojos. Relaja conscientemente los dedos de las manos y suelta los puños. Al inhalar, visualiza tu intención principal para hoy, y al exhalar, envíala al mundo sin esfuerzo." },
+      { frase: "Tu cuerpo es la casa donde vives. Trátalo con dulzura extrema.", ritual: "Cierra los ojos. Dibuja una sonrisa muy pequeña y suave en tu rostro. Siente cómo esa sonrisa relaja tus ojos, tus mejillas y todo tu cuerpo interno." },
+      { frase: "Agradece la infinita capacidad de moverte y expandirte.", ritual: "Cierra los ojos. Inhala profundamente expandiendo tus costillas. Imagina que eres un árbol centenario abriendo sus ramas. Al exhalar, agradece la flexibilidad de tu tronco y raíces." },
+      { frase: "Eres un sistema perfecto en constante funcionamiento.", ritual: "Cierra los ojos. Coloca las manos sobre tus costillas inferiores. Siente cómo se abren al inhalar y cómo se cierran al exhalar. Conecta con la complejidad y perfección de tu propia biología." },
+      { frase: "La fuerza no siempre es dura; a veces, la fuerza es fluir como el agua.", ritual: "Cierra los ojos. Imagina que estás inmersa en un río cálido. Al inhalar, siente cómo el agua te sostiene. Al exhalar, suelta cualquier rigidez y deja que la corriente te lleve suavemente." },
+      { frase: "Escucha lo que tu cuerpo susurra cuando tu mente calla.", ritual: "Cierra los ojos. Escucha el sonido de tu propia respiración. Concéntrate en la pausa entre la exhalación y la inhalación. En ese silencio, busca tu propia voz interior." },
+      { frase: "Cada exhalación es una oportunidad de soltar lo que ya no sirve.", ritual: "Cierra los ojos. Inhala profundo y al exhalar, hazlo con fuerza por la boca, imaginando que expulsas humo gris que representa tus dudas y tensiones." },
+      { frase: "Hoy te regalaste una conexión profunda. Ese es tu mayor logro.", ritual: "Cierra los ojos. Pon una mano sobre tu corazón. Siente el calor y agradécete a ti misma en voz baja: \"Gracias por este tiempo\"." },
+      { frase: "Tus pies sostienen tu vida. Agradéceles su firmeza.", ritual: "Cierra los ojos. Presiona los dedos de tus pies contra el suelo. Imagina que raíces poderosas crecen desde tus talones hacia el centro de la tierra, anclándote y dándote seguridad." },
+      { frase: "Tu capacidad pulmonar es tu capacidad de vivir con plenitud.", ritual: "Cierra los ojos. Inhala lo más profundo que puedas, imaginando que tus pulmones son globos dorados. Retén el aire un segundo y exhala muy lento, disfrutando de la expansión." },
+      { frase: "Eres más que tus pensamientos; eres tu presencia física.", ritual: "Cierra los ojos. Imagina una luz blanca que escanea tu cuerpo desde la cabeza hasta los pies. Siente la realidad de tu piel, tus músculos y tus huesos en este preciso momento." },
+      { frase: "La calma es un músculo que has entrenado hoy con dedicación.", ritual: "Cierra los ojos. Imagina que estás flotando en una piscina de agua tibia bajo un sol suave. Siente cómo cada músculo de tu cuerpo se relaja completamente, disfrutando de la ingravidez." },
+      { frase: "Gracias, cuerpo, por aguantar y sostener todo mi mundo.", ritual: "Cierra los ojos. Abrázate a ti misma fuertemente. Siente la solidez de tu propia contención. Al exhalar, repite mentalmente: \"Gracias por cuidarme\"." },
+      { frase: "No fuerces, permite. La apertura llega sola.", ritual: "Cierra los ojos. Al inhalar, imagina que tus hombros son pesados y caen lejos de tus orejas. Visualiza un candado abriéndose suavemente en tu pecho." },
+      { frase: "Tu respiración es el puente entre tu mente y tu ser más profundo.", ritual: "Cierra los ojos. Cuenta 4 tiempos al inhalar y 6 tiempos al exhalar. Concéntrate en la textura del aire al entrar y salir, sintiendo cómo tu mente se calma con cada ciclo." },
+      { frase: "Hoy has vuelto a ti, el lugar más seguro.", ritual: "Cierra los ojos. Imagina que estás entrando en un santuario íntimo dentro de ti misma. Al exhalar, siente la paz de estar en casa y respira esa seguridad." },
+      { frase: "Honra tu propio ritmo; nadie más tiene tu camino.", ritual: "Cierra los ojos. Imagina que estás caminando sola por un sendero hermoso. Siente cómo tu paso es firme y confiado, sin prisa. Respira el alivio de no tener que competir con nadie." },
+      { frase: "Eres un universo entero respirando y expandiéndose.", ritual: "Cierra los ojos. Al inhalar, visualiza que todo tu cuerpo se expande como una nebulosa. Al exhalar, siente cómo te concentras en un punto de luz en tu centro." },
+    ]
+  },
+  {
+    nombre: "Dirección", color: "#7c4dbb", colorLight: "#ede0ff", icon: "◎",
+    tarjetas: [
+      { frase: "El camino no tiene que ser lineal para ser correcto.", ritual: "Cierra los ojos. Dibuja círculos suaves con tus caderas, sintiendo cómo la flexibilidad te permite adaptarte a las curvas de la vida." },
+      { frase: "Confía: ya estás exactamente donde necesitas estar.", ritual: "Cierra los ojos. Visualiza tu situación actual como un campo fértil. Siente la tierra bajo tus pies y confía en que las semillas que has plantado germinarán a su debido tiempo." },
+      { frase: "Tu meta es importante, pero tu paz es el destino final.", ritual: "Cierra los ojos. Imagina tu objetivo final como una estrella lejana. Al exhalar, suelta cualquier ansiedad por alcanzarla y concéntrate en la paz de este momento." },
+      { frase: "Lo que buscas, también te está buscando a ti.", ritual: "Cierra los ojos. Al inhalar, abre los brazos como si estuvieras lista para recibir un regalo. Imagina que lo que deseas está volando hacia ti." },
+      { frase: "No aceleres el proceso; el fruto madura a su debido tiempo.", ritual: "Cierra los ojos. Visualiza un árbol cargado de frutas verdes. Imagina el sol brillando sobre él, sabiendo que el tiempo hará su trabajo." },
+      { frase: "Tienes todo lo necesario dentro de ti para lograrlo.", ritual: "Cierra los ojos. Aprieta suavemente tus muslos, sintiendo la fuerza de tus piernas. Visualiza esa fuerza convirtiéndose en determinación." },
+      { frase: "El mapa para tu futuro está escrito dentro de ti.", ritual: "Cierra los ojos. Pon una mano en tu pecho. Al exhalar, confía en tu intuición y repite mentalmente: \"Sé lo que tengo que hacer\"." },
+      { frase: "Todo se acomoda cuando tú estás bien contigo misma.", ritual: "Cierra los ojos. Relaja el entrecejo y suelta los hombros. Imagina que eres una pieza de un rompecabezas que encaja perfectamente en su lugar." },
+      { frase: "Confía siempre en tu propia brújula interna.", ritual: "Cierra los ojos. Imagina una aguja magnética flotando en tu centro. Visualízala apuntando hacia tu verdadero norte, y siente la seguridad de seguir esa dirección." },
+      { frase: "La paciencia es una forma profunda de amor propio.", ritual: "Cierra los ojos. Inhala muy lento, disfrutando de cada segundo del proceso. Al exhalar, suelta la prisa y abraza el momento presente." },
+      { frase: "No te rindas jamás; solo ajusta la estrategia si es necesario.", ritual: "Cierra los ojos. Ajusta tu postura, erguida y segura. Imagina que eres un capitán ajustando las velas de su barco para seguir navegando." },
+      { frase: "Tu intuición es tu guía más sabia y siempre está activa.", ritual: "Cierra los ojos. Hazte una pregunta sencilla. Quédate en silencio y escucha la primera respuesta que surja de tu interior, sin juzgarla." },
+      { frase: "El verdadero éxito es hacer lo que amas con constancia.", ritual: "Cierra los ojos. Sonríe pensando en el proyecto que más te ilusiona. Siente cómo esa alegría se expande por todo tu cuerpo." },
+      { frase: "Estás construyendo algo que trasciende lo inmediato.", ritual: "Cierra los ojos. Visualiza tu trabajo como una piedra en un gran edificio. Siente el orgullo de estar creando algo duradero." },
+      { frase: "No temas al error; es solo un dato más para mejorar.", ritual: "Cierra los ojos. Exhala profundo, soltando el juicio sobre ti misma. Imagina que un error es solo una señal en el camino que te dice: \"Inténtalo de otra forma\"." },
+      { frase: "Cada día es una nueva iteración de ti misma.", ritual: "Cierra los ojos. Al inhalar, imagina que te llenas de nuevas posibilidades. Al exhalar, suelta la versión de ayer y abraza la de hoy." },
+      { frase: "Confía en el ritmo natural de tu propia evolución.", ritual: "Cierra los ojos. Deja caer la cabeza suavemente y relaja el cuello. Imagina que eres una oruga transformándote en mariposa, confiando en el proceso." },
+      { frase: "Lo que te apasiona es tu verdadero propósito.", ritual: "Cierra los ojos. Pon una mano en tu plexo solar, el centro de tu poder. Siente el fuego de tu pasión brillando y dándote dirección." },
+      { frase: "Este no es un camino en solitario; es una caminata compartida.", ritual: "Cierra los ojos. Imagina a las personas que te apoyan caminando a tu lado. Siente el calor de su presencia y agradece su compañía." },
+      { frase: "Todo obstáculo es una oportunidad de diseño creativo.", ritual: "Cierra los ojos. Inhala imaginando que estás absorbiendo una solución. Al exhalar, imagina que el problema se disuelve en aire." },
+      { frase: "Eres la arquitecta de tu propia realidad.", ritual: "Cierra los ojos. Visualiza cómo quieres que sea tu día de mañana. Crea una imagen mental clara y detallada de ese bienestar." },
+      { frase: "Deja de buscar afuera lo que ya habita dentro de ti.", ritual: "Cierra los ojos. Pon ambas manos sobre tu corazón. Imagina que estás buscando un tesoro escondido y lo encuentras en tu interior." },
+      { frase: "Tu camino es único y sagrado; no lo compares con el de nadie.", ritual: "Cierra los ojos. Respira sabiendo que eres suficiente exactamente como eres. Imagina que estás protegida por una burbuja que te aísla de las comparaciones." },
+      { frase: "La acción imperfecta es infinitamente mejor que la inacción perfecta.", ritual: "Cierra los ojos. Mueve un dedo de la mano con decisión. Visualiza cómo ese pequeño movimiento es el primer paso hacia tu meta." },
+      { frase: "Vas muy bien. Vas a tu propio ritmo. Vas exactamente a tiempo.", ritual: "Cierra los ojos. Asiente con la cabeza firmemente, reafirmando esta verdad. Siente cómo la seguridad se instala en tu cuerpo." },
+    ]
+  },
+  {
+    nombre: "Presencia", color: "#5b7ec4", colorLight: "#dde8ff", icon: "◇",
+    tarjetas: [
+      { frase: "La calma es tu superpoder más grande.", ritual: "Cierra los ojos. Al inhalar, imagina que respiras aire de color azul claro, que representa la paz. Al exhalar, expulsa aire de color rojo, que representa el estrés." },
+      { frase: "Desconéctate del mundo externo para conectar con el tuyo.", ritual: "Cierra los ojos. Imagina que estás bajando el volumen de todos los ruidos que te rodean. Quédate en el silencio interior por cinco respiraciones profundas." },
+      { frase: "Respira profundamente. No hay nada más que tengas que hacer ahora.", ritual: "Cierra los ojos. Suelta completamente el control sobre tu respiración y deja que el cuerpo respire solo. Quédate en la observación pura." },
+      { frase: "La paz mental es un hábito que se entrena diariamente.", ritual: "Cierra los ojos. Relaja conscientemente los músculos de la cara, especialmente la frente y el área alrededor de los ojos. Siente la suavidad." },
+      { frase: "Permítete quedarte un segundo más en esta calma profunda.", ritual: "Cierra los ojos. Quédate completamente inmóvil por 10 segundos. Siente la pesadez de tu cuerpo y la quietud de tu mente." },
+      { frase: "El ruido de afuera no tiene poder para tocar tu centro.", ritual: "Cierra los ojos. Imagina una burbuja protectora de luz plateada a tu alrededor. Escucha los ruidos como si estuvieran muy lejos, sin que te afecten." },
+      { frase: "Acepta plenamente lo que es; deja ir lo que fue.", ritual: "Cierra los ojos. Exhala profundamente, imaginando que estás soltando el pasado. Al inhalar, respira la aceptación de este momento tal como es." },
+      { frase: "Tu mente merece vacaciones; dáselas ahora.", ritual: "Cierra los ojos. Imagina que tus pensamientos son nubes flotando en el cielo. No te enganches a ninguno, solo déjalos pasar." },
+      { frase: "Menos estímulos externos, más conexión con tu esencia.", ritual: "Cierra los ojos. Mira el espacio oscuro detrás de tus párpados. Imagina que estás descendiendo a un sótano cálido y tranquilo dentro de ti." },
+      { frase: "La quietud es el espacio sagrado donde nacen las grandes ideas.", ritual: "Cierra los ojos y escucha el silencio absoluto. Imagina que tu mente es un lienzo en blanco listo para recibir una nueva inspiración." },
+      { frase: "No tienes que resolver todo el mundo hoy.", ritual: "Cierra los ojos. Suelta la lista de tareas pendientes. Imagina que las dejas en una caja fuera de tu espacio de calma por unos momentos." },
+      { frase: "Permítete el lujo de no hacer absolutamente nada.", ritual: "Cierra los ojos. Suelta la tensión de las manos. Imagina que eres una piedra en el fondo del río, sin necesidad de moverte." },
+      { frase: "Tu paz interna no es negociable; protégela con firmeza.", ritual: "Cierra los ojos. Al inhalar, pon límites amorosos. Al exhalar, siente cómo tu espacio personal se respeta y se fortalece." },
+      { frase: "Respira. La tormenta siempre pasa y el sol vuelve a salir.", ritual: "Cierra los ojos. Siente tus pies firmes en la tierra. Imagina que eres una montaña sólida resistiendo el viento y la lluvia." },
+      { frase: "Tu bienestar es la base sagrada de todo lo demás.", ritual: "Cierra los ojos. Toca tu abdomen, reconociendo tu centro de poder y vitalidad. Respira la importancia de cuidar este templo." },
+      { frase: "La vida sucede en los espacios vacíos entre respiraciones.", ritual: "Cierra los ojos. Nota la pequeña pausa entre la inhalación y la exhalación, y entre la exhalación y la inhalación. Habita ese espacio." },
+      { frase: "Hoy elegiste paz sobre el caos. Quédatela.", ritual: "Cierra los ojos. Mantén una sonrisa interna. Imagina que estás envolviendo esa paz en un papel de regalo y guardándola en tu corazón." },
+      { frase: "No eres tus pendientes; eres tu presencia física.", ritual: "Cierra los ojos. Separa conscientemente tus hombros de tus orejas. Siente cómo la tensión se derrite y queda tu presencia pura." },
+      { frase: "La calma es el lenguaje sagrado del alma.", ritual: "Cierra los ojos. Escucha atentamente los sonidos de tu habitación, sin juzgarlos. Imagina que cada sonido es una nota de una melodía pacífica." },
+      { frase: "Desacelera tu ritmo. El mundo puede esperar un momento.", ritual: "Cierra los ojos. Mueve una mano muy, muy lento. Siente la resistencia del aire y la suavidad del movimiento." },
+      { frase: "Eres un refugio seguro para ti misma.", ritual: "Cierra los ojos. Abrázate fuertemente. Al exhalar, siente cómo te proteges y te cuidas en este momento de calma." },
+      { frase: "Deja que el silencio profundo te llene por completo.", ritual: "Cierra los ojos y quédate en silencio total por un minuto entero, escuchando tu propia respiración y latidos." },
+      { frase: "Todo está bien en este instante preciso.", ritual: "Cierra los ojos. Afloja conscientemente la mandíbula. Imagina que la luz del sol te calienta y te relaja por completo." },
+      { frase: "Tu energía es infinitamente valiosa; no la gastes en dudas.", ritual: "Cierra los ojos. Inhala seguridad e imaginación. Al exhalar, suelta cualquier duda y concéntrate en tu potencial." },
+      { frase: "Respira profundamente: estás a salvo en este momento.", ritual: "Cierra los ojos. Siente cómo el aire llena tu pecho de una sensación de protección y seguridad. Confía en la vida." },
+    ]
+  },
+  {
+    nombre: "Amor Propio", color: "#c0507a", colorLight: "#ffe0ec", icon: "♡",
+    tarjetas: [
+      { frase: "Te mereces la misma amabilidad que le das a los demás.", ritual: "Cierra los ojos. Imagina que te estás dando un abrazo a ti misma. Date una palmada suave en el hombro." },
+      { frase: "Eres suficiente, exactamente como estás hoy.", ritual: "Cierra los ojos. Inhala profundo y al exhalar, repite mentalmente: \"Soy suficiente\". Siente la verdad de estas palabras en tu cuerpo." },
+      { frase: "Perdónate por lo que no sabías antes; hiciste lo mejor que pudiste.", ritual: "Cierra los ojos. Exhala la culpa. Imagina que estás soltando un peso que te impedía avanzar." },
+      { frase: "Eres el proyecto más importante y sagrado de tu vida.", ritual: "Cierra los ojos. Haz una reverencia a tu propio ser, reconociendo tu valor y potencial." },
+      { frase: "Ámate profunda y sinceramente, incluso en tus días de caos.", ritual: "Cierra los ojos. Pon una mano en tu corazón y otra en tu abdomen. Siente el amor fluyendo entre tus manos." },
+      { frase: "Tu valor no depende jamás de tus resultados externos.", ritual: "Cierra los ojos. Sonríe sin motivo. Imagina que estás brillando con tu propia luz, independientemente de lo que pase afuera." },
+      { frase: "Gracias de corazón por dedicarte este tiempo.", ritual: "Cierra los ojos. Acaricia suavemente tus brazos. Agradécete a ti misma por este acto de amor propio." },
+      { frase: "Eres una obra en construcción constante. Disfruta el proceso.", ritual: "Cierra los ojos. Inhala curiosidad e imaginación. Imagina que estás creando la mejor versión de ti misma." },
+      { frase: "No te compares con nadie más; tú eres tu única competencia.", ritual: "Cierra los ojos. Mira hacia adelante con decisión. Imagina que estás corriendo tu propia carrera, sin rivales." },
+      { frase: "Celebra todas tus pequeñas victorias diarias.", ritual: "Cierra los ojos. Piensa en algo bueno que hayas hecho hoy, por pequeño que sea, y sonríe." },
+      { frase: "Date permiso para ser vulnerable y auténtica.", ritual: "Cierra los ojos. Suelta la tensión del pecho. Imagina que te estás quitando una máscara y mostrando tu verdadero ser." },
+      { frase: "Eres digna de calma, paz y bienestar.", ritual: "Cierra los ojos. Respira profundo y lento, imaginando que estás absorbiendo bienestar. Siente cómo te mereces esta paz." },
+      { frase: "Eres increíblemente capaz, mucho más de lo que crees.", ritual: "Cierra los ojos. Siente tu fuerza interna brillando como un diamante. Confía en tu potencial." },
+      { frase: "Tu mayor amor debe ser hacia ti misma.", ritual: "Cierra los ojos. Susúrrate suavemente: \"Estoy aquí\". Siente la comodidad de ser tu propia compañía." },
+      { frase: "No te dejes jamás para después; eres una prioridad.", ritual: "Cierra los ojos. Haz una inhalación consciente, imaginando que estás poniéndote en primer lugar." },
+      { frase: "Tus necesidades importan; atiéndelas con amor.", ritual: "Cierra los ojos. Identifica qué necesitas ahora y dáselo con ternura, sin culpa." },
+      { frase: "Eres luz para los demás, pero también debes serlo para ti.", ritual: "Cierra los ojos. Visualiza una luz brillando en tu centro y extendiéndose por todo tu cuerpo, iluminándote." },
+      { frase: "Hablarte bien es un acto de rebeldía y amor.", ritual: "Cierra los ojos. Di \"gracias\" en voz alta, dirigiéndote a ti misma con cariño y respeto." },
+      { frase: "Confía en tu propio criterio, incluso si otros no lo comparten.", ritual: "Cierra los ojos. Asiente con seguridad, reafirmando tu confianza en tu intuición y decisiones." },
+      { frase: "Eres la arquitecta de tu propio bienestar.", ritual: "Cierra los ojos. Ajusta tu postura, erguida y segura, imaginando que estás construyendo tu felicidad." },
+      { frase: "Gracias de corazón por elegirte hoy, una y otra vez.", ritual: "Cierra los ojos. Inhala agradecimiento e imaginación. Siente cómo te mereces este amor propio." },
+      { frase: "Tu felicidad es tu responsabilidad sagrada.", ritual: "Cierra los ojos. Elige un pensamiento feliz y concéntrate en la alegría que te produce." },
+      { frase: "Eres magia pura, aunque a veces lo olvides.", ritual: "Cierra los ojos y sonríe. Siente la chispa de la vida brillando en tu interior." },
+      { frase: "Hoy lo hiciste increíble, sin importar los resultados.", ritual: "Cierra los ojos. Date un pequeño masaje en el cuello, reconociendo tu esfuerzo y dedicación." },
+      { frase: "Tu esencia es paz y amor incondicional.", ritual: "Cierra los ojos. Inhala profundo y al exhalar, imagina que estás expandiendo paz y amor por todo el universo." },
+    ]
+  }
+];
+
+// Aplanar tarjetas con índice de bloque
+const TODAS = BLOQUES.flatMap((b, bi) =>
+  b.tarjetas.map((t, ti) => ({ ...t, bi, bloque: b.nombre, color: b.color, colorLight: b.colorLight, id: `${bi}-${ti}` }))
+);
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+let bloqueActivo = null;
+let pool = [];
+let idx = 0;
+let flipped = false;
+let animando = false;
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function buildPool() {
+  const src = bloqueActivo === null ? TODAS : TODAS.filter(t => t.bi === bloqueActivo);
+  pool = shuffle(src);
+  idx = 0; flipped = false;
+}
+
+// ─── SVG WAVY PATH ────────────────────────────────────────────────────────────
+function wavyPath(w, h) {
+  const waves = 6, amp = 10, wh = h / waves;
+  let lp = `M ${amp} 0 `;
+  for (let i = 0; i < waves; i++) {
+    lp += `C 0 ${i*wh+wh*.25}, 0 ${i*wh+wh*.75}, ${amp} ${(i+1)*wh} `;
+  }
+  let rp = `L ${w-amp} ${h} `;
+  for (let i = waves-1; i >= 0; i--) {
+    rp += `C ${w} ${i*wh+wh*.75}, ${w} ${i*wh+wh*.25}, ${w-amp} ${i*wh} `;
+  }
+  return lp + rp + 'Z';
+}
+
+const WAVY = wavyPath(320, 460);
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const t = pool[idx];
+  const b = BLOQUES[t.bi];
+  const total = pool.length;
+
+  // Paths SVG
+  document.getElementById('path-dorso').setAttribute('d', WAVY);
+  document.getElementById('path-dorso').setAttribute('fill', b.color);
+  document.getElementById('path-dorso').setAttribute('stroke', b.color);
+  document.getElementById('path-dorso').setAttribute('stroke-width', '1.5');
+  document.getElementById('path-frente').setAttribute('d', WAVY);
+  document.getElementById('path-frente').setAttribute('stroke', t.color + '55');
+
+  // Stripes
+  const stGrad = `linear-gradient(90deg, ${t.color}99, ${t.color}, ${t.color}99)`;
+  document.getElementById('stripe-top').style.background = stGrad;
+  document.getElementById('stripe-bottom').style.background = stGrad;
+
+  // Badge
+  const badge = document.getElementById('badge');
+  badge.textContent = `${b.icon} ${t.bloque}`;
+  badge.style.background = t.colorLight;
+  badge.style.borderColor = t.color + '44';
+  badge.style.color = t.color;
+
+  // Frase
+  document.getElementById('frase').textContent = t.frase;
+
+  // Divisor
+  document.getElementById('divisor').style.background =
+    `linear-gradient(90deg, transparent, ${t.color}66, transparent)`;
+
+  // Ritual
+  document.getElementById('ritual-box').style.background = t.colorLight;
+  document.getElementById('ritual-label').style.color = t.color;
+  document.getElementById('ritual').textContent = t.ritual;
+
+  // Marca
+  document.getElementById('marca').style.color = t.color;
+
+  // Botón siguiente
+  const btnSig = document.getElementById('btn-sig');
+  btnSig.style.background = `linear-gradient(135deg, ${t.color}, ${t.color}bb)`;
+  btnSig.style.boxShadow = `0 6px 24px ${t.color}44`;
+
+  // Progreso
+  const pct = Math.round(((idx+1)/total)*100);
+  document.getElementById('progreso-fill').style.width = pct + '%';
+  document.getElementById('progreso-fill').style.background =
+    `linear-gradient(90deg, ${t.color}, ${t.color}88)`;
+  document.getElementById('label-bloque').textContent =
+    bloqueActivo !== null ? BLOQUES[bloqueActivo].nombre : 'Mazo completo';
+  document.getElementById('label-num').textContent = `${idx+1} / ${total}`;
+
+  // Hint
+  document.getElementById('hint').style.opacity = flipped ? '0' : '1';
+
+  // Flip
+  document.getElementById('carta-inner').classList.toggle('flipped', flipped);
+
+  // Grid bloques — update bordes
+  document.querySelectorAll('.btn-bloque').forEach((btn, i) => {
+    const activo = bloqueActivo === i;
+    btn.style.borderColor = activo ? BLOQUES[i].color : 'rgba(200,160,230,0.25)';
+    btn.style.background = activo ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.65)';
+  });
+  // Filtros
+  document.querySelectorAll('.btn-filtro').forEach(btn => {
+    const val = btn.dataset.val;
+    const activo = (val === 'todas' && bloqueActivo === null) ||
+                   (val !== 'todas' && parseInt(val) === bloqueActivo);
+    if (activo) {
+      btn.style.borderColor = val === 'todas' ? '#7c4dbb' : BLOQUES[parseInt(val)].color;
+      btn.style.background = val === 'todas' ? '#e8d5ff' : BLOQUES[parseInt(val)].colorLight;
+      btn.style.color = val === 'todas' ? '#7c4dbb' : BLOQUES[parseInt(val)].color;
+    } else {
+      btn.style.borderColor = 'transparent';
+      btn.style.background = 'rgba(255,255,255,0.6)';
+      btn.style.color = '#6b4a8a';
+    }
+  });
+}
+
+function navAnimate(fn) {
+  if (animando) return;
+  animando = true;
+  flipped = false;
+  const w = document.getElementById('carta-wrapper');
+  w.classList.add('salida');
+  setTimeout(() => {
+    fn();
+    w.classList.remove('salida');
+    w.classList.add('fadein');
+    render();
+    animando = false;
+    setTimeout(() => w.classList.remove('fadein'), 500);
+  }, 320);
+}
+
+function toggleFlip() { flipped = !flipped; render(); }
+function navSiguiente() { navAnimate(() => { idx = (idx + 1) % pool.length; }); }
+function navAnterior() { navAnimate(() => { idx = (idx - 1 + pool.length) % pool.length; }); }
+function mezclar() { navAnimate(() => { pool = shuffle(pool); idx = 0; }); }
+
+function setBloqueActivo(val) {
+  bloqueActivo = val;
+  buildPool();
+  render();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+(function init() {
+  // Total
+  document.getElementById('total-count').textContent = TODAS.length;
+
+  // Filtros
+  const fEl = document.getElementById('filtros');
+  const btnTodas = document.createElement('button');
+  btnTodas.className = 'btn-filtro activo';
+  btnTodas.dataset.val = 'todas';
+  btnTodas.textContent = '✦ Todas';
+  btnTodas.onclick = () => setBloqueActivo(null);
+  fEl.appendChild(btnTodas);
+
+  BLOQUES.forEach((b, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-filtro';
+    btn.dataset.val = i;
+    btn.textContent = `${b.icon} ${b.nombre}`;
+    btn.onclick = () => setBloqueActivo(i);
+    fEl.appendChild(btn);
+  });
+
+  // Grid bloques
+  const gEl = document.getElementById('grid-bloques');
+  BLOQUES.forEach((b, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-bloque';
+    btn.innerHTML = `
+      <div class="btn-bloque-icon">${b.icon}</div>
+      <div class="btn-bloque-nombre" style="color:${b.color}">${b.nombre}</div>
+      <div class="btn-bloque-count">${b.tarjetas.length} cartas</div>
+    `;
+    btn.onclick = () => setBloqueActivo(bloqueActivo === i ? null : i);
+    gEl.appendChild(btn);
+  });
+
+  buildPool();
+  render();
+})();
+</script>
+</body>
+</html>

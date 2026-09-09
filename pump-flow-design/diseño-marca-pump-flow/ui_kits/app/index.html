@@ -1,0 +1,122 @@
+<!-- @dsCard group="App" viewport="420x760" subtitle="App móvil: inicio, clases, cursos, perfil" name="App móvil" -->
+<!-- @startingPoint section="App" subtitle="App móvil Pump&Flow" viewport="420x760" -->
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pump&Flow App</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--pf-morado);display:flex;justify-content:center;padding:20px;font:var(--text-body);color:var(--text-body)}
+  a{color:var(--pf-morado);text-decoration:none}
+  a:hover{color:var(--pf-lavanda-hover)}
+  .phone{width:380px;height:720px;background:var(--surface-page);border-radius:40px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-float)}
+  .screen{flex:1;overflow-y:auto;padding:20px 20px 12px;display:none}
+  .screen.active{display:block}
+  h1{font:var(--text-h1);color:var(--text-title);margin:6px 0 4px}
+  .muted{font:var(--text-small);color:var(--text-muted)}
+  .card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:18px;margin-top:14px}
+  .pillbtn{font:var(--text-button);border:none;border-radius:var(--radius-pill);cursor:pointer;padding:12px 24px;min-height:44px;background:var(--pf-lavanda);color:#fff}
+  .pillbtn:hover{background:var(--pf-lavanda-hover)}
+  .pillbtn.soft{background:var(--pf-lila);color:var(--pf-morado)}
+  .video{background:var(--pf-rosa-claro);border-radius:var(--radius-md);height:110px;display:flex;align-items:center;justify-content:center;color:var(--pf-morado);font:var(--text-caption);position:relative}
+  .play{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--pf-lavanda);font-size:18px;box-shadow:var(--shadow-card)}
+  .chips{display:flex;gap:8px;margin:14px 0 2px;flex-wrap:wrap}
+  .chip{font:var(--text-small);font-weight:500;padding:8px 16px;border-radius:var(--radius-pill);border:none;background:#fff;color:var(--pf-morado);cursor:pointer}
+  .chip.on{background:var(--pf-morado);color:#fff}
+  .badge{font:var(--text-caption);font-weight:600;padding:4px 12px;border-radius:var(--radius-pill);background:var(--pf-lila);color:var(--pf-morado)}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .tabbar{display:flex;background:#fff;border-top:1px solid var(--border-soft);padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+  .tab{flex:1;display:grid;justify-items:center;gap:2px;font:var(--text-caption);color:var(--text-muted);border:none;background:none;cursor:pointer;padding:6px 0;min-height:48px;border-radius:var(--radius-md)}
+  .tab.on{color:var(--pf-morado);font-weight:600}
+  .tab .ico{width:20px;height:20px}
+  .prog{height:10px;border-radius:999px;background:var(--pf-lila);overflow:hidden;margin-top:8px}
+  .prog i{display:block;height:100%;width:62%;background:var(--pf-lavanda);border-radius:999px}
+</style></head><body>
+<div class="phone">
+  <div class="screen active" id="s-inicio">
+    <img src="../../assets/logo-morado.png" alt="Pump&Flow" style="height:52px">
+    <h1>Hola, Mariana 🤍</h1>
+    <div class="muted">Tu próxima clase es hoy</div>
+    <div class="card" style="background:var(--pf-lavanda);color:#fff">
+      <div class="row"><b style="font:var(--text-h3)">Hipopresivos grupal</b><span class="badge" style="background:#fff">Hoy 18:30</span></div>
+      <div style="font:var(--text-small);color:#fff;margin:6px 0 12px">Presencial · Cupo confirmado</div>
+      <button class="pillbtn" style="background:#fff;color:var(--pf-morado)">Ver detalles</button>
+    </div>
+    <div class="card">
+      <div class="row"><b style="color:var(--text-title)">Tu paquete</b><span class="badge">Quedan 5 de 8</span></div>
+      <div class="prog"><i></i></div>
+      <div class="muted" style="margin-top:8px">Vence el 12 de agosto</div>
+    </div>
+    <div class="card">
+      <b style="color:var(--text-title)">Tip de hoy ✨</b>
+      <div style="font:var(--text-small);margin-top:6px">Antes de tu apnea, exhala todo el aire con calma. Tu diafragma trabaja mejor sin prisa.</div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-clases">
+    <h1>Reserva tu clase</h1>
+    <div class="chips">
+      <button class="chip on">Todas</button><button class="chip">Presencial</button><button class="chip">En línea</button>
+    </div>
+    <div class="card row">
+      <div><b style="color:var(--text-title)">Lunes 9:00</b><div class="muted">Grupal presencial · 3 lugares</div></div>
+      <button class="pillbtn">Reservar</button>
+    </div>
+    <div class="card row">
+      <div><b style="color:var(--text-title)">Miércoles 18:30</b><div class="muted">Grupal en línea · 6 lugares</div></div>
+      <button class="pillbtn">Reservar</button>
+    </div>
+    <div class="card row" style="opacity:.6">
+      <div><b style="color:var(--text-title)">Viernes 8:00</b><div class="muted">Grupal presencial · Llena</div></div>
+      <button class="pillbtn soft">Lista de espera</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-cursos">
+    <h1>Cursos y videos</h1>
+    <div class="chips">
+      <button class="chip on">Hipopresivos</button><button class="chip">Posparto</button><button class="chip">Wunda</button>
+    </div>
+    <div class="card">
+      <div class="video"><span class="play">▶</span></div>
+      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Fundamentos de respiración</b><span class="badge" style="background:var(--pf-exito-fondo);color:var(--pf-exito)">Tuyo</span></div>
+      <div class="muted">12 videos · a tu ritmo</div>
+    </div>
+    <div class="card">
+      <div class="video" style="background:var(--pf-lila)"><span class="play">▶</span></div>
+      <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Abdomen profundo</b><b style="color:var(--pf-lavanda-hover)">$890</b></div>
+      <div class="muted">8 videos + guía descargable</div>
+      <button class="pillbtn" style="margin-top:10px">Comprar curso ✨</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-perfil">
+    <h1>Tu espacio</h1>
+    <div class="card row">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--pf-rosa);display:flex;align-items:center;justify-content:center;font:var(--text-h3);color:var(--pf-morado)">M</div>
+      <div style="flex:1"><b style="color:var(--text-title)">Mariana López</b><div class="muted">Alumna desde marzo 🧘🏽‍♀️</div></div>
+    </div>
+    <div class="card row"><span>Mis reservas</span><span style="color:var(--pf-lavanda)">›</span></div>
+    <div class="card row"><span>Mi paquete</span><span class="badge">5 de 8</span></div>
+    <div class="card row"><span>Mis cursos</span><span style="color:var(--pf-lavanda)">›</span></div>
+    <div class="card row"><span>Recordatorios</span>
+      <span style="width:48px;height:28px;border-radius:999px;background:var(--pf-lavanda);position:relative;display:inline-block"><span style="position:absolute;top:3px;left:23px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:var(--shadow-card)"></span></span>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab on" data-s="s-inicio"><i data-lucide="heart" class="ico"></i>Inicio</button>
+    <button class="tab" data-s="s-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
+    <button class="tab" data-s="s-cursos"><i data-lucide="play-circle" class="ico"></i>Cursos</button>
+    <button class="tab" data-s="s-perfil"><i data-lucide="user" class="ico"></i>Perfil</button>
+  </div>
+</div>
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>
+if (window.lucide) lucide.createIcons();
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  t.classList.add('on');
+  document.getElementById(t.dataset.s).classList.add('active');
+}));
+</script>
+</body></html>

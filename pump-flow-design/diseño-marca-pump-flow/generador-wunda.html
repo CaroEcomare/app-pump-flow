@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de clases · Pump&Flow</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap");
+:root {
+  --pf-rosa-claro: #EFB2E0;
+  --pf-rosa: #EAA1DC;
+  --pf-lila: #E3C7FA;
+  --pf-lavanda: #AA9DED;
+  --pf-morado: #584472;
+  --pf-lila-fondo: #F5EEFD;
+  --pf-rosa-fondo: #FBE9F6;
+  --pf-lavanda-hover: #9A8BE4;
+  --pf-morado-hover: #4A3861;
+  --pf-morado-profundo: #3E2F52;
+  --pf-blanco: #FFFFFF;
+  --pf-exito: #6FA287;
+  --pf-exito-fondo: #E9F3EE;
+  --pf-error: #C77490;
+  --pf-error-fondo: #F9EAF0;
+  --pf-aviso: #C9A26B;
+  --pf-aviso-fondo: #F8F0E4;
+  --text-muted: #8D7FA6;
+  --border-soft: #E3D6F5;
+  --font-display: "Baloo 2", "Poppins", sans-serif;
+  --font-body: "Poppins", sans-serif;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  --shadow-card: 0 4px 16px rgba(88, 68, 114, 0.10);
+  --shadow-float: 0 8px 28px rgba(88, 68, 114, 0.16);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font: 400 16px/1.6 var(--font-body);
+  background: var(--pf-lila-fondo);
+  color: var(--pf-morado-profundo);
+}
+header {
+  background: var(--pf-morado);
+  color: var(--pf-blanco);
+  padding: 28px 24px 24px;
+  text-align: center;
+}
+header h1 {
+  font: 700 italic 32px/1.15 var(--font-display);
+  letter-spacing: 0.01em;
+}
+header p { font: 400 14px/1.5 var(--font-body); opacity: 0.85; margin-top: 4px; }
+#status {
+  font: 500 13px/1.4 var(--font-body);
+  text-align: center;
+  padding: 10px 20px;
+  background: var(--pf-exito-fondo);
+  color: var(--pf-exito);
+}
+#status.error { background: var(--pf-error-fondo); color: var(--pf-error); }
+main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+.panel {
+  background: var(--pf-blanco);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.panel h2 { font: 600 20px/1.3 var(--font-body); color: var(--pf-morado); margin-bottom: 16px; }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.control label {
+  display: block;
+  font: 500 12px/1.4 var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  font: 400 15px/1.4 var(--font-body);
+  background: var(--pf-blanco);
+  color: var(--pf-morado-profundo);
+  transition: border-color 150ms ease;
+}
+select:focus { outline: none; border-color: var(--pf-lavanda); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.chip {
+  font: 500 13.5px/1 var(--font-body);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-soft);
+  background: var(--pf-blanco);
+  color: var(--pf-morado);
+  cursor: pointer;
+  user-select: none;
+  transition: all 150ms ease;
+}
+.chip:hover { border-color: var(--pf-lavanda); }
+.chip.on { background: var(--pf-lavanda); color: var(--pf-blanco); border-color: var(--pf-lavanda); }
+#generar {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--pf-lavanda);
+  color: var(--pf-blanco);
+  font: 600 16px/1 var(--font-body);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+#generar:hover { background: var(--pf-lavanda-hover); }
+#generar:active { transform: scale(0.98); }
+#generar:disabled { background: var(--text-muted); cursor: wait; }
+.resumen { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.resumen div {
+  background: var(--pf-lila);
+  color: var(--pf-morado);
+  border-radius: var(--radius-pill);
+  padding: 8px 18px;
+  font: 500 13.5px/1.4 var(--font-body);
+}
+.resumen strong { font-weight: 700; }
+.bloque { margin-bottom: 28px; }
+.bloque-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.bloque-head .num {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--pf-lavanda);
+  color: var(--pf-blanco);
+  display: flex; align-items: center; justify-content: center;
+  font: 700 16px/1 var(--font-display);
+  flex-shrink: 0;
+}
+.bloque-head h3 { font: 600 20px/1.3 var(--font-body); color: var(--pf-morado); }
+.cambio {
+  font: 500 13px/1.4 var(--font-body);
+  background: var(--pf-aviso-fondo);
+  color: var(--pf-aviso);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  margin: 10px 0;
+  display: inline-block;
+}
+.ej {
+  background: var(--pf-blanco);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.ej-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.ej-top .nombre { font: 600 16px/1.4 var(--font-body); color: var(--pf-morado); }
+.btn-cambiar {
+  border: 1.5px solid var(--pf-lavanda);
+  background: var(--pf-blanco);
+  color: var(--pf-lavanda);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font: 600 12.5px/1 var(--font-body);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 150ms ease;
+}
+.btn-cambiar:hover { background: var(--pf-lavanda); color: var(--pf-blanco); }
+.ej .meta { font: 400 13px/1.5 var(--font-body); color: var(--text-muted); margin-top: 2px; }
+.paso {
+  font: 400 14px/1.5 var(--font-body);
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--pf-lila-fondo);
+  border-radius: var(--radius-sm);
+}
+.paso .tipo { font-weight: 600; color: var(--pf-morado); }
+.paso .reps { color: var(--pf-lavanda-hover); font-weight: 600; }
+.ej details { margin-top: 10px; }
+.ej summary { font: 500 13px/1.4 var(--font-body); color: var(--pf-lavanda-hover); cursor: pointer; }
+.ej details p { font: 400 14px/1.6 var(--font-body); margin-top: 6px; }
+.aviso {
+  font: 400 13px/1.5 var(--font-body);
+  color: var(--text-muted);
+  margin-top: 16px;
+}
+footer { text-align: center; font: 400 12px/1.5 var(--font-body); color: var(--text-muted); padding: 24px; }
+#gate {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--pf-morado);
+  display: flex; align-items: center; justify-content: center;
+}
+#gate .box {
+  background: var(--pf-blanco);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  padding: 32px 28px;
+  width: 100%; max-width: 320px;
+  text-align: center;
+}
+#gate h2 { font: 700 22px/1.2 var(--font-display); color: var(--pf-morado); margin-bottom: 6px; }
+#gate p { font: 400 13px/1.5 var(--font-body); color: var(--text-muted); margin-bottom: 18px; }
+#gate input {
+  width: 100%; font: 400 15px var(--font-body);
+  padding: 12px 16px; border-radius: var(--radius-pill);
+  border: 2px solid var(--border-soft); outline: none; margin-bottom: 12px;
+  box-sizing: border-box;
+}
+#gate input:focus { border-color: var(--pf-lavanda); }
+#gate button {
+  width: 100%; font: 600 15px var(--font-body); color: var(--pf-blanco);
+  background: var(--pf-lavanda); border: none; border-radius: var(--radius-pill);
+  padding: 12px 16px; cursor: pointer;
+}
+#gate button:hover { background: var(--pf-lavanda-hover); }
+#gate .err { font: 500 13px var(--font-body); color: var(--pf-error); margin-top: 10px; min-height: 16px; }
+body.locked > *:not(#gate) { display: none; }
+</style>
+</head>
+<body class="locked">
+
+<div id="gate">
+  <div class="box">
+    <h2>Acceso restringido</h2>
+    <p>Escribe la contraseña para entrar al generador de clases.</p>
+    <input type="password" id="gate-pass" placeholder="Contraseña" autofocus>
+    <button id="gate-btn">Entrar</button>
+    <div class="err" id="gate-err"></div>
+  </div>
+</div>
+<script>
+(function () {
+  const CLAVE = 'Pato2026!';
+  if (sessionStorage.getItem('wundaAuth') === '1') {
+    document.body.classList.remove('locked');
+    document.getElementById('gate').remove();
+    return;
+  }
+  function intentar() {
+    const val = document.getElementById('gate-pass').value;
+    if (val === CLAVE) {
+      sessionStorage.setItem('wundaAuth', '1');
+      document.body.classList.remove('locked');
+      document.getElementById('gate').remove();
+    } else {
+      document.getElementById('gate-err').textContent = 'Contraseña incorrecta';
+    }
+  }
+  document.getElementById('gate-btn').addEventListener('click', intentar);
+  document.getElementById('gate-pass').addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') intentar();
+  });
+})();
+</script>
+
+<header>
+  <h1>Generador de clases</h1>
+  <p>Wunda Chair · Pump&amp;Flow ✨</p>
+</header>
+<div id="status">Cargando tus ejercicios...</div>
+
+<main>
+  <div class="panel">
+    <h2>Diseña tu clase</h2>
+    <div class="controls">
+      <div class="control">
+        <label>Duración</label>
+        <select id="duracion">
+          <option value="30">30 minutos</option>
+          <option value="45">45 minutos</option>
+          <option value="55" selected>50 a 60 minutos</option>
+        </select>
+      </div>
+      <div class="control">
+        <label>Énfasis</label>
+        <select id="enfasis">
+          <option value="mixto" selected>Cuerpo completo</option>
+          <option value="piernas">Piernas</option>
+          <option value="brazos">Brazos</option>
+          <option value="torso">Torso</option>
+        </select>
+      </div>
+      <div class="control">
+        <label>Nivel</label>
+        <select id="nivel">
+          <option value="todos" selected>Todos</option>
+          <option value="Básico">Básico</option>
+          <option value="Intermedio">Intermedio</option>
+          <option value="Avanzado">Avanzado</option>
+        </select>
+      </div>
+      <div class="control">
+        <label>Variaciones por ejercicio</label>
+        <select id="variaciones">
+          <option value="2">2, clase más variada</option>
+          <option value="3" selected>3, equilibrado</option>
+          <option value="4">4, exprimir cada postura</option>
+        </select>
+      </div>
+    </div>
+    <div class="control" style="margin-top:18px">
+      <label>Cuidar estas zonas</label>
+      <div class="chips" id="chips">
+        <span class="chip" data-kw="manos,puños,mano">Muñecas y manos</span>
+        <span class="chip" data-kw="rodillas,tibias,rodilla">Rodillas al apoyo</span>
+        <span class="chip" data-kw="acostada,dorsal,espalda">Posición acostada</span>
+        <span class="chip" data-kw="parada sobre el asiento,parado de manos">Equilibrio en altura</span>
+      </div>
+    </div>
+    <button id="generar" disabled>Generar clase ✨</button>
+  </div>
+
+  <div id="salida"></div>
+</main>
+
+<footer>Tu clase se arma con los datos en vivo de tu hoja. Recarga la página después de editar la tabla 🤍</footer>
+
+<script>
+// ================== FUENTES DE DATOS ==================
+const GVIZ_JSONP = 'https://docs.google.com/spreadsheets/d/1leQijZP1pztGORQoSyD99uUxmkHeaLB7pZqpwT9QAUI/gviz/tq?tqx=out:json&gid=0';
+const FUENTES = [
+  { nombre: 'CSV publicado', tipo: 'csv',
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQchlxAHjRIqcLGtCgJJGJ6yJBM_nUCa77g3o6sgfOeilieS10gPV2FyizWlE1dglKNCqJz-aUCuh3T/pub?gid=0&single=true&output=csv' },
+  { nombre: 'API de consulta', tipo: 'csv',
+    url: 'https://docs.google.com/spreadsheets/d/1leQijZP1pztGORQoSyD99uUxmkHeaLB7pZqpwT9QAUI/gviz/tq?tqx=out:csv&gid=0' },
+  { nombre: 'Página publicada', tipo: 'html',
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQchlxAHjRIqcLGtCgJJGJ6yJBM_nUCa77g3o6sgfOeilieS10gPV2FyizWlE1dglKNCqJz-aUCuh3T/pubhtml?gid=0&single=true' },
+];
+
+let EJERCICIOS = [];
+let ESTADO = null; // clase actual en pantalla, para poder cambiar ejercicios sueltos
+
+// ================== PARSERS ==================
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else inQuotes = false; }
+      else cell += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { row.push(cell); cell = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && text[i+1] === '\n') i++;
+        row.push(cell); cell = ''; rows.push(row); row = [];
+      } else cell += ch;
+    }
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+function parseHTMLTable(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const table = doc.querySelector('table');
+  if (!table) throw new Error('sin tabla en la página publicada');
+  return [...table.querySelectorAll('tr')].map(tr =>
+    [...tr.querySelectorAll('td, th')]
+      .filter(td => !td.classList.contains('row-headers-background'))
+      .map(td => td.textContent || '')
+  );
+}
+
+function cargarJSONP() {
+  return new Promise((resolve, reject) => {
+    window.google = { visualization: { Query: { setResponse: data => {
+      clearTimeout(timer);
+      try {
+        const t = data.table;
+        const rows = [];
+        if (t.cols.some(c => c.label && c.label.trim())) rows.push(t.cols.map(c => c.label || ''));
+        t.rows.forEach(r => rows.push(r.c.map(c => (c && c.v != null) ? String(c.v) : '')));
+        resolve(rows);
+      } catch (e) { reject(e); }
+    } } } };
+    const s = document.createElement('script');
+    s.src = GVIZ_JSONP;
+    s.onerror = () => { clearTimeout(timer); reject(new Error('no se pudo cargar el script')); };
+    const timer = setTimeout(() => reject(new Error('tiempo de espera agotado')), 12000);
+    document.head.appendChild(s);
+  });
+}
+
+// ================== CARGA Y NORMALIZACIÓN ==================
+async function cargar() {
+  const status = document.getElementById('status');
+  const fallas = [];
+  let rows = null;
+  try {
+    rows = await cargarJSONP();
+    if (!rows.some(r => r.some(c => c.trim() === 'Ejercicio'))) throw new Error('formato inesperado');
+  } catch (err) { fallas.push('Carga directa: ' + err.message); rows = null; }
+  if (!rows) for (const f of FUENTES) {
+    try {
+      const resp = await fetch(f.url, { cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const texto = await resp.text();
+      rows = f.tipo === 'csv' ? parseCSV(texto) : parseHTMLTable(texto);
+      if (!rows.some(r => r.some(c => c.trim() === 'Ejercicio'))) throw new Error('formato inesperado');
+      break;
+    } catch (err) { fallas.push(f.nombre + ': ' + err.message); rows = null; }
+  }
+  if (!rows) {
+    status.className = 'error';
+    status.textContent = 'Tu hoja no se pudo leer. Verifica que en Compartir esté como "Cualquier persona con el enlace: Lector". Detalle: ' + fallas.join(' | ');
+    return;
+  }
+  try {
+    const hIdx = rows.findIndex(r => r.some(c => c.trim() === 'Ejercicio'));
+    const H = rows[hIdx].map(c => c.trim());
+    const col = name => H.findIndex(h => h.toLowerCase().includes(name));
+    const cID = col('id'), cEj = col('ejercicio'), cNv = col('nivel'),
+          cAp = col('apoyo'), cGr = col('grupo'), cCo = col('cómo') !== -1 ? col('cómo') : col('como'),
+          cRe = col('resistencia'), cVb = col('brazos'), cVp = col('piernas'), cVt = col('torso'),
+          cPo = col('posici');
+
+    const lista = [];
+    let prev = null;
+    for (let i = hIdx + 1; i < rows.length; i++) {
+      const r = rows[i];
+      const get = c => (c >= 0 && r[c]) ? r[c].trim() : '';
+      const nombre = get(cEj);
+      if (!nombre) continue;
+      const e = {
+        id: get(cID), nombre,
+        nivel: get(cNv) || 'Básico',
+        apoyo: get(cAp), grupo: get(cGr), como: get(cCo),
+        resist: get(cRe).replace(/\s+/g, ' ').trim(),
+        vb: get(cVb), vp: get(cVp), vt: get(cVt),
+        posCol: get(cPo),
+      };
+      if (!e.id && prev) {
+        if (!e.grupo) e.grupo = prev.grupo;
+        if (!e.resist) e.resist = prev.resist;
+        if (!e.vb) e.vb = prev.vb;
+        if (!e.vp) e.vp = prev.vp;
+        if (!e.vt) e.vt = prev.vt;
+        if (!e.posCol) e.posCol = prev.posCol;
+        e.id = prev.id + '·';
+      }
+      e.pos = posicionDe(e);
+      if (e.como || e.vb || e.vp) lista.push(e);
+      prev = e;
+    }
+    EJERCICIOS = lista;
+    const sinR = lista.filter(e => !e.resist).length;
+    status.textContent = `✨ ${lista.length} ejercicios listos desde tu hoja` +
+      (sinR ? ` · ${sinR} sin resistencia registrada quedan fuera de la generación` : '');
+    document.getElementById('generar').disabled = false;
+  } catch (err) {
+    status.className = 'error';
+    status.textContent = 'Tu hoja se leyó pero los datos no se pudieron interpretar. Detalle: ' + err.message;
+  }
+}
+
+// ================== POSICIÓN DEL CUERPO ==================
+// Orden fijo de la sesión: de pie, con manos en apoyo, sentada y acostada al final.
+// Si tu hoja tiene columna "Posición", se usa tal cual; si no, se deduce del texto.
+const POSICIONES = [
+  { key: 'pie',      titulo: 'De pie' },
+  { key: 'apoyo',    titulo: 'Con manos en apoyo' },
+  { key: 'sentada',  titulo: 'Sentada' },
+  { key: 'acostada', titulo: 'Acostada' },
+];
+
+function posicionDe(e) {
+  const p = (e.posCol || '').toLowerCase();
+  if (/acostad/.test(p)) return 'acostada';
+  if (/sentad/.test(p)) return 'sentada';
+  if (/apoyo|manos|cuadrupedia|rodillas/.test(p)) return 'apoyo';
+  if (/pie|parad/.test(p)) return 'pie';
+  const t = (e.como + ' ' + e.apoyo).toLowerCase();
+  if (/acostad|boca arriba|dorsal/.test(t)) return 'acostada';
+  if (/sentad|isquiones/.test(t)) return 'sentada';
+  if (/(una )?manos? (van |está |estan |están )?(en|a|hacia) (el |la |los |las )?(asiento|orilla|pedal)|manos al frente de la wunda|cuatro puntos|arrodillad|de rodillas|rodillas sobre/.test(t)) return 'apoyo';
+  return 'pie';
+}
+
+// ================== VARIACIONES ==================
+function extraerLista(txt) {
+  if (!txt) return [];
+  let partes = txt.split(/\n|;/).map(s => s.trim()).filter(s => s.length > 6);
+  if (partes.length <= 1) {
+    const porComa = txt.split(',').map(s => s.trim()).filter(s => s.length > 6);
+    const porOracion = txt.split(/\.(?:\s+|$)/).map(s => s.trim()).filter(s => s.length > 12);
+    partes = (porComa.length >= porOracion.length) ? porComa : porOracion;
+  }
+  return partes;
+}
+
+function variacionesDe(e) {
+  const v = [];
+  extraerLista(e.vp).forEach(t => v.push({ tipo: 'Piernas', t }));
+  extraerLista(e.vb).forEach(t => v.push({ tipo: 'Brazos', t }));
+  extraerLista(e.vt).forEach(t => v.push({ tipo: 'Torso', t }));
+  return v;
+}
+
+function reps(texto) {
+  const t = (texto || '').toLowerCase();
+  if (/una pierna|un brazo|cruzada|lateral|abducción|de lado|hacia derecha/.test(t)) return '6 por lado';
+  if (/estiramiento|respiración/.test(t)) return '30 a 45 seg';
+  return '8 reps';
+}
+
+// Serie: base y variaciones alternando brazos, piernas y torso, sin cambiar postura
+function armarSerie(e, maxVar) {
+  const serie = [{ tipo: 'Base', t: 'Ejercicio base', reps: reps(e.nombre + ' ' + e.como) }];
+  const porTipo = { Piernas: [], Brazos: [], Torso: [] };
+  variacionesDe(e).forEach(v => porTipo[v.tipo].push(v));
+  Object.keys(porTipo).forEach(k => shuffle(porTipo[k]));
+  const orden = ['Brazos', 'Piernas', 'Torso'];
+  let agregadas = 0, ronda = 0;
+  while (agregadas < maxVar - 1 && ronda < 6) {
+    for (const k of orden) {
+      if (agregadas >= maxVar - 1) break;
+      const v = porTipo[k].shift();
+      if (v) { serie.push({ tipo: v.tipo, t: v.t, reps: reps(v.t) }); agregadas++; }
+    }
+    ronda++;
+  }
+  return serie;
+}
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+// ================== MEMORIA ANTIRREPETICIÓN ==================
+// Recuerda las últimas 3 clases generadas y castiga repetir los mismos ejercicios
+function leerHistorial() {
+  try { return JSON.parse(localStorage.getItem('pf-wunda-historial') || '[]'); }
+  catch { return []; }
+}
+function guardarHistorial(nombres) {
+  const h = leerHistorial();
+  h.unshift(nombres);
+  localStorage.setItem('pf-wunda-historial', JSON.stringify(h.slice(0, 3)));
+}
+function penalizacion(nombre) {
+  const h = leerHistorial();
+  let p = 0;
+  h.forEach((clase, i) => { if (clase.includes(nombre)) p += (3 - i) * 4; }); // la clase más reciente pesa más
+  return p;
+}
+
+// ================== GENERACIÓN ==================
+// Regla central: máximo 4 cambios de resortes por clase, y cada configuración
+// se aprovecha en varios ejercicios seguidos antes de cambiar.
+const LIMITE_CAMBIOS = 4;
+
+// Cada nivel acumula los anteriores: básica solo básico, intermedia suma básico,
+// avanzada suma básico e intermedio.
+const NIVEL_RANGO = { 'Básico': 1, 'Intermedio': 2, 'Avanzado': 3 };
+
+function generar() {
+  const dur = parseInt(document.getElementById('duracion').value);
+  const enfasis = document.getElementById('enfasis').value;
+  const nivel = document.getElementById('nivel').value;
+  const maxVar = parseInt(document.getElementById('variaciones').value);
+  const evitar = [...document.querySelectorAll('.chip.on')].flatMap(c => c.dataset.kw.split(','));
+
+  // 1. filtrar
+  let pool = EJERCICIOS.filter(e => e.resist && e.resist.toUpperCase() !== 'N/A');
+  const sinResorte = EJERCICIOS.filter(e => e.resist.toUpperCase() === 'N/A');
+  if (nivel !== 'todos') {
+    const rangoMax = NIVEL_RANGO[nivel] || 1;
+    pool = pool.filter(e => (NIVEL_RANGO[e.nivel] || 1) <= rangoMax);
+  }
+  const excluidos = [];
+  if (evitar.length) {
+    pool = pool.filter(e => {
+      const zona = (e.apoyo + ' ' + e.como).toLowerCase();
+      const fuera = evitar.some(kw => zona.includes(kw.trim().toLowerCase()));
+      if (fuera) excluidos.push(e.nombre);
+      return !fuera;
+    });
+  }
+  if (!pool.length) { ESTADO = { bloques: [], pool, maxVar, dur, excluidos, sinResorte }; render(); document.getElementById('salida').scrollIntoView({ behavior: 'smooth' }); return; }
+
+  // 2. cuántas posturas base caben
+  const minPorBase = 1.5 + maxVar * 1.2;
+  const totalBases = Math.max(4, Math.round(dur / minPorBase));
+
+  // 3. cupos por grupo muscular: todos los grupos aparecen, el énfasis reparte los extras
+  const grupos = [...new Set(pool.map(e => e.grupo).filter(Boolean))];
+  const cupoGrupo = {};
+  grupos.forEach(g => cupoGrupo[g] = 1);
+  let extras = Math.max(0, totalBases - grupos.length);
+  const afinidad = g => {
+    const gl = g.toLowerCase();
+    if (enfasis === 'piernas') return /piernas/.test(gl) ? 3 : 1;
+    if (enfasis === 'brazos') return /brazos/.test(gl) && !/piernas/.test(gl) ? 3 : 1;
+    if (enfasis === 'torso') return /torso|flexión|flexion|extensión|extension/.test(gl) ? 3 : 1;
+    return 1;
+  };
+  const bolsa = [];
+  grupos.forEach(g => { for (let i = 0; i < afinidad(g); i++) bolsa.push(g); });
+  while (extras > 0 && bolsa.length) {
+    const g = bolsa[Math.floor(Math.random() * bolsa.length)];
+    if (cupoGrupo[g] < pool.filter(e => e.grupo === g).length) { cupoGrupo[g]++; extras--; }
+    else { for (let i = bolsa.length - 1; i >= 0; i--) if (bolsa[i] === g) bolsa.splice(i, 1); }
+  }
+
+  // 4. cupos por posición, proporcionales a lo que hay disponible en cada una
+  const porPos = {};
+  POSICIONES.forEach(p => porPos[p.key] = pool.filter(e => e.pos === p.key));
+  const posActivas = POSICIONES.filter(p => porPos[p.key].length);
+  const cupoPos = {};
+  let asignados = 0;
+  posActivas.forEach(p => {
+    cupoPos[p.key] = Math.max(1, Math.floor(totalBases * porPos[p.key].length / pool.length));
+    asignados += cupoPos[p.key];
+  });
+  const ordenAjuste = [...posActivas].sort((a, z) => porPos[z.key].length - porPos[a.key].length);
+  let k = 0;
+  while (asignados < totalBases && k < 60) {
+    const p = ordenAjuste[k % ordenAjuste.length];
+    if (cupoPos[p.key] < porPos[p.key].length) { cupoPos[p.key]++; asignados++; }
+    k++;
+  }
+  while (asignados > totalBases && k < 160) {
+    const p = ordenAjuste[ordenAjuste.length - 1 - (k % ordenAjuste.length)];
+    if (cupoPos[p.key] > 1) { cupoPos[p.key]--; asignados--; }
+    k++;
+  }
+
+  // 5. recorrer las posiciones con una secuencia general (de pie hacia acostada)
+  //    pero sin orden fijo: cada posición se mueve un poco al azar respecto a su
+  //    lugar habitual, así posiciones vecinas a veces se cruzan y la clase no
+  //    repite siempre la misma estructura, sin perder el sentido de avance.
+  const HOLGURA_ORDEN = 1;
+  const ordenPos = {};
+  POSICIONES.forEach((p, i) => ordenPos[p.key] = i + (Math.random() * 2 - 1) * HOLGURA_ORDEN);
+  const posActivasOrdenadas = [...posActivas].sort((a, z) => ordenPos[a.key] - ordenPos[z.key]);
+
+  const score = e => variacionesDe(e).length + (cupoGrupo[e.grupo] > 0 ? 6 : 0) - penalizacion(e.nombre) + Math.random() * 2;
+  const bloques = [];
+  let configPrev = null, cambios = 0;
+  posActivasOrdenadas.forEach(p => {
+    let cupo = cupoPos[p.key];
+    const disponibles = [...porPos[p.key]];
+    const sel = [];
+    while (cupo > 0 && disponibles.length) {
+      let candidatos = configPrev ? disponibles.filter(e => e.resist === configPrev) : [];
+      if (!candidatos.length) {
+        if (configPrev !== null && cambios >= LIMITE_CAMBIOS - 1) break; // se reserva 1 cambio para cobertura muscular
+        // abrir la config más aprovechable: la que más ejercicios ofrece aquí y en lo que sigue,
+        // con bonificación fuerte si trae grupos musculares que aún faltan por cubrir
+        const porConfig = {};
+        disponibles.forEach(e => (porConfig[e.resist] = porConfig[e.resist] || []).push(e));
+        const valorConfig = c =>
+          porConfig[c].length * 2 +
+          pool.filter(e => e.resist === c).length +
+          8 * new Set(porConfig[c].filter(e => cupoGrupo[e.grupo] > 0).map(e => e.grupo)).size;
+        const configs = Object.keys(porConfig).sort((a, z) => valorConfig(z) - valorConfig(a));
+        if (configPrev !== null) cambios++;
+        configPrev = configs[0];
+        candidatos = porConfig[configPrev];
+      }
+      candidatos.sort((a, z) => score(z) - score(a));
+      const e = candidatos[0];
+      sel.push(e);
+      disponibles.splice(disponibles.indexOf(e), 1);
+      if (cupoGrupo[e.grupo] > 0) cupoGrupo[e.grupo]--;
+      cupo--;
+    }
+    if (sel.length) bloques.push({ key: p.key, titulo: p.titulo, items: sel.map(e => ({ e, serie: armarSerie(e, maxVar) })) });
+  });
+
+  // 6. cobertura muscular: si un grupo quedó fuera, entra con una config ya usada
+  const nombresUsados = () => new Set(bloques.flatMap(b => b.items.map(it => it.e.nombre)));
+  const configsUsadas = new Set(bloques.flatMap(b => b.items.map(it => it.e.resist)));
+  grupos.forEach(g => {
+    if (bloques.some(b => b.items.some(it => it.e.grupo === g))) return;
+    const usados = nombresUsados();
+    // primero con una config ya usada; si el presupuesto de cambios alcanza, con la que sea
+    let opciones = pool.filter(e => e.grupo === g && configsUsadas.has(e.resist) && !usados.has(e.nombre));
+    if (!opciones.length) {
+      const seq = bloques.flatMap(b => b.items.map(it => it.e.resist));
+      let reales = 0;
+      seq.forEach((r, i) => { if (i > 0 && r !== seq[i - 1]) reales++; });
+      if (reales < LIMITE_CAMBIOS) opciones = pool.filter(e => e.grupo === g && !usados.has(e.nombre));
+    }
+    if (!opciones.length) return;
+    opciones.sort((a, z) => variacionesDe(z).length - variacionesDe(a).length);
+    const e = opciones[0];
+    const item = { e, serie: armarSerie(e, maxVar) };
+    let bloque = bloques.find(b => b.key === e.pos);
+    if (!bloque) {
+      const p = POSICIONES.find(p => p.key === e.pos);
+      bloque = { key: e.pos, titulo: p.titulo, items: [] };
+      bloques.push(bloque);
+      bloques.sort((a, z) => ordenPos[a.key] - ordenPos[z.key]);
+    }
+    // probar todos los puntos de inserción dentro de su bloque y quedarse
+    // con el que deje la menor cantidad total de cambios de resortes
+    const contarCambios = () => {
+      const s = bloques.flatMap(b => b.items.map(it => it.e.resist));
+      let c = 0;
+      s.forEach((r, i) => { if (i > 0 && r !== s[i - 1]) c++; });
+      return c;
+    };
+    let mejorIdx = bloque.items.length, mejorTotal = Infinity;
+    for (let idx = 0; idx <= bloque.items.length; idx++) {
+      bloque.items.splice(idx, 0, item);
+      const c = contarCambios();
+      bloque.items.splice(idx, 1);
+      if (c < mejorTotal) { mejorTotal = c; mejorIdx = idx; }
+    }
+    bloque.items.splice(mejorIdx, 0, item);
+    // mantener el tamaño de la clase: sale el ejercicio con grupo repetido de menor riqueza
+    const todos = bloques.flatMap(b => b.items);
+    if (todos.length > totalBases) {
+      const repetidos = todos.filter(it => it.e.grupo !== g && todos.filter(x => x.e.grupo === it.e.grupo).length > 1);
+      if (repetidos.length) {
+        repetidos.sort((a, z) => variacionesDe(a.e).length - variacionesDe(z.e).length);
+        const victima = repetidos[0];
+        const bv = bloques.find(b => b.items.includes(victima));
+        bv.items.splice(bv.items.indexOf(victima), 1);
+        if (!bv.items.length) bloques.splice(bloques.indexOf(bv), 1);
+      }
+    }
+  });
+
+  ESTADO = { bloques, pool, maxVar, dur, excluidos, sinResorte };
+  guardarHistorial(bloques.flatMap(b => b.items.map(it => it.e.nombre)));
+  render();
+  document.getElementById('salida').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Cambia un solo ejercicio sin regenerar la clase completa.
+// El reemplazo prefiere configuraciones de resortes que la clase ya usa.
+function cambiarItem(bIdx, iIdx) {
+  const bloque = ESTADO.bloques[bIdx];
+  const actual = bloque.items[iIdx].e;
+  const usados = new Set(ESTADO.bloques.flatMap(b => b.items.map(it => it.e.nombre)));
+  const configsClase = ESTADO.bloques.flatMap(b => b.items.map(it => it.e.resist));
+  const configsBloque = bloque.items.map(it => it.e.resist);
+  const candidatos = ESTADO.pool.filter(e => e.pos === bloque.key && !usados.has(e.nombre));
+  if (!candidatos.length) return; // sin más opciones en esta posición
+  shuffle(candidatos);
+  candidatos.sort((a, z) => {
+    const pa = (a.grupo === actual.grupo ? 8 : 0) + (configsBloque.includes(a.resist) ? 12 : 0) + (configsClase.includes(a.resist) ? 6 : 0) + variacionesDe(a).length + Math.random() * 4;
+    const pz = (z.grupo === actual.grupo ? 8 : 0) + (configsBloque.includes(z.resist) ? 12 : 0) + (configsClase.includes(z.resist) ? 6 : 0) + variacionesDe(z).length + Math.random() * 4;
+    return pz - pa;
+  });
+  const nuevo = candidatos[0];
+  bloque.items[iIdx] = { e: nuevo, serie: armarSerie(nuevo, ESTADO.maxVar) };
+  render();
+}
+
+// ================== RENDER ==================
+function render() {
+  const { bloques, dur, excluidos, sinResorte } = ESTADO;
+  const nBases = bloques.reduce((s, b) => s + b.items.length, 0);
+  const nSeries = bloques.reduce((s, b) => s + b.items.reduce((x, it) => x + it.serie.length, 0), 0);
+
+  // recuento de cambios de resortes en el orden real de la sesión
+  let cambios = 0, prev = null;
+  bloques.forEach(b => b.items.forEach(it => {
+    it.cambio = (it.e.resist !== prev && prev !== null);
+    if (it.cambio) cambios++;
+    prev = it.e.resist;
+  }));
+
+  let html = `<div class="panel"><div class="resumen">
+    <div><strong>${nBases}</strong> posturas</div>
+    <div><strong>${nSeries}</strong> series</div>
+    <div><strong>${cambios}</strong> cambios de resortes</div>
+    <div><strong>${dur} min</strong></div>
+  </div>`;
+
+  bloques.forEach((b, bIdx) => {
+    html += `<div class="bloque"><div class="bloque-head"><span class="num">${bIdx + 1}</span><h3>${b.titulo}</h3></div>`;
+    b.items.forEach((it, iIdx) => {
+      if (it.cambio) html += `<div class="cambio">⟳ Cambiar resortes a ${it.e.resist}</div>`;
+      const pasos = it.serie.map((p, i) =>
+        `<div class="paso"><span class="tipo">${i + 1}. ${p.tipo === 'Base' ? 'Base' : p.tipo}:</span> ${p.tipo === 'Base' ? it.e.nombre : p.t} · <span class="reps">${p.reps}</span></div>`
+      ).join('');
+      html += `<div class="ej">
+        <div class="ej-top">
+          <span class="nombre">${it.e.nombre}</span>
+          <button class="btn-cambiar" data-b="${bIdx}" data-i="${iIdx}">⟳ Cambiar</button>
+        </div>
+        <div class="meta">Resortes ${it.e.resist} · Apoyos: ${it.e.apoyo || 'sin registro'} · Grupo: ${it.e.grupo || 'sin registro'}</div>
+        ${pasos}
+        ${it.e.como ? `<details><summary>Cómo se hace</summary><p>${it.e.como}</p></details>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  if (excluidos.length) html += `<p class="aviso">Quedaron fuera por las zonas a cuidar: ${[...new Set(excluidos)].join(', ')}.</p>`;
+  if (sinResorte.length) html += `<p class="aviso">Sin resorte (N/A), puedes sumarlos a mano: ${sinResorte.map(e => e.nombre).join(', ')}.</p>`;
+  html += `</div>`;
+
+  const salida = document.getElementById('salida');
+  salida.innerHTML = html;
+  salida.querySelectorAll('.btn-cambiar').forEach(btn =>
+    btn.addEventListener('click', () => cambiarItem(parseInt(btn.dataset.b), parseInt(btn.dataset.i)))
+  );
+}
+
+// ================== EVENTOS ==================
+document.getElementById('chips').addEventListener('click', ev => {
+  if (ev.target.classList.contains('chip')) ev.target.classList.toggle('on');
+});
+document.getElementById('generar').addEventListener('click', generar);
+cargar();
+</script>
+</body>
+</html>

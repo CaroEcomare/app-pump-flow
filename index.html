@@ -1,213 +1,139 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pump&Flow</title>
-<link rel="stylesheet" href="app/styles.css">
-</head>
-<body>
+<!-- @dsCard group="Web" viewport="1280x760" subtitle="Landing de venta: captar alumnas, reservar, cursos" name="Página web" -->
+<!-- @startingPoint section="Web" subtitle="Landing de venta Pump&Flow" viewport="1280x760" -->
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pump&Flow · Más que solo hipopresivos</title>
+<link rel="stylesheet" href="pump-flow-design/diseño-marca-pump-flow/styles.css?v=2">
+<style>
+  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;padding-top:56px;padding-bottom:72px}
+  .hero h1{font:var(--text-display-xl);color:var(--text-title);margin:0 0 16px}
+  .hero p{font:var(--text-body-lg);max-width:440px;margin:0 0 28px}
+  .foto{background:var(--pf-rosa-claro);border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;color:var(--pf-morado);font:var(--text-caption);min-height:420px;position:relative;overflow:hidden}
+  .anillo{position:absolute;width:120px;height:120px;border:20px solid var(--pf-lavanda);border-radius:50%;opacity:.5}
+  .bloque-lavanda{background:var(--pf-lavanda);padding:72px 0}
+  .bloque-lavanda h2{font:var(--text-display);color:#fff;text-align:center;margin:0 0 36px}
+  .burbujas{display:grid;gap:10px;max-width:560px;margin:0 auto}
+  .bub{background:#fff;border-radius:var(--radius-xl);padding:18px 32px;font:var(--text-h3);color:var(--pf-morado);text-align:center}
+  .bub:nth-child(even){margin-left:40px}
+  .bub:nth-child(odd){margin-right:40px}
+  .clases{padding-top:72px;padding-bottom:72px}
+  .clases h2{font:var(--text-display);color:var(--text-title);text-align:center;margin:0 0 12px}
+  .clases .sub{text-align:center;margin:0 auto 40px;max-width:520px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:28px;display:grid;gap:12px;align-content:start}
+  .card h3{font:var(--text-h2);color:var(--text-title);margin:0}
+  .card .precio{font:var(--text-h3);color:var(--pf-lavanda-hover)}
+  .badge{font:var(--text-caption);font-weight:600;padding:4px 12px;border-radius:var(--radius-pill);background:var(--pf-lila);color:var(--pf-morado);width:fit-content}
+  .reserva{background:var(--pf-morado);padding:72px 0}
+  .reserva .inner{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+  .reserva h2{font:var(--text-display);color:#fff;margin:0 0 12px}
+  .reserva p{color:#fff;margin:0 0 8px}
+  .form{background:#fff;border-radius:var(--radius-xl);padding:32px;display:grid;gap:14px}
+  .form label{display:grid;gap:6px;font:var(--text-body-strong);font-size:14px;color:var(--text-title)}
+  .form input,.form select{font:var(--text-body);color:var(--text-body);padding:12px 18px;border-radius:var(--radius-pill);border:2px solid var(--border-soft);outline:none;min-height:48px;box-sizing:border-box;background:#fff}
+  .form input:focus,.form select:focus{border-color:var(--focus-ring)}
+  .cta-row{display:flex;gap:12px}
+  @media (max-width: 679px) {
+    .hero{grid-template-columns:1fr;gap:28px;padding-top:32px;padding-bottom:48px;text-align:center}
+    .hero>div:first-child{order:2}
+    .hero .foto{order:1;min-height:300px}
+    .hero p{margin-left:auto;margin-right:auto}
+    .cta-row{flex-direction:column}
+    .bloque-lavanda{padding:48px 0}
+    .bub:nth-child(even),.bub:nth-child(odd){margin-left:0;margin-right:0}
+    .clases{padding-top:48px;padding-bottom:48px}
+    .grid3{grid-template-columns:1fr}
+    .reserva{padding:48px 0}
+    .reserva .inner{grid-template-columns:1fr;gap:28px;text-align:center}
+    .form{min-height:220px}
+  }
+</style></head><body>
+<header class="wrap">
+  <nav>
+    <a href="index.html"><img src="pump-flow-design/diseño-marca-pump-flow/assets/logo-morado.png" alt="Pump&Flow" style="height:64px"></a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle">
+    <label for="nav-toggle" class="nav-burger" aria-label="Abrir menú">☰</label>
+    <div class="links"><a href="clases.html">Clases</a><a href="curso.html">Curso en línea</a><a href="personales.html">Clases personales</a></div>
+    <a class="btn btn-primary" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20%F0%9F%A4%8D" target="_blank">Reserva tu clase ✨</a>
+  </nav>
+</header>
 
-<div class="pantalla on" id="pantalla-auth" style="align-items:center;justify-content:center;padding:24px">
-  <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
-  <div class="switch claro" id="switch-auth">
-    <button class="on" data-modo="login">Iniciar sesión</button>
-    <button data-modo="registro">Crear cuenta</button>
-  </div>
-
-  <form id="form-login" class="card" style="width:100%;max-width:340px;margin-top:16px">
-    <label class="field"><span>Correo o usuario</span><input class="input" type="text" id="login-identificador" required></label>
-    <label class="field"><span>Contraseña</span><input class="input" type="password" id="login-contrasena" required minlength="6"></label>
-    <div id="login-error" class="badge err" style="display:none;margin-top:10px"></div>
-    <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Entrar</button>
-  </form>
-
-  <form id="form-registro" class="card" style="width:100%;max-width:340px;margin-top:16px;display:none">
-    <label class="field"><span>Nombre</span><input class="input" type="text" id="registro-nombre" required></label>
-    <label class="field"><span>Teléfono</span><input class="input" type="tel" id="registro-telefono"></label>
-    <label class="field"><span>¿Vienes de otra plataforma?</span>
-      <select class="input" id="registro-plataforma">
-        <option value="no">No</option>
-        <option value="wellhub">Wellhub</option>
-        <option value="totalpass">TotalPass</option>
-      </select>
-    </label>
-    <label class="field"><span>Correo</span><input class="input" type="email" id="registro-correo" required></label>
-    <label class="field"><span>Contraseña</span><input class="input" type="password" id="registro-contrasena" required minlength="6"></label>
-    <div id="registro-error" class="badge err" style="display:none;margin-top:10px"></div>
-    <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Crear cuenta</button>
-  </form>
-</div>
-
-<div class="pantalla" id="pantalla-clase-muestra" style="align-items:center;justify-content:center;padding:24px">
-  <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
-  <div class="card" style="width:100%;max-width:340px">
-    <h1 style="font:var(--text-h3);margin-bottom:4px">Agenda tu clase muestra</h1>
-    <div id="clase-muestra-contenido"></div>
-  </div>
-</div>
-
-<div style="display:none;justify-content:center;padding:10px;position:sticky;top:0;background:var(--surface-page);z-index:5" id="switch-vistas">
-  <div class="switch claro">
-    <button class="on" data-pantalla="pantalla-admin">Vista administradora</button>
-    <button data-pantalla="pantalla-alumna">Vista alumna</button>
-  </div>
-</div>
-
-<!-- ══════════ ALUMNA ══════════ -->
-<div class="pantalla" id="pantalla-alumna">
-<div class="contenedor-app">
-  <div class="screen active" id="a-inicio">
-    <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
-    <h1 id="a-inicio-saludo">Hola 🤍</h1>
-    <div id="a-inicio-proxima-clase"></div>
-    <div id="a-inicio-mis-reservas"></div>
-    <div id="a-inicio-paquete"></div>
-    <a class="pillbtn soft" style="width:100%;margin-top:14px;text-align:center;text-decoration:none;display:block;box-sizing:border-box" href="https://wa.me/524431331146?text=Hola%20Caro%20%F0%9F%A4%8D" target="_blank">Contáctame</a>
-    <a class="pillbtn" style="width:100%;margin-top:10px;text-align:center;text-decoration:none;display:block;box-sizing:border-box" href="https://chat.whatsapp.com/L3UWcyfbMScFiHUd9fhu5h?s=cl&p=i&ilr=0" target="_blank">Súmate a la comunidad</a>
-  </div>
-
-  <div class="screen" id="a-clases">
-    <h1>Aparta tu espacio</h1>
-    <div class="muted">Cada clase tiene cupo para 6 personas</div>
-    <div id="a-clases-lista"></div>
-  </div>
-
-  <div class="screen" id="a-contenido">
-    <h1>Contenido</h1>
-    <div class="chips">
-      <button class="chip on" data-categoria="hipopresivos">Hipopresivos</button><button class="chip" data-categoria="meditaciones">Meditaciones</button>
-    </div>
-    <div id="contenido-hipopresivos">
-      <a href="https://youtu.be/u6Ph4_OKB0U" target="_blank" style="text-decoration:none;display:block">
-        <div class="card">
-          <div class="video"><span class="play">▶</span></div>
-          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Pautas posturales y respiratorias</b></div>
-          <div class="muted">Ver en YouTube</div>
-        </div>
-      </a>
-    </div>
-    <div id="contenido-meditaciones" style="display:none">
-      <a href="https://youtu.be/ZLpswRDqL9I?si=APvBLR0r__YA_On4" target="_blank" style="text-decoration:none;display:block">
-        <div class="card">
-          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
-          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 1</b></div>
-          <div class="muted">Ver en YouTube</div>
-        </div>
-      </a>
-      <a href="https://youtu.be/Cij8O35fsTg?si=Cz47OHZ5Ajp92aRW" target="_blank" style="text-decoration:none;display:block">
-        <div class="card">
-          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
-          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 2</b></div>
-          <div class="muted">Ver en YouTube</div>
-        </div>
-      </a>
-      <a href="https://youtu.be/I7sQXAvh6EA?si=4adbqm83B1vTzUS0" target="_blank" style="text-decoration:none;display:block">
-        <div class="card">
-          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
-          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 3</b></div>
-          <div class="muted">Ver en YouTube</div>
-        </div>
-      </a>
-      <a href="https://youtu.be/U_1H_rOAaGs?si=XmLpEyanyud6kk91" target="_blank" style="text-decoration:none;display:block">
-        <div class="card">
-          <div class="video" style="background:var(--pf-rosa-claro)"><span class="play">▶</span></div>
-          <div class="row" style="margin-top:12px"><b style="color:var(--text-title)">Meditación 4</b></div>
-          <div class="muted">Ver en YouTube</div>
-        </div>
-      </a>
+<section class="wrap hero">
+  <div>
+    <span class="badge" style="margin-bottom:14px;letter-spacing:var(--letter-spacing-caps);text-transform:uppercase">Más que solo hipopresivos</span>
+    <h1>Conecta con tu cuerpo, a tu ritmo 🤍</h1>
+    <p>Clases de hipopresivos grupales y personales, presenciales y en línea. Para trabajar tu abdomen, cuidar tu suelo pélvico y regalarte un momento de calma.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20de%20introducci%C3%B3n%20%F0%9F%A4%8D" target="_blank" style="justify-content:center">Agenda tu primera clase ✨</a>
+      <a class="btn btn-outline" href="curso.html" style="justify-content:center">Conoce los cursos</a>
     </div>
   </div>
+  <div class="foto" style="background:url('pump-flow-design/diseño-marca-pump-flow/assets/hero-pumpflow.png') center 62%/cover no-repeat"></div>
+</section>
 
-  <div class="screen" id="a-espacio">
-    <h1>Tu espacio</h1>
-    <div id="a-espacio-paquete"></div>
-    <div id="a-espacio-asistencias"></div>
-    <button class="link-suave btn-logout">Cerrar sesión</button>
+<section class="bloque-lavanda">
+  <div class="wrap">
+    <h2>Estas clases son para ti si buscas</h2>
+    <div class="burbujas">
+      <div class="bub">Evitar pérdida de orina</div>
+      <div class="bub">Mejorar tránsito intestinal</div>
+      <div class="bub">Reducir perímetro de cintura</div>
+      <div class="bub">Mejorar tu sistema nervioso</div>
+      <div class="bub">Aumentar capacidad pulmonar</div>
+    </div>
   </div>
+</section>
 
-  <div class="tabbar">
-    <button class="tab on" data-s="a-inicio"><i data-lucide="heart" class="ico"></i>Inicio</button>
-    <button class="tab" data-s="a-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
-    <button class="tab" data-s="a-contenido"><i data-lucide="play-circle" class="ico"></i>Contenido</button>
-    <button class="tab" data-s="a-espacio"><i data-lucide="user" class="ico"></i>Tu espacio</button>
-  </div>
-</div>
-</div>
-
-<!-- ══════════ ADMIN ══════════ -->
-<div class="pantalla" id="pantalla-admin">
-<div class="contenedor-app">
-  <div class="screen active" id="d-hoy">
-    <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
-    <h1>Hola 🤍</h1>
-    <div id="d-hoy-lista"></div>
-    <div id="d-hoy-pendientes"></div>
-    <button class="link-suave btn-logout">Cerrar sesión</button>
-  </div>
-
-  <div class="screen" id="d-alumnas">
-    <div class="row"><h1>Alumnado</h1><button class="pillbtn soft" id="btn-nueva-alumna-manual" style="padding:7px 16px;min-height:36px;font-size:13px">+ Nueva cuenta</button></div>
-    <div id="d-alumnas-lista"></div>
-  </div>
-
-  <div class="screen" id="d-ficha"></div>
-
-  <div class="screen" id="d-clases">
-    <div class="row"><h1>Tus clases</h1><button class="pillbtn soft" id="btn-agregar-clase" style="padding:7px 16px;min-height:36px;font-size:13px">+ Agregar clase</button></div>
-    <div class="muted">Cupo de 6 por clase</div>
-    <div id="d-clases-lista"></div>
-  </div>
-
-  <div class="screen" id="d-muestra">
-    <h1>Clase muestra</h1>
+<section class="wrap clases" id="clases">
+  <h2>Elige cómo entrenar</h2>
+  <p class="sub">Presencial o en línea, en grupo o solo para ti. Tu primera clase es para conocerte, ven como estés.</p>
+  <div class="grid3">
     <div class="card">
-      <b style="color:var(--text-title)">Tu link para compartir</b>
-      <div class="dato"><span id="d-muestra-link" style="word-break:break-all"></span></div>
+      <span class="badge">Grupal</span>
+      <h3>Clases grupales</h3>
+      <p style="margin:0;font:var(--text-small)">Grupos pequeños, energía compartida y acompañamiento cercano.</p>
+      <span class="precio">Mensualidad de 8 clases</span>
+      <a class="btn btn-primary" href="clases.html" style="text-decoration:none;justify-content:center">Ver horarios</a>
     </div>
     <div class="card">
-      <b style="color:var(--text-title)">Disponibilidad</b>
-      <div id="d-muestra-disponibilidad" style="margin-top:8px"></div>
-      <form id="form-disponibilidad-clase-muestra" class="row" style="margin-top:10px;gap:8px">
-        <label class="field" style="flex:1;margin-top:0"><span>Día</span>
-          <select class="input" name="diaSemana">
-            <option value="0">Domingo</option>
-            <option value="1">Lunes</option>
-            <option value="2">Martes</option>
-            <option value="3">Miércoles</option>
-            <option value="4">Jueves</option>
-            <option value="5">Viernes</option>
-            <option value="6">Sábado</option>
-          </select>
-        </label>
-        <label class="field" style="flex:1;margin-top:0"><span>Hora</span><input class="input" type="time" name="hora" required></label>
-        <button class="pillbtn soft" type="submit" style="padding:7px 16px;min-height:36px;font-size:13px;align-self:flex-end">Agregar</button>
-      </form>
+      <span class="badge" style="background:var(--pf-rosa)">Personal</span>
+      <h3>Clases personales</h3>
+      <p style="margin:0;font:var(--text-small)">Sesiones 1 a 1 diseñadas para tu momento: posparto, oficina, retomar movimiento.</p>
+      <span class="precio">Agenda flexible</span>
+      <a class="btn btn-primary" href="personales.html" style="text-decoration:none;justify-content:center">Conocer más</a>
     </div>
-    <div class="card">
-      <b style="color:var(--text-title)">Próximas citas</b>
-      <div id="d-muestra-citas" style="margin-top:8px"></div>
+    <div class="card" id="cursos">
+      <span class="badge" style="background:var(--pf-lavanda);color:#fff">En línea ✨</span>
+      <h3>Cursos en línea</h3>
+      <p style="margin:0;font:var(--text-small)">Videos y programas para practicar donde estés, a tu horario.</p>
+      <span class="precio">Acceso inmediato</span>
+      <a class="btn btn-outline" href="curso.html" style="text-decoration:none;justify-content:center">Conocer el curso</a>
     </div>
   </div>
+</section>
 
-  <div class="tabbar">
-    <button class="tab on" data-s="d-hoy"><i data-lucide="check-circle" class="ico"></i>Hoy</button>
-    <button class="tab" data-s="d-alumnas"><i data-lucide="users" class="ico"></i>Alumnado</button>
-    <button class="tab" data-s="d-ficha"><i data-lucide="clipboard-list" class="ico"></i>Ficha</button>
-    <button class="tab" data-s="d-clases"><i data-lucide="calendar" class="ico"></i>Clases</button>
-    <button class="tab" data-s="d-muestra"><i data-lucide="calendar-plus" class="ico"></i>Muestra</button>
+<section class="reserva" id="reserva">
+  <div class="wrap inner">
+    <div>
+      <img src="pump-flow-design/diseño-marca-pump-flow/assets/logo-blanco.png" alt="" style="height:90px;margin-bottom:18px">
+      <h2>Reserva tu lugar</h2>
+      <p>Escríbeme por WhatsApp, te confirmo tu lugar y te espero en clase.</p>
+      <p style="font:var(--text-body-strong);color:#fff">Cel: 44 31 33 11 46 · @Caro_fluye</p>
+      <p style="color:#fff;font:var(--text-small)">Utume #498, Lomas de Vista Bella, Morelia, Michoacán</p>
+      <a class="btn btn-primary" style="text-decoration:none;margin-top:12px" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20%F0%9F%A4%8D" target="_blank">Escribir por WhatsApp ✨</a>
+    </div>
+    <form class="form" style="padding:0;overflow:hidden;min-height:340px;display:block;position:relative">
+      <iframe src="https://www.google.com/maps?q=Utume%20498%2C%20Lomas%20de%20Vista%20Bella%2C%20Morelia%2C%20Michoac%C3%A1n&output=embed" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" title="Ubicación Pump&Flow"></iframe>
+    </form>
   </div>
-</div>
-</div>
+</section>
 
-<dialog id="dialog-valoracion"><div class="dialog-body" id="dialog-valoracion-body"></div></dialog>
-<dialog id="dialog-paquete"><div class="dialog-body" id="dialog-paquete-body"></div></dialog>
-<dialog id="dialog-alumna-manual"><div class="dialog-body" id="dialog-alumna-manual-body"></div></dialog>
-<dialog id="dialog-agregar-clase"><div class="dialog-body" id="dialog-agregar-clase-body"></div></dialog>
-<dialog id="dialog-asistencia-manual"><div class="dialog-body" id="dialog-asistencia-manual-body"></div></dialog>
-
-<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
-<script>if (window.lucide) lucide.createIcons();</script>
-<script type="module" src="app/app.js"></script>
-</body>
-</html>
+<footer>
+  <div class="wrap inner">
+    <span>Pump&Flow · @Caro_fluye</span>
+    <span>Clases grupales y personales, presencial y en línea</span>
+  </div>
+  <div class="wrap" style="text-align:center;padding-top:6px">
+    <a href="pump-flow-design/diseño-marca-pump-flow/generador-wunda.html" style="font-size:11px;color:var(--pf-morado);opacity:.35">generador de clases</a>
+  </div>
+</footer>
+</body></html>

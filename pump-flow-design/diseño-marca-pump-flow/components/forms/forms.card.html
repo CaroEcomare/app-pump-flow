@@ -1,0 +1,24 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Formularios" subtitle="Input, Select, Checkbox, Radio, Switch" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;padding:16px;background:#fff;font:var(--text-body);color:var(--text-body);display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+label.f{display:grid;gap:6px;font:var(--text-body-strong);font-size:14px;color:var(--text-title)}
+input.pill, .pill{font:var(--text-body);color:var(--text-body);padding:12px 18px;border-radius:var(--radius-pill);border:2px solid var(--border-soft);background:#fff;min-height:48px;box-sizing:border-box;width:100%}
+.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font:var(--text-body)}</style></head><body>
+<label class="f">Tu correo<input class="pill" placeholder="hola@correo.com"><span style="font:var(--text-caption);color:var(--text-muted)">Te mando la liga de la clase aquí</span></label>
+<label class="f">Tu nombre<input class="pill" style="border-color:var(--pf-error)" value="..."><span style="font:var(--text-caption);color:var(--pf-error)">Cuéntame cómo te llamas 🤍</span></label>
+<label class="f">Horario<div style="position:relative"><select class="pill" style="appearance:none;cursor:pointer"><option>Lunes 9:00</option><option>Miércoles 18:30</option></select><span style="position:absolute;right:18px;top:14px;color:var(--pf-lavanda)">▾</span></div></label>
+<div style="display:grid;gap:12px">
+  <div class="row">
+    <span style="width:24px;height:24px;border-radius:8px;background:var(--pf-lavanda);color:#fff;display:inline-flex;align-items:center;justify-content:center">✓</span> Quiero recibir tips
+    <span style="width:24px;height:24px;border-radius:8px;border:2px solid var(--border-strong);box-sizing:border-box"></span> Sin marcar
+  </div>
+  <div class="row">
+    <span style="width:24px;height:24px;border-radius:50%;border:2px solid var(--pf-lavanda);box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--pf-lavanda)"></span></span> Presencial
+    <span style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border-strong);box-sizing:border-box"></span> En línea
+  </div>
+  <div class="row">
+    <span style="width:48px;height:28px;border-radius:999px;background:var(--pf-lavanda);position:relative;display:inline-block"><span style="position:absolute;top:3px;left:23px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:var(--shadow-card)"></span></span> Recordatorios
+    <span style="width:48px;height:28px;border-radius:999px;background:var(--border-soft);position:relative;display:inline-block"><span style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:var(--shadow-card)"></span></span> Apagado
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,6 @@
+/* Pump&Flow — Webfonts
+   TEMPORAL: sustitutos de Google Fonts hasta recibir los archivos originales.
+   Neighbor Bold Italic → Baloo 2 (redonda, amable, bold)
+   Poppins → Poppins (esta sí es la fuente real de la marca)
+   IvyEpic Thin → Poppins 300 */
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap");
