@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pump&Flow</title>
-<link rel="stylesheet" href="app/styles.css">
+<link rel="stylesheet" href="../app/styles.css">
 </head>
 <body>
 
 <div class="pantalla on" id="pantalla-auth" style="align-items:center;justify-content:center;padding:24px">
-  <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
+  <img src="../assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
   <div class="switch claro" id="switch-auth">
     <button class="on" data-modo="login">Iniciar sesión</button>
     <button data-modo="registro">Crear cuenta</button>
@@ -40,7 +40,7 @@
 </div>
 
 <div class="pantalla" id="pantalla-clase-muestra" style="align-items:center;justify-content:center;padding:24px">
-  <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
+  <img src="../assets/logo-morado.png" alt="Pump&Flow" style="height:50px;margin-bottom:18px">
   <div class="card" style="width:100%;max-width:340px">
     <h1 style="font:var(--text-h3);margin-bottom:4px">Agenda tu clase muestra</h1>
     <div id="clase-muestra-contenido"></div>
@@ -58,7 +58,7 @@
 <div class="pantalla" id="pantalla-alumna">
 <div class="contenedor-app">
   <div class="screen active" id="a-inicio">
-    <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
+    <img src="../assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
     <h1 id="a-inicio-saludo">Hola 🤍</h1>
     <div id="a-inicio-proxima-clase"></div>
     <div id="a-inicio-mis-reservas"></div>
@@ -139,7 +139,7 @@
 <div class="pantalla" id="pantalla-admin">
 <div class="contenedor-app">
   <div class="screen active" id="d-hoy">
-    <img src="assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
+    <img src="../assets/logo-morado.png" alt="Pump&Flow" style="height:50px">
     <h1>Hola 🤍</h1>
     <div id="d-hoy-lista"></div>
     <div id="d-hoy-pendientes"></div>
@@ -208,6 +208,6 @@
 
 <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
 <script>if (window.lucide) lucide.createIcons();</script>
-<script type="module" src="app/app.js"></script>
+<script type="module" src="../app/app.js"></script>
 </body>
 </html>
