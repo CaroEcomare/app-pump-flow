@@ -47,6 +47,11 @@
     .form{min-height:220px}
   }
 </style></head><body>
+<script>
+  if (new URLSearchParams(location.search).get('agenda') === 'clase-muestra') {
+    location.replace('portal/index.html' + location.search);
+  }
+</script>
 <header class="wrap">
   <nav>
     <a href="index.html"><img src="pump-flow-design/diseño-marca-pump-flow/assets/logo-morado.png" alt="Pump&Flow" style="height:64px"></a>
