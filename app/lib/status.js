@@ -100,8 +100,7 @@ export function agruparAsistenciasPorPaquete(asistencias, paquetes) {
   return grupos;
 }
 
-export function slotsDisponiblesClaseMuestra(disponibilidad, ocupados, hoy, dias = 14) {
-  const ocupadosSet = new Set(ocupados.map((o) => `${o.fecha}_${o.hora}`));
+export function slotsDisponiblesClaseMuestra(disponibilidad, hoy, dias = 14) {
   const slots = [];
   for (let i = 0; i < dias; i += 1) {
     const fecha = new Date(hoy);
@@ -111,7 +110,6 @@ export function slotsDisponiblesClaseMuestra(disponibilidad, ocupados, hoy, dias
     disponibilidad
       .filter((d) => d.diaSemana === diaSemana)
       .forEach((d) => {
-        if (ocupadosSet.has(`${fechaISO}_${d.hora}`)) return;
         if (!puedeApartar(fechaISO, d.hora, hoy)) return;
         slots.push({ fecha: fechaISO, hora: d.hora });
       });

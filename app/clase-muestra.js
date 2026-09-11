@@ -1,4 +1,4 @@
-import { listarDisponibilidadClaseMuestra, listarSlotsOcupadosClaseMuestra, agendarClaseMuestra } from './data.js';
+import { listarDisponibilidadClaseMuestra, agendarClaseMuestra } from './data.js';
 import { formatDiaMesConDia, formatHora12 } from './lib/date-utils.js';
 import { escaparHTML } from './lib/escape.js';
 import { slotsDisponiblesClaseMuestra } from './lib/status.js';
@@ -7,12 +7,9 @@ import { mostrarErrorCerca } from './ui.js';
 export async function montarClaseMuestra({ supabase }) {
   const cont = document.getElementById('clase-muestra-contenido');
   cont.innerHTML = '<div class="muted">Cargando horarios…</div>';
-  const [disponibilidad, ocupados] = await Promise.all([
-    listarDisponibilidadClaseMuestra(supabase),
-    listarSlotsOcupadosClaseMuestra(supabase),
-  ]);
+  const disponibilidad = await listarDisponibilidadClaseMuestra(supabase);
   const disponibilidadMapeada = disponibilidad.map((d) => ({ diaSemana: d.dia_semana, hora: d.hora }));
-  const slots = slotsDisponiblesClaseMuestra(disponibilidadMapeada, ocupados, new Date());
+  const slots = slotsDisponiblesClaseMuestra(disponibilidadMapeada, new Date());
   renderSlots(supabase, cont, slots);
 }
 
@@ -56,10 +53,6 @@ function renderFormulario(supabase, cont, slot) {
       cont.innerHTML = `<div class="badge ok" style="display:block;text-align:center;padding:14px;margin-top:12px">¡Listo! Tu introducción quedó agendada para ${escaparHTML(formatDiaMesConDia(slot.fecha))} a las ${escaparHTML(formatHora12(slot.hora))}. Caro te espera 🤍</div>`;
     } catch (err) {
       if (boton) boton.disabled = false;
-      if (err.code === '23505') {
-        mostrarErrorCerca(boton ?? e.target, 'Ese horario acaba de apartarse. Elige otro, por favor 🤍');
-        return;
-      }
       mostrarErrorCerca(boton ?? e.target, `No se pudo agendar: ${err.message}`);
     }
   });

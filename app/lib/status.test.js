@@ -172,32 +172,34 @@ test('agruparAsistenciasPorPaquete regresa arreglo vacío sin paquetes ni asiste
 test('slotsDisponiblesClaseMuestra genera un slot por cada franja de disponibilidad que caiga en el rango de días', () => {
   const hoy = new Date(2026, 7, 10, 8, 0); // lunes 10 de agosto de 2026, 8:00am
   const disponibilidad = [{ diaSemana: 1, hora: '10:00:00' }]; // lunes 10am
-  const slots = slotsDisponiblesClaseMuestra(disponibilidad, [], hoy, 14);
+  const slots = slotsDisponiblesClaseMuestra(disponibilidad, hoy, 14);
   assert.deepEqual(slots, [
     { fecha: '2026-08-10', hora: '10:00:00' },
     { fecha: '2026-08-17', hora: '10:00:00' },
   ]);
 });
 
-test('slotsDisponiblesClaseMuestra excluye los horarios que ya tienen cita', () => {
+test('slotsDisponiblesClaseMuestra no excluye un horario aunque ya tenga gente agendada', () => {
   const hoy = new Date(2026, 7, 10, 8, 0);
   const disponibilidad = [{ diaSemana: 1, hora: '10:00:00' }];
-  const ocupados = [{ fecha: '2026-08-10', hora: '10:00:00' }];
-  const slots = slotsDisponiblesClaseMuestra(disponibilidad, ocupados, hoy, 14);
-  assert.deepEqual(slots, [{ fecha: '2026-08-17', hora: '10:00:00' }]);
+  const slots = slotsDisponiblesClaseMuestra(disponibilidad, hoy, 14);
+  assert.deepEqual(slots, [
+    { fecha: '2026-08-10', hora: '10:00:00' },
+    { fecha: '2026-08-17', hora: '10:00:00' },
+  ]);
 });
 
 test('slotsDisponiblesClaseMuestra excluye horarios de hoy con menos de 1 hora de anticipación', () => {
   const hoy = new Date(2026, 7, 10, 9, 30); // lunes 10 de agosto, 9:30am
   const disponibilidad = [{ diaSemana: 1, hora: '10:00:00' }]; // hoy mismo a las 10am, faltan 30 min
-  const slots = slotsDisponiblesClaseMuestra(disponibilidad, [], hoy, 14);
+  const slots = slotsDisponiblesClaseMuestra(disponibilidad, hoy, 14);
   assert.deepEqual(slots, [{ fecha: '2026-08-17', hora: '10:00:00' }]);
 });
 
 test('slotsDisponiblesClaseMuestra usa 14 días por default si se omite el argumento', () => {
   const hoy = new Date(2026, 7, 10, 8, 0);
   const disponibilidad = [{ diaSemana: 1, hora: '10:00:00' }];
-  const slots = slotsDisponiblesClaseMuestra(disponibilidad, [], hoy);
+  const slots = slotsDisponiblesClaseMuestra(disponibilidad, hoy);
   assert.deepEqual(slots, [
     { fecha: '2026-08-10', hora: '10:00:00' },
     { fecha: '2026-08-17', hora: '10:00:00' },
@@ -210,6 +212,6 @@ test('slotsDisponiblesClaseMuestra ordena por fecha y luego por hora', () => {
     { diaSemana: 3, hora: '16:00:00' }, // miércoles
     { diaSemana: 1, hora: '10:00:00' }, // lunes
   ];
-  const slots = slotsDisponiblesClaseMuestra(disponibilidad, [], hoy, 3);
+  const slots = slotsDisponiblesClaseMuestra(disponibilidad, hoy, 3);
   assert.deepEqual(slots, [{ fecha: '2026-08-10', hora: '10:00:00' }, { fecha: '2026-08-12', hora: '16:00:00' }]);
 });

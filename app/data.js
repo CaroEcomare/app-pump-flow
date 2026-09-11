@@ -385,12 +385,6 @@ export async function desactivarDisponibilidadClaseMuestra(supabase, id) {
   if (error) throw error;
 }
 
-export async function listarSlotsOcupadosClaseMuestra(supabase) {
-  const { data, error } = await supabase.rpc('slots_ocupados_clase_muestra');
-  if (error) throw error;
-  return data;
-}
-
 export async function agendarClaseMuestra(supabase, { fecha, hora, nombre, telefono }) {
   const { error } = await supabase
     .from('citas_clase_muestra')
