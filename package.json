@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test app/lib/*.test.js"
+    "test": "node --test app/lib/*.test.js supabase/functions/_shared/*.test.js"
   }
 }
