@@ -53,7 +53,7 @@ function renderFormulario(supabase, cont, slot) {
         nombre: formData.get('nombre'),
         telefono: formData.get('telefono'),
       });
-      cont.innerHTML = `<div class="badge ok" style="display:block;text-align:center;padding:14px;margin-top:12px">¡Listo! Tu clase muestra quedó agendada para ${escaparHTML(formatDiaMesConDia(slot.fecha))} a las ${escaparHTML(formatHora12(slot.hora))}. Caro te espera 🤍</div>`;
+      cont.innerHTML = `<div class="badge ok" style="display:block;text-align:center;padding:14px;margin-top:12px">¡Listo! Tu introducción quedó agendada para ${escaparHTML(formatDiaMesConDia(slot.fecha))} a las ${escaparHTML(formatHora12(slot.hora))}. Caro te espera 🤍</div>`;
     } catch (err) {
       if (boton) boton.disabled = false;
       if (err.code === '23505') {

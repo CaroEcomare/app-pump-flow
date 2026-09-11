@@ -19,23 +19,23 @@ import {
 } from './lib/status.js';
 
 const CAMPOS_VALORACION = [
-  { key: 'edad', label: 'Edad', type: 'number' },
+  { key: 'edad', label: 'Edad', type: 'text' },
   { key: 'ciclo', label: 'Ciclo', type: 'text' },
   { key: 'partos', label: 'Partos', type: 'text' },
   { key: 'tonicidad_abdominal', label: 'Tonicidad abdominal', type: 'text' },
-  { key: 'competencia_abdominal_dedos', label: 'Competencia abdominal (dedos)', type: 'number' },
+  { key: 'competencia_abdominal_dedos', label: 'Competencia abdominal (dedos)', type: 'text' },
   { key: 'coactivacion_abdominal', label: 'Co-activación abdominal', type: 'text' },
-  { key: 'diastasis_supraumbilical', label: 'Diástasis supraumbilical', type: 'number' },
-  { key: 'diastasis_umbilical', label: 'Diástasis umbilical', type: 'number' },
-  { key: 'diastasis_infraumbilical', label: 'Diástasis infraumbilical', type: 'number' },
+  { key: 'diastasis_supraumbilical', label: 'Diástasis supraumbilical', type: 'text' },
+  { key: 'diastasis_umbilical', label: 'Diástasis umbilical', type: 'text' },
+  { key: 'diastasis_infraumbilical', label: 'Diástasis infraumbilical', type: 'text' },
   { key: 'tonicidad_diafragma_izq', label: 'Tonicidad diafragmática cúpula izq.', type: 'text' },
   { key: 'tonicidad_diafragma_der', label: 'Tonicidad diafragmática cúpula der.', type: 'text' },
   { key: 'competencia_perineal', label: 'Competencia perineal', type: 'text' },
-  { key: 'perimetro_cintura', label: 'Perímetro de cintura', type: 'number' },
-  { key: 'perimetro_ombligo', label: 'Perímetro al ombligo', type: 'number' },
-  { key: 'perimetro_bajo_ombligo', label: 'Perímetro abajo de ombligo', type: 'number' },
-  { key: 'perimetro_cadera', label: 'Perímetro cadera', type: 'number' },
-  { key: 'perimetro_cintura_apnea', label: 'Perímetro cintura con apnea', type: 'number' },
+  { key: 'perimetro_cintura', label: 'Perímetro de cintura', type: 'text' },
+  { key: 'perimetro_ombligo', label: 'Perímetro al ombligo', type: 'text' },
+  { key: 'perimetro_bajo_ombligo', label: 'Perímetro abajo de ombligo', type: 'text' },
+  { key: 'perimetro_cadera', label: 'Perímetro cadera', type: 'text' },
+  { key: 'perimetro_cintura_apnea', label: 'Perímetro cintura con apnea', type: 'text' },
   { key: 'observaciones', label: 'Observaciones', type: 'textarea' },
 ];
 
@@ -427,7 +427,7 @@ function abrirDialogValoracion(supabase, alumnaId, valoraciones) {
         <label class="field"><span>${c.label}</span>
           ${c.type === 'textarea'
             ? `<textarea class="textarea" name="${c.key}"></textarea>`
-            : `<input class="input" type="${c.type}" name="${c.key}" ${c.type === 'number' ? 'step="0.1"' : ''}>`}
+            : `<input class="input" type="${c.type}" name="${c.key}">`}
         </label>`).join('')}
       <button class="pillbtn" type="submit" style="width:100%;margin-top:16px">Guardar valoración</button>
       <button class="link-suave" type="button" id="btn-cancelar-valoracion" style="width:100%;text-align:center">Cancelar</button>
@@ -441,7 +441,7 @@ function abrirDialogValoracion(supabase, alumnaId, valoraciones) {
     const campos = { fecha: formData.get('fecha') };
     CAMPOS_VALORACION.forEach((c) => {
       const valor = formData.get(c.key);
-      campos[c.key] = c.type === 'number' ? (valor === '' ? null : Number(valor)) : (valor || null);
+      campos[c.key] = valor || null;
     });
     try {
       await crearValoracion(supabase, alumnaId, campos, numero);
@@ -683,7 +683,7 @@ async function renderMuestraAdmin(supabase) {
 
   contDisponibilidad.querySelectorAll('.btn-quitar-disponibilidad').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!confirm('¿Quitar este horario de disponibilidad para clase muestra?')) return;
+      if (!confirm('¿Quitar este horario de disponibilidad para la introducción?')) return;
       btn.disabled = true;
       try {
         await desactivarDisponibilidadClaseMuestra(supabase, Number(btn.dataset.id));
@@ -697,7 +697,7 @@ async function renderMuestraAdmin(supabase) {
 
   contCitas.querySelectorAll('.btn-cancelar-clase-muestra').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!confirm('¿Cancelar esta clase muestra?')) return;
+      if (!confirm('¿Cancelar esta introducción?')) return;
       btn.disabled = true;
       try {
         await cancelarCitaClaseMuestra(supabase, Number(btn.dataset.id));
