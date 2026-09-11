@@ -28,17 +28,24 @@ Este spec construye sobre la app ya en producción y sobre el spec de clase mues
 - **Cancelar la clase completa** (botón "Cancelar esta clase" que ya existe): al borrar todas sus reservas de un jalón, el trigger de `reservas` se dispara una vez por cada una (Postgres lo hace automático en un `delete` de varias filas), así que el conteo baja hasta 0 solo, sin necesitar lógica aparte, y el evento se borra en el mismo camino ya descrito.
 - **Límite conocido**: si dos personas apartan lugar en la misma clase casi al mismo instante (milisegundos de diferencia) y esa clase todavía no tiene evento, existe una ventana muy angosta donde ambas peticiones podrían intentar crear el evento por separado, dejando dos eventos para la misma clase en vez de uno. Dado el volumen real (cupo de 6, negocio boutique), se acepta este riesgo en esta vuelta; si llegara a pasar, Caro borra el duplicado a mano desde Google Calendar.
 
-## C. Sincronizar clase muestra (evento por cita)
+## C. Sincronizar clase muestra (evento por horario, con lista de personas)
 
-Mismo mecanismo que ya describía el spec de clase muestra, ahora que sí se construye:
+**Actualización (2026-09-11):** la clase muestra no es 1 a 1 — pueden agendar varias personas el mismo horario (es una sesión grupal, igual que las clases regulares). Esto cambia dos cosas respecto al diseño original:
 
-- **Al agendar**: un trigger en `citas_clase_muestra` (`after insert`) llama a la misma Edge Function de sincronización, que crea un evento de 1 hora con el nombre y teléfono del prospecto en la descripción, y guarda el `event_id` en `citas_clase_muestra.google_event_id`.
-- **Al cancelar**: el botón "Cancelar" que ya existe en la vista admin marca `cancelada = true`; un trigger (`after update`, cuando `cancelada` cambia de `false` a `true`) llama a la Edge Function para borrar el evento correspondiente.
+1. **Se elimina la restricción de la base de datos** que impedía dos citas activas en la misma `(fecha, hora)` (`citas_clase_muestra_fecha_hora_activa`, en `supabase/actualizaciones.sql`) — esa restricción asumía slots exclusivos de una sola persona, y ya no aplica. No hay cupo máximo por ahora.
+2. **Un evento por horario, no por cita** — mismo patrón que la sección B: en vez de crear un evento nuevo por cada prospecto, todas las citas de un mismo `(fecha, hora)` comparten un solo evento en Google Calendar, cuyo título/descripción se actualiza con la lista de nombres conforme se agenda gente.
+
+- **Al agendar**: un trigger en `citas_clase_muestra` (`after insert`) llama a la Edge Function de sincronización, pasándole `fecha`, `hora`, y la lista de nombres+teléfonos de todas las citas activas para ese `(fecha, hora)` (calculada en SQL, igual que el conteo de la sección B). `citas_clase_muestra` no tiene una tabla de "ocurrencias" separada como sí tiene `clases` — así que el `event_id` se guarda repetido en la columna nueva `google_event_id` de cada cita activa que comparte ese `(fecha, hora)` (ver sección D). La Edge Function busca si alguna cita activa de ese `(fecha, hora)` ya trae `google_event_id` y:
+  - Sin evento todavía: crea uno nuevo, título `Clase muestra · [día] [hora] · [N] persona(s)`, descripción con la lista de nombres y teléfonos, y guarda el `event_id`.
+  - Con evento existente: actualiza título y descripción con la lista completa actualizada.
+- **Al cancelar**: el botón "Cancelar" que ya existe en la vista admin marca `cancelada = true` en esa cita; un trigger (`after update`, cuando `cancelada` cambia de `false` a `true`) llama a la Edge Function con la lista actualizada de ese `(fecha, hora)` (sin la persona que se acaba de cancelar):
+  - Si quedan personas: actualiza el evento como arriba.
+  - Si ya no queda nadie (N = 0): borra el evento en Google Calendar.
 
 ## D. Modelo de datos (nuevo, sobre lo que ya existe)
 
 - `clases.google_event_id` (nuevo, `text`, nullable): qué evento de Calendar corresponde a esa clase, si tiene alguno activo.
-- `citas_clase_muestra.google_event_id` (nuevo, `text`, nullable): igual, para las citas de clase muestra.
+- `citas_clase_muestra.google_event_id` (nuevo, `text`, nullable): qué evento de Calendar corresponde al horario `(fecha, hora)` de esa cita. Como varias citas pueden compartir horario (sección C), el mismo `event_id` se repite en todas las citas activas de ese `(fecha, hora)`.
 - `google_calendar_tokens` (nueva tabla): `refresh_token`, `updated_at`. Un solo renglón; se sobrescribe si Caro vuelve a conectar.
 
 ## E. Autenticación entre los triggers y la Edge Function
