@@ -920,6 +920,7 @@ EOF
   4. "APIs y servicios" → "Credenciales" → "Crear credenciales" → "ID de cliente de OAuth" → tipo "Aplicación web".
   5. En "URIs de redirección autorizados", agregar exactamente: `https://euhltloldxnbjbizmwze.supabase.co/functions/v1/gcal-oauth`
   6. Guardar el **Client ID** y el **Client Secret** que Google genera.
+  7. **Importante, para siempre:** deja esta pantalla de consentimiento en modo "Prueba" (no la publiques). Es lo único que evita que alguien más pueda conectar su propia cuenta de Google a esta app.
 
 - [ ] **Paso 2: Instalar y conectar el CLI de Supabase** (Claude ejecuta esto en la terminal de Caro)
   ```bash

@@ -347,6 +347,10 @@ alter table citas_clase_muestra enable row level security;
 -- al mismo tiempo (la segunda inserción truena con un error claro, que la
 -- pantalla pública ya sabe mostrar). No aplica a citas ya canceladas, para
 -- que ese horario se pueda volver a agendar después.
+--
+-- OBSOLETO: esta restricción de horario único ya no aplica (clase muestra
+-- ahora es grupal). Si vuelves a pegar este archivo completo, NO vuelvas a
+-- correr este bloque — ver supabase/clase-muestra-grupal.sql, que ya lo quitó.
 create unique index if not exists citas_clase_muestra_fecha_hora_activa
   on citas_clase_muestra (fecha, hora) where cancelada = false;
 
@@ -369,6 +373,10 @@ create policy "admin cancela clase muestra" on citas_clase_muestra
 -- fecha+hora de las citas no canceladas — "security definer" hace que
 -- corra con permisos de quien la creó (la admin), no de quien la llama,
 -- así que no choca con la policy de "select" de arriba.
+--
+-- OBSOLETO: esta restricción de horario único ya no aplica (clase muestra
+-- ahora es grupal). Si vuelves a pegar este archivo completo, NO vuelvas a
+-- correr este bloque — ver supabase/clase-muestra-grupal.sql, que ya lo quitó.
 create or replace function slots_ocupados_clase_muestra()
 returns table(fecha date, hora time)
 language sql security definer stable set search_path = public as $$

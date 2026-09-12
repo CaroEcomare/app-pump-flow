@@ -1,6 +1,14 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+// Seguridad: este endpoint es público y no verifica quién llama. Está a
+// salvo de que alguien más conecte su propia cuenta de Google SOLO porque
+// la pantalla de consentimiento OAuth en Google Cloud está en modo "Prueba"
+// con la cuenta de Caro como única usuaria de prueba autorizada. Si esa
+// pantalla llega a publicarse ("En producción"), cualquier cuenta de Google
+// podría completar el flujo y secuestrar la sincronía. No publicar la app
+// de OAuth en Google Cloud.
+
 const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID')!;
 const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET')!;
 const GOOGLE_REDIRECT_URI = Deno.env.get('GOOGLE_REDIRECT_URI')!;

@@ -20,14 +20,18 @@ begin
   v_fecha := coalesce(new.fecha, old.fecha);
   v_hora := coalesce(new.hora, old.hora);
 
-  perform net.http_post(
-    url := 'https://euhltloldxnbjbizmwze.supabase.co/functions/v1/gcal-sync',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer sb_publishable_e7ynsWO1oaQj58lDg1zuQg_DT8aCKB9'
-    ),
-    body := jsonb_build_object('fecha', v_fecha, 'hora', v_hora)
-  );
+  begin
+    perform net.http_post(
+      url := 'https://euhltloldxnbjbizmwze.supabase.co/functions/v1/gcal-sync',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Authorization', 'Bearer sb_publishable_e7ynsWO1oaQj58lDg1zuQg_DT8aCKB9'
+      ),
+      body := jsonb_build_object('fecha', v_fecha, 'hora', v_hora)
+    );
+  exception when others then
+    raise warning 'gcal-sync no se pudo disparar: %', sqlerrm;
+  end;
   return new;
 end;
 $$;

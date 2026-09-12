@@ -1,0 +1,2 @@
+[functions.gcal-oauth]
+verify_jwt = false

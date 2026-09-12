@@ -38,15 +38,15 @@ serve(async (req) => {
   try {
     const { fecha, hora } = await req.json();
 
-    const { data: citas, error: citasError } = await supabaseAdmin
+    const { data: filas, error: citasError } = await supabaseAdmin
       .from('citas_clase_muestra')
-      .select('nombre, telefono, google_event_id')
+      .select('nombre, telefono, google_event_id, cancelada')
       .eq('fecha', fecha)
-      .eq('hora', hora)
-      .eq('cancelada', false);
+      .eq('hora', hora);
     if (citasError) throw citasError;
 
-    const eventoExistente = citas.find((c) => c.google_event_id)?.google_event_id ?? null;
+    const citas = filas.filter((f) => !f.cancelada);
+    const eventoExistente = filas.find((f) => f.google_event_id)?.google_event_id ?? null;
     const accion = decidirAccionCalendario({ eventoExistente, cantidadPersonas: citas.length });
 
     if (accion === 'ninguna') {
@@ -56,10 +56,13 @@ serve(async (req) => {
     const accessToken = await obtenerAccessToken();
 
     if (accion === 'borrar') {
-      await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoExistente}`, {
+      const deleteRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoExistente}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${accessToken}` },
       });
+      if (!deleteRes.ok && deleteRes.status !== 404 && deleteRes.status !== 410) {
+        throw new Error(`No se pudo borrar el evento de Google Calendar: ${deleteRes.status}`);
+      }
       await supabaseAdmin
         .from('citas_clase_muestra')
         .update({ google_event_id: null })
