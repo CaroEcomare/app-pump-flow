@@ -675,7 +675,7 @@ function mostrarRetornoGcal() {
 }
 
 async function renderMuestraAdmin(supabase) {
-  const link = `${location.origin}${location.pathname}?agenda=clase-muestra`;
+  const link = 'https://calendly.com/caro-ecomare/clase-de-introduccion';
   document.getElementById('d-muestra-link').textContent = link;
 
   const [disponibilidad, citas] = await Promise.all([
