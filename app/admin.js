@@ -46,10 +46,6 @@ export async function montarVistaAdmin({ supabase, onCerrarSesion }) {
   document.getElementById('d-hoy').querySelector('.btn-logout')?.addEventListener('click', onCerrarSesion);
   document.getElementById('btn-nueva-alumna-manual')?.addEventListener('click', () => abrirDialogAlumnaManual(supabase));
   document.getElementById('btn-agregar-clase')?.addEventListener('click', () => abrirDialogAgregarClase(supabase));
-  document.getElementById('btn-conectar-gcal')?.addEventListener('click', () => {
-    location.href = 'https://euhltloldxnbjbizmwze.supabase.co/functions/v1/gcal-oauth';
-  });
-  mostrarRetornoGcal();
   document.getElementById('form-disponibilidad-clase-muestra')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const boton = e.submitter ?? e.target.querySelector('button[type="submit"]');
@@ -660,18 +656,6 @@ async function abrirDialogAgregarClase(supabase) {
     }
   });
   dialog.showModal();
-}
-
-function mostrarRetornoGcal() {
-  const params = new URLSearchParams(location.search);
-  const estado = params.get('gcal');
-  const el = document.getElementById('d-gcal-estado');
-  if (!estado || !el) return;
-  el.style.display = 'block';
-  el.textContent = estado === 'conectado'
-    ? '✅ Conectado. Ya vas a recibir tus citas de clase muestra aquí.'
-    : '⚠️ No se pudo conectar. Intenta de nuevo.';
-  history.replaceState(null, '', location.pathname);
 }
 
 async function renderMuestraAdmin(supabase) {
