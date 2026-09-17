@@ -26,6 +26,23 @@ export async function iniciarSesionConIdentificador({ identificador, contrasena 
   return iniciarSesion({ correo, contrasena });
 }
 
+export async function enviarLinkRecuperacion(identificador) {
+  let correo = identificador;
+  if (!identificador.includes('@')) {
+    correo = await resolverCorreoPorUsuario(supabase, identificador);
+    if (!correo) throw new Error('No encontramos una cuenta con ese usuario o correo');
+  }
+  const { error } = await supabase.auth.resetPasswordForEmail(correo, {
+    redirectTo: `${location.origin}${location.pathname}`,
+  });
+  if (error) throw error;
+}
+
+export async function actualizarContrasena(nuevaContrasena) {
+  const { error } = await supabase.auth.updateUser({ password: nuevaContrasena });
+  if (error) throw error;
+}
+
 export async function cerrarSesion() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;

@@ -1,5 +1,5 @@
 import { supabase } from './supabase-client.js';
-import { obtenerSesionActual, asegurarPerfil, cerrarSesion, registrar, iniciarSesionConIdentificador } from './auth.js';
+import { obtenerSesionActual, asegurarPerfil, cerrarSesion, registrar, iniciarSesionConIdentificador, enviarLinkRecuperacion, actualizarContrasena } from './auth.js';
 import { generarClases, procesarAsistenciasPasadas } from './data.js';
 import { montarVistaAlumna } from './alumna.js';
 import { montarVistaAdmin } from './admin.js';
@@ -69,6 +69,47 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
   }
 });
 
+document.getElementById('btn-olvide-contrasena').addEventListener('click', () => {
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-recuperar').style.display = 'block';
+});
+
+document.getElementById('btn-cancelar-recuperar').addEventListener('click', () => {
+  document.getElementById('form-recuperar').style.display = 'none';
+  document.getElementById('recuperar-exito').style.display = 'none';
+  document.getElementById('form-login').style.display = 'block';
+});
+
+document.getElementById('form-recuperar').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('recuperar-error');
+  const exitoEl = document.getElementById('recuperar-exito');
+  errorEl.style.display = 'none';
+  exitoEl.style.display = 'none';
+  try {
+    await enviarLinkRecuperacion(document.getElementById('recuperar-identificador').value);
+    exitoEl.style.display = 'block';
+    e.target.reset();
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.style.display = 'block';
+  }
+});
+
+document.getElementById('form-nueva-contrasena').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('nueva-contrasena-error');
+  errorEl.style.display = 'none';
+  try {
+    await actualizarContrasena(document.getElementById('nueva-contrasena').value);
+    const sesion = await obtenerSesionActual();
+    await entrarConSesion(sesion);
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.style.display = 'block';
+  }
+});
+
 document.getElementById('form-registro').addEventListener('submit', async (e) => {
   e.preventDefault();
   const errorEl = document.getElementById('registro-error');
@@ -98,7 +139,14 @@ document.getElementById('form-registro').addEventListener('submit', async (e) =>
 });
 
 const params = new URLSearchParams(location.search);
-if (params.get('agenda') === 'clase-muestra') {
+const paramsHash = new URLSearchParams(location.hash.slice(1));
+if (paramsHash.get('type') === 'recovery') {
+  mostrarPantalla('pantalla-auth');
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-registro').style.display = 'none';
+  document.getElementById('switch-auth').style.display = 'none';
+  document.getElementById('form-nueva-contrasena').style.display = 'block';
+} else if (params.get('agenda') === 'clase-muestra') {
   mostrarPantalla('pantalla-clase-muestra');
   try {
     await montarClaseMuestra({ supabase });

@@ -20,6 +20,21 @@
     <label class="field"><span>Contraseña</span><input class="input" type="password" id="login-contrasena" required minlength="6"></label>
     <div id="login-error" class="badge err" style="display:none;margin-top:10px"></div>
     <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Entrar</button>
+    <button class="link-suave" type="button" id="btn-olvide-contrasena" style="width:100%;text-align:center;margin-top:10px">¿Olvidaste tu contraseña?</button>
+  </form>
+
+  <form id="form-recuperar" class="card" style="width:100%;max-width:340px;margin-top:16px;display:none">
+    <label class="field"><span>Correo o usuario</span><input class="input" type="text" id="recuperar-identificador" required></label>
+    <div id="recuperar-error" class="badge err" style="display:none;margin-top:10px"></div>
+    <div id="recuperar-exito" class="badge ok" style="display:none;margin-top:10px">Te enviamos un link a tu correo para restablecer tu contraseña 🤍</div>
+    <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Enviar link de recuperación</button>
+    <button class="link-suave" type="button" id="btn-cancelar-recuperar" style="width:100%;text-align:center;margin-top:10px">Volver a iniciar sesión</button>
+  </form>
+
+  <form id="form-nueva-contrasena" class="card" style="width:100%;max-width:340px;margin-top:16px;display:none">
+    <label class="field"><span>Nueva contraseña</span><input class="input" type="password" id="nueva-contrasena" required minlength="6"></label>
+    <div id="nueva-contrasena-error" class="badge err" style="display:none;margin-top:10px"></div>
+    <button class="pillbtn" type="submit" style="width:100%;margin-top:14px">Guardar nueva contraseña</button>
   </form>
 
   <form id="form-registro" class="card" style="width:100%;max-width:340px;margin-top:16px;display:none">
