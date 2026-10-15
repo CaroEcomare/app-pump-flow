@@ -222,13 +222,16 @@ export async function borrarAsistencia(supabase, asistenciaId) {
 
 // Registra a mano una asistencia de una fecha pasada (ej. paquetes que se
 // venían gastando sin quedar registrado qué día se usó cada clase). Crea
-// una clase especial personal para esa fecha —invisible en "Clases" por
-// ser pasada— y de inmediato la confirma, reusando el mismo camino que
-// el botón "Confirmar" (dispara el descuento del paquete igual que siempre).
+// una clase especial para esa fecha y de inmediato la confirma, reusando
+// el mismo camino que el botón "Confirmar" (dispara el descuento del
+// paquete igual que siempre). Se guarda como "cancelada" para que sea solo
+// un registro: si la fecha es hoy, no debe aparecer en "Hoy" como clase
+// "Personal" ni esconderle las grupales a la alumna. El historial de
+// asistencias no filtra por "cancelada", así que ahí sí se sigue viendo.
 export async function marcarAsistenciaManual(supabase, alumnaId, fecha) {
   const { data, error } = await supabase
     .from('clases')
-    .insert({ fecha, hora: '12:00', cupo: 1, horario_id: null, cancelada: false, alumna_id: alumnaId })
+    .insert({ fecha, hora: '12:00', cupo: 1, horario_id: null, cancelada: true, alumna_id: alumnaId })
     .select('id')
     .single();
   if (error) throw error;
