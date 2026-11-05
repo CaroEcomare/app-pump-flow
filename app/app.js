@@ -19,12 +19,12 @@ async function entrarConSesion(session) {
 
   if (perfil.es_admin) {
     switchVistas.style.display = 'flex';
-    await montarVistaAlumna({ supabase, alumnaId: perfil.id, nombre: perfil.nombre, onCerrarSesion: manejarLogout });
+    await montarVistaAlumna({ supabase, alumnaId: perfil.id, nombre: perfil.nombre, plataforma: perfil.plataforma, onCerrarSesion: manejarLogout });
     await montarVistaAdmin({ supabase, onCerrarSesion: manejarLogout });
     mostrarPantalla('pantalla-admin');
   } else {
     switchVistas.style.display = 'none';
-    await montarVistaAlumna({ supabase, alumnaId: perfil.id, nombre: perfil.nombre, onCerrarSesion: manejarLogout });
+    await montarVistaAlumna({ supabase, alumnaId: perfil.id, nombre: perfil.nombre, plataforma: perfil.plataforma, onCerrarSesion: manejarLogout });
     mostrarPantalla('pantalla-alumna');
   }
 }

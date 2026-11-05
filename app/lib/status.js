@@ -32,6 +32,19 @@ export function estadoPaquete(paquete, hoyISOStr) {
   return 'al_dia';
 }
 
+// Quien viene de Wellhub o TotalPass paga a través de la plataforma: su
+// plan está activo sin necesidad de un paquete en la app.
+export function pagaPorPlataforma(plataforma) {
+  return plataforma === 'wellhub' || plataforma === 'totalpass';
+}
+
+// Como estadoPaquete, pero tomando en cuenta cómo paga la alumna. Si paga
+// por plataforma, gana eso aunque le quede algún paquete viejo vencido.
+export function estadoPlan(paquete, plataforma, hoyISOStr) {
+  if (pagaPorPlataforma(plataforma)) return 'plataforma';
+  return estadoPaquete(paquete, hoyISOStr);
+}
+
 export function paqueteVenceEnDias(paquete, hoyISOStr, dias = 7) {
   if (!paquete || !paquete.activo || !paquete.vence) return false;
   const hoy = parseFechaSQL(hoyISOStr);

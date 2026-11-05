@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   cupoDisponible, puntosCupo, estadoClase, reservasFuturas, proximaReserva,
-  estadoPaquete, paqueteVenceEnDias, estadoAsistenciaBadge,
+  estadoPaquete, estadoPlan, pagaPorPlataforma, paqueteVenceEnDias, estadoAsistenciaBadge,
   horasHastaClase, puedeApartar, puedeCancelar,
   siguienteNumeroValoracion, tieneValoraciones, inicialAvatar,
   agruparAsistenciasPorPaquete, slotsDisponiblesClaseMuestra,
@@ -79,6 +79,30 @@ test('estadoPaquete es por_pagar si "pagado" es false, aunque no haya vencido', 
 
 test('estadoPaquete es al_dia si "pagado" es true explícitamente y no ha vencido', () => {
   assert.equal(estadoPaquete({ activo: true, pagado: true, vence: '2026-09-01' }, '2026-08-11'), 'al_dia');
+});
+
+test('pagaPorPlataforma es true solo para Wellhub y TotalPass', () => {
+  assert.equal(pagaPorPlataforma('wellhub'), true);
+  assert.equal(pagaPorPlataforma('totalpass'), true);
+  assert.equal(pagaPorPlataforma('no'), false);
+  assert.equal(pagaPorPlataforma(null), false);
+  assert.equal(pagaPorPlataforma(undefined), false);
+});
+
+test('estadoPlan es "plataforma" para Wellhub/TotalPass aunque no tenga paquete', () => {
+  assert.equal(estadoPlan(null, 'wellhub', '2026-08-11'), 'plataforma');
+  assert.equal(estadoPlan(null, 'totalpass', '2026-08-11'), 'plataforma');
+});
+
+test('estadoPlan ignora un paquete viejo vencido si ya paga por plataforma', () => {
+  assert.equal(estadoPlan({ activo: true, vence: '2026-08-01' }, 'wellhub', '2026-08-11'), 'plataforma');
+});
+
+test('estadoPlan usa el paquete normal si paga directo', () => {
+  assert.equal(estadoPlan(null, 'no', '2026-08-11'), 'sin_paquete');
+  assert.equal(estadoPlan({ activo: true, vence: '2026-09-01' }, 'no', '2026-08-11'), 'al_dia');
+  assert.equal(estadoPlan({ activo: true, vence: '2026-08-01' }, 'no', '2026-08-11'), 'por_pagar');
+  assert.equal(estadoPlan({ activo: true, vence: '2026-09-01' }, undefined, '2026-08-11'), 'al_dia');
 });
 
 test('paqueteVenceEnDias detecta ventana de 7 días por default', () => {

@@ -4,7 +4,7 @@ import {
   listarClasesProximas, listarPaquetesActivos, listarAlumnaIdsConValoracion,
   actualizarClasesUsadas, crearAlumnaManual, cancelarClase,
   crearHorarioRecurrente, crearClaseEspecial, generarClases,
-  marcarAsistenciaManual, borrarAsistencia,
+  marcarAsistenciaManual, borrarAsistencia, actualizarPlataforma,
   actualizarFechaPago, actualizarPagado, agregarPaqueteHistorico,
   listarDisponibilidadClaseMuestra, crearDisponibilidadClaseMuestra,
   desactivarDisponibilidadClaseMuestra, listarCitasClaseMuestra, cancelarCitaClaseMuestra,
@@ -14,7 +14,7 @@ import { hoyISO, formatHora12, formatDiaMesConDia, formatFechaCompleta } from '.
 import { escaparHTML } from './lib/escape.js';
 import { wireTabs, mostrarErrorCerca } from './ui.js';
 import {
-  estadoAsistenciaBadge, estadoPaquete, paqueteVenceEnDias,
+  estadoAsistenciaBadge, estadoPaquete, estadoPlan, pagaPorPlataforma, paqueteVenceEnDias,
   siguienteNumeroValoracion, inicialAvatar, agruparAsistenciasPorPaquete,
 } from './lib/status.js';
 
@@ -165,8 +165,9 @@ async function renderHoy(supabase, resumen) {
   let valoracionesPendientes = 0;
   datos.alumnas.forEach((a) => {
     const paquete = datos.paquetePorAlumna.get(a.id) ?? null;
-    if (estadoPaquete(paquete, hoy) !== 'al_dia') pagosPorRecibir += 1;
-    if (paqueteVenceEnDias(paquete, hoy)) paquetesPorVencer += 1;
+    const estado = estadoPlan(paquete, a.plataforma, hoy);
+    if (estado !== 'al_dia' && estado !== 'plataforma') pagosPorRecibir += 1;
+    if (estado !== 'plataforma' && paqueteVenceEnDias(paquete, hoy)) paquetesPorVencer += 1;
     if (!datos.conValoracion.has(a.id)) valoracionesPendientes += 1;
   });
   contPend.innerHTML = `
@@ -241,11 +242,14 @@ async function renderAlumnas(supabase, resumen) {
   const cont = document.getElementById('d-alumnas-lista');
   const filas = datos.alumnas.map((a) => {
     const paquete = datos.paquetePorAlumna.get(a.id) ?? null;
-    const estado = estadoPaquete(paquete, hoy);
-    const badgeTexto = estado === 'al_dia' ? 'Al día' : estado === 'por_pagar' ? 'Por pagar' : 'Nueva';
-    const badgeClase = estado === 'al_dia' ? 'ok' : estado === 'por_pagar' ? 'err' : 'warn';
-    const progreso = paquete ? `${escaparHTML(paquete.clases_usadas)} de ${escaparHTML(paquete.clases_totales)} clases` : 'Sin paquete activo';
+    const estado = estadoPlan(paquete, a.plataforma, hoy);
+    const alDia = estado === 'al_dia' || estado === 'plataforma';
+    const badgeTexto = alDia ? 'Al día' : estado === 'por_pagar' ? 'Por pagar' : 'Nueva';
+    const badgeClase = alDia ? 'ok' : estado === 'por_pagar' ? 'err' : 'warn';
     const etiquetaOrigen = etiquetaPlataforma(a.plataforma);
+    const progreso = estado === 'plataforma'
+      ? `Plan ${escaparHTML(etiquetaOrigen)}`
+      : paquete ? `${escaparHTML(paquete.clases_usadas)} de ${escaparHTML(paquete.clases_totales)} clases` : 'Sin paquete activo';
     return `
       <div class="card row alumna-fila" data-alumna-id="${escaparHTML(a.id)}" style="cursor:pointer">
         <span class="avatar">${escaparHTML(inicialAvatar(a.nombre))}</span>
@@ -279,8 +283,15 @@ async function renderFicha(supabase, alumnaId) {
           <button class="pillbtn soft" id="btn-activar-paquete" style="padding:7px 16px;min-height:36px;font-size:13px">Activar mes</button>
         </span>
       </div>
+      <label class="field" style="margin-top:10px"><span>Cómo paga</span>
+        <select class="input" id="select-plataforma">
+          <option value="wellhub" ${alumna.plataforma === 'wellhub' ? 'selected' : ''}>Wellhub</option>
+          <option value="totalpass" ${alumna.plataforma === 'totalpass' ? 'selected' : ''}>TotalPass</option>
+          <option value="no" ${pagaPorPlataforma(alumna.plataforma) ? '' : 'selected'}>Paga directo</option>
+        </select>
+      </label>
       ${estado === 'sin_paquete'
-        ? '<div class="muted" style="margin-top:8px">Sin paquete activo</div>'
+        ? `<div class="muted" style="margin-top:8px">${pagaPorPlataforma(alumna.plataforma) ? `Plan activo por ${escaparHTML(etiquetaOrigen)}: no necesita paquete` : 'Sin paquete activo'}</div>`
         : `<div class="dato"><span>Clases restantes</span><b>${escaparHTML(paquete.clases_totales - paquete.clases_usadas)} de ${escaparHTML(paquete.clases_totales)}</b></div>
            <div class="dato"><span>Último pago</span><b>${paquete.monto ? `$${escaparHTML(paquete.monto)} · ` : ''}${escaparHTML(paquete.forma_pago ?? '')}</b></div>
            <div class="dato"><span>Siguiente pago</span><b>${paquete.vence ? escaparHTML(formatDiaMesConDia(paquete.vence)) : '—'}</b></div>
@@ -325,6 +336,17 @@ async function renderFicha(supabase, alumnaId) {
         mostrarErrorCerca(btn, `No se pudo borrar: ${err.message}`);
       }
     });
+  });
+  document.getElementById('select-plataforma').addEventListener('change', async (e) => {
+    const select = e.target;
+    select.disabled = true;
+    try {
+      await actualizarPlataforma(supabase, alumnaId, select.value);
+      await renderFicha(supabase, alumnaId);
+    } catch (err) {
+      select.disabled = false;
+      mostrarErrorCerca(select, `No se pudo cambiar cómo paga: ${err.message}`);
+    }
   });
   document.getElementById('btn-nueva-valoracion').addEventListener('click', () => abrirDialogValoracion(supabase, alumnaId, valoraciones));
   document.getElementById('btn-activar-paquete').addEventListener('click', () => abrirDialogPaquete(supabase, alumnaId));

@@ -4,7 +4,7 @@ import {
 } from './data.js';
 import { hoyISO, esHoy, formatHora12, formatDiaMesConDia } from './lib/date-utils.js';
 import {
-  reservasFuturas, proximaReserva, estadoPaquete, estadoAsistenciaBadge,
+  reservasFuturas, proximaReserva, estadoPlan, estadoAsistenciaBadge,
   puntosCupo, estadoClase, cupoDisponible, puedeApartar, puedeCancelar,
 } from './lib/status.js';
 import { escaparHTML } from './lib/escape.js';
@@ -12,7 +12,12 @@ import { wireTabs, mostrarErrorCerca } from './ui.js';
 
 const SEMANAS_PARA_RESERVAR = 1;
 
-export async function montarVistaAlumna({ supabase, alumnaId, nombre, onCerrarSesion }) {
+// Cómo paga la alumna ('no', 'wellhub' o 'totalpass'). Se guarda aquí
+// porque varias pantallas se vuelven a pintar solas al apartar/cancelar.
+let plataformaAlumna = 'no';
+
+export async function montarVistaAlumna({ supabase, alumnaId, nombre, plataforma, onCerrarSesion }) {
+  plataformaAlumna = plataforma ?? 'no';
   const primerNombre = (nombre ?? '').trim().split(' ')[0] || 'aquí';
   document.getElementById('a-inicio-saludo').textContent = `Hola, ${primerNombre} 🤍`;
 
@@ -53,7 +58,7 @@ async function renderInicio(supabase, alumnaId) {
 
   await renderMisReservas(supabase, alumnaId);
 
-  const estado = estadoPaquete(paquete, hoyISO());
+  const estado = estadoPlan(paquete, plataformaAlumna, hoyISO());
   contPaquete.innerHTML = renderTarjetaPaquete(paquete, estado);
 }
 
@@ -174,7 +179,7 @@ async function renderEspacio(supabase, alumnaId) {
     obtenerPaqueteActivo(supabase, alumnaId),
     obtenerMisAsistencias(supabase, alumnaId),
   ]);
-  const estado = estadoPaquete(paquete, hoyISO());
+  const estado = estadoPlan(paquete, plataformaAlumna, hoyISO());
   document.getElementById('a-espacio-paquete').innerHTML = `<div class="card">${renderDatosPaquete(paquete, estado)}</div>`;
   document.getElementById('a-espacio-asistencias').innerHTML = `
     <div class="card">
@@ -188,7 +193,18 @@ async function renderEspacio(supabase, alumnaId) {
     </div>`;
 }
 
+function nombrePlataforma(plataforma) {
+  return plataforma === 'totalpass' ? 'TotalPass' : 'Wellhub';
+}
+
+function renderPlanPlataforma() {
+  return `
+    <div class="row"><b style="color:var(--text-title)">Tu plan</b><span class="badge ok">Activo</span></div>
+    <div class="muted" style="margin-top:8px">${escaparHTML(nombrePlataforma(plataformaAlumna))} ✨ Tus clases las cubre tu plan, solo aparta tu espacio.</div>`;
+}
+
 function renderTarjetaPaquete(paquete, estado) {
+  if (estado === 'plataforma') return `<div class="card">${renderPlanPlataforma()}</div>`;
   if (estado === 'sin_paquete') {
     return `<div class="card"><b style="color:var(--text-title)">Tu paquete</b><div class="muted" style="margin-top:8px">Aún no tienes un paquete activo. Pregúntale a Caro para activarlo.</div></div>`;
   }
@@ -203,6 +219,7 @@ function renderTarjetaPaquete(paquete, estado) {
 }
 
 function renderDatosPaquete(paquete, estado) {
+  if (estado === 'plataforma') return renderPlanPlataforma();
   if (estado === 'sin_paquete') {
     return `<b style="color:var(--text-title)">Tu paquete</b><div class="muted" style="margin-top:8px">Aún no tienes un paquete activo.</div>`;
   }

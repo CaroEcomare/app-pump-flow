@@ -140,6 +140,15 @@ export async function obtenerMisAsistencias(supabase, alumnaId) {
   }));
 }
 
+// Cambia cómo paga una alumna ('no', 'wellhub' o 'totalpass'). Va por
+// una función de Supabase porque desde la app nadie puede editar esa
+// columna directo (así una alumna no puede ponerse Wellhub ella sola);
+// la función revisa que quien la llama sea admin.
+export async function actualizarPlataforma(supabase, alumnaId, plataforma) {
+  const { error } = await supabase.rpc('cambiar_plataforma', { p_alumna_id: alumnaId, p_plataforma: plataforma });
+  if (error) throw error;
+}
+
 export async function listarAlumnas(supabase) {
   const { data, error } = await supabase
     .from('alumnas')
