@@ -1,27 +1,119 @@
-<!-- @dsCard group="Web" viewport="1280x760" subtitle="Curso grabado de hipopresivos, liga a nas.io" name="Página Curso en línea" -->
+<!-- @dsCard group="Web" viewport="1280x760" subtitle="Página de venta del curso Flow Base, liga a nas.io" name="Página Curso en línea" -->
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Curso en línea · Pump&Flow</title>
+<title>Curso de hipopresivos en línea · Flow Base · Pump&Flow</title>
+<meta name="description" content="Aprende hipopresivos desde cero, en casa y a tu ritmo: respiración, postura y 8 sesiones pregrabadas en 4 semanas. $499 MXN, pago único y acceso inmediato.">
 <link rel="stylesheet" href="pump-flow-design/diseño-marca-pump-flow/styles.css?v=2">
-<script src="pump-flow-design/diseño-marca-pump-flow/ui_kits/web/image-slot.js"></script>
 <style>
-  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;padding-top:56px;padding-bottom:64px}
-  .hero h1{font:var(--text-display);color:var(--text-title);margin:0 0 16px}
-  .hero p{font:var(--text-body-lg);max-width:460px;margin:0 0 28px}
+  section{scroll-margin-top:24px}
+  .seccion{padding:64px 0}
+  .seccion h2{font:var(--text-display);color:var(--text-title);margin:0 0 28px;text-align:center}
   .badge{font:var(--text-caption);font-weight:600;padding:4px 12px;border-radius:var(--radius-pill);background:var(--pf-lila);color:var(--pf-morado);width:fit-content;display:inline-block}
-  .contenido{background:var(--pf-lavanda);padding:64px 0}
-  .contenido h2{font:var(--text-display);color:#fff;text-align:center;margin:0 0 36px}
-  .modulos{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-  .mod{background:#fff;border-radius:var(--radius-xl);padding:32px;text-align:center}
+  .letra-chica{font:var(--text-small);color:var(--text-muted)}
+
+  /* 1. Portada */
+  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;padding-top:56px;padding-bottom:64px}
+  .hero h1{font:var(--text-display-xl);color:var(--text-title);margin:14px 0 16px}
+  .hero p{font:var(--text-body-lg);max-width:480px;margin:0 0 28px}
+  .hero img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:var(--radius-xl);display:block}
+  .compra{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .precio{font:var(--text-h2);color:var(--text-title)}
+  .precio small{font:var(--text-small);color:var(--text-muted);display:block}
+
+  /* 2. ¿Es para ti? */
+  .para-ti{background:var(--pf-lavanda)}
+  .para-ti h2{color:#fff}
+  .lista-ti{display:grid;gap:12px;max-width:640px;margin:0 auto;padding:0;list-style:none}
+  .lista-ti li{background:#fff;border-radius:var(--radius-xl);padding:18px 28px;font:var(--text-body-strong);color:var(--pf-morado)}
+  .lista-ti li::before{content:"✓";margin-right:10px;color:var(--pf-lavanda)}
+  .destacado{font:var(--text-h3);color:#fff;text-align:center;max-width:600px;margin:28px auto 0}
+
+  /* 3. Qué incluye */
+  .modulos{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .mod{background:#fff;border-radius:var(--radius-xl);padding:28px;box-shadow:var(--shadow-card)}
   .mod .num{font:var(--text-display);color:var(--pf-lavanda)}
   .mod .t{font:var(--text-h3);color:var(--text-title);margin:6px 0}
   .mod p{font:var(--text-small);margin:0}
-  .cta{padding:64px 0;text-align:center}
-  .cta h2{font:var(--text-h1);color:var(--text-title);margin:0 0 12px}
+  .incluye-nota{text-align:center;margin:24px auto 0;max-width:560px}
+
+  /* 4. Cómo se siente */
+  .siente{background:var(--pf-rosa-fondo)}
+  .siente p{font:var(--text-body-lg);max-width:640px;margin:0 auto;text-align:center}
+
+  /* 5. Soy Caro */
+  .caro{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center}
+  .caro img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;object-position:68% 55%;border-radius:var(--radius-xl);display:block}
+  .caro h2{text-align:left}
+  .caro p{margin:0 0 14px}
+
+  /* 6. Testimonios: para agregar uno, copia un <figure class="testimonio"> completo */
+  .testimonios{background:var(--pf-lila-fondo)}
+  .carrusel{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .testimonio{margin:0;background:#fff;border-radius:var(--radius-xl);padding:28px;display:flex;flex-direction:column;justify-content:space-between;gap:16px;box-shadow:var(--shadow-card)}
+  .testimonio blockquote{margin:0;font:var(--text-body)}
+  .testimonio blockquote::before{content:"“";display:block;font:var(--text-display);color:var(--pf-lavanda);line-height:.6}
+  .testimonio figcaption{font:var(--text-body-strong);color:var(--pf-morado)}
+  .desliza{display:none;text-align:center;margin-top:12px}
+
+  /* 7. Antes de empezar */
+  .importante{max-width:720px;margin:0 auto;background:#fff;border-radius:var(--radius-xl);padding:32px;box-shadow:var(--shadow-card)}
+  .importante ul{margin:0 0 16px;padding-left:20px}
+  .importante li{margin-bottom:10px}
+  .importante a{color:var(--pf-morado);font-weight:600}
+
+  /* 8. Preguntas frecuentes */
+  .faq{max-width:720px;margin:0 auto;display:grid;gap:10px}
+  .faq details{background:#fff;border-radius:var(--radius-xl);padding:18px 26px;box-shadow:var(--shadow-card)}
+  .faq summary{font:var(--text-body-strong);color:var(--text-title);cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--pf-lavanda);font-size:22px;line-height:1}
+  .faq details[open] summary::after{content:"–"}
+  .faq details p{margin:12px 0 0}
+
+  /* 9. Contacto */
+  .contacto{background:var(--pf-morado)}
+  .contacto h2{color:#fff}
+  .contacto .intro{color:#fff;text-align:center;max-width:520px;margin:-12px auto 28px}
+  .form-lead{max-width:460px;margin:0 auto;background:#fff;border-radius:var(--radius-xl);padding:32px;display:grid;gap:14px}
+  .form-lead label span{display:block;font:var(--text-small);font-weight:600;color:var(--pf-morado);margin-bottom:6px}
+  .form-lead input[type=text],.form-lead input[type=tel],.form-lead input[type=email]{width:100%;box-sizing:border-box;font:var(--text-body);padding:12px 16px;border-radius:var(--radius-md);border:2px solid var(--pf-lila);background:#fff;color:var(--text-title)}
+  .form-lead input:focus{outline:none;border-color:var(--pf-lavanda)}
+  .acepto{display:flex;gap:10px;align-items:flex-start;font:var(--text-small)}
+  .acepto input{margin-top:3px;accent-color:var(--pf-morado)}
+  .form-lead .btn{justify-content:center}
+  .form-lead .privacidad{text-align:center}
+  .form-lead .privacidad a{color:var(--pf-morado)}
+  .gracias{display:none;text-align:center}
+  .gracias b{font:var(--text-h2);color:var(--text-title);display:block;margin-bottom:8px}
+  .error-lead{display:none;color:#B3261E;font:var(--text-small);text-align:center}
+
+  /* 10. Cierre */
+  .cierre{text-align:center}
+  .cierre p{font:var(--text-body-lg);max-width:460px;margin:0 auto 24px}
+  .cierre .compra{justify-content:center}
+
+  /* Botón fijo en celular */
+  .barra-compra{display:none}
+
   @media (max-width: 679px) {
-    .hero{grid-template-columns:1fr;gap:24px;padding-top:32px;padding-bottom:40px;text-align:center}
-    .contenido{padding:40px 0}
+    .seccion{padding:44px 0}
+    .seccion h2{font:var(--text-h1)}
+    .hero{grid-template-columns:1fr;gap:24px;padding-top:24px;padding-bottom:40px;text-align:center}
+    .hero h1{font:var(--text-display)}
+    .hero p{margin-left:auto;margin-right:auto}
+    .hero .compra{justify-content:center}
     .modulos{grid-template-columns:1fr}
-    .cta{padding:40px 0}
+    .caro{grid-template-columns:1fr;gap:24px}
+    .caro h2{text-align:center}
+    .carrusel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 -20px;padding:4px 20px 12px;scrollbar-width:none}
+    .carrusel::-webkit-scrollbar{display:none}
+    .testimonio{flex:0 0 82%;scroll-snap-align:center}
+    .desliza{display:block}
+    .importante,.form-lead{padding:24px}
+    .barra-compra{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:#fff;box-shadow:0 -4px 16px rgba(88,68,114,.12);transform:translateY(110%);transition:transform .25s ease}
+    .barra-compra.visible{transform:none}
+    .barra-compra .precio{font:var(--text-body-strong)}
+    .barra-compra .btn{padding:12px 22px}
+    body{padding-bottom:84px}
   }
 </style></head><body>
 <header class="wrap">
@@ -34,35 +126,175 @@
   </nav>
 </header>
 
-<section class="wrap hero">
+<!-- 1. Portada -->
+<section class="wrap hero" id="portada">
   <div>
-    <span class="badge" style="margin-bottom:14px">Flow Base · acceso inmediato ✨</span>
+    <span class="badge">Flow Base · acceso inmediato</span>
     <h1>Hipopresivos en línea, a tu ritmo</h1>
-    <p>Practica donde estés y a tu horario. Flow Base te lleva de la mano desde cero: entiendes la técnica, la respiración y avanzas sesión por sesión.</p>
-    <a class="btn btn-primary" href="https://nas.com/pump-flow/challenges/flow-base-hipopresivos-3865728" target="_blank">Quiero el curso ✨</a>
+    <p>Si llevas tiempo sin moverte, este es tu primer paso. En 4 semanas aprendes desde cero a respirar, a acomodar tu postura y a activar tu abdomen desde adentro, en casa y en tu horario.</p>
+    <div class="compra">
+      <a class="btn btn-primary btn-comprar" href="https://nas.com/pump-flow/challenges/flow-base-hipopresivos-3865728" target="_blank">Quiero empezar</a>
+      <div class="precio">$499 MXN<small>pago único</small></div>
+    </div>
   </div>
-  <div style="display:grid;gap:16px">
-    <image-slot id="curso-foto-1" shape="rounded" radius="40" style="width:100%;height:220px" src="pump-flow-design/diseño-marca-pump-flow/assets/curso-flowbase.png" placeholder="Foto de Caro practicando"></image-slot>
-    <image-slot id="curso-foto-2" shape="rounded" radius="40" style="width:100%;height:220px" src="pump-flow-design/diseño-marca-pump-flow/assets/curso-postura.jpeg" placeholder="Foto de una clase o postura"></image-slot>
+  <img src="pump-flow-design/diseño-marca-pump-flow/assets/curso-flowbase.jpg" alt="Flow Base, curso de hipopresivos con 8 sesiones pregrabadas" width="1200" height="1200">
+</section>
+
+<!-- 2. ¿Es para ti? -->
+<section class="seccion para-ti">
+  <div class="wrap">
+    <h2>Este curso es para ti si…</h2>
+    <ul class="lista-ti">
+      <li>Llevas años sin moverte y no sabes por dónde empezar.</li>
+      <li>Quieres activarte y recuperar la funcionalidad de tu abdomen bajo.</li>
+      <li>Sientes tu suelo pélvico sin tono o tu espalda te pide atención.</li>
+      <li>Quieres practicar en casa, a tu ritmo y sin horarios fijos.</li>
+    </ul>
+    <p class="destacado">Aquí lo primero es que tu cuerpo funcione bien. Lo estético llega después, como consecuencia.</p>
   </div>
 </section>
 
-<section class="contenido">
+<!-- 3. Qué incluye -->
+<section class="seccion">
   <div class="wrap">
-    <h2>Qué incluye el curso</h2>
+    <h2>Qué incluye</h2>
     <div class="modulos">
-      <div class="mod"><div class="num">1</div><div class="t">Introducción</div><p>Qué son los hipopresivos y cómo van a ayudar a tu cuerpo.</p></div>
-      <div class="mod"><div class="num">2</div><div class="t">Paso a paso</div><p>La técnica explicada con calma: respiración, posturas y activación.</p></div>
-      <div class="mod"><div class="num">3</div><div class="t">8 sesiones pregrabadas</div><p>Sesiones completas de hipopresivos para practicar cuando quieras.</p></div>
+      <div class="mod"><div class="num">1</div><div class="t">Bienvenida</div><p>Qué es el tono, beneficios de los hipopresivos y recomendaciones importantes antes de empezar.</p></div>
+      <div class="mod"><div class="num">2</div><div class="t">Pautas posturales</div><p>Explicadas paso a paso, en texto detallado.</p></div>
+      <div class="mod"><div class="num">3</div><div class="t">Pautas respiratorias</div><p>La respiración que usamos en cada sesión, explicada desde cero, en texto detallado.</p></div>
+      <div class="mod"><div class="num">4</div><div class="t">8 sesiones pregrabadas</div><p>De 20 a 30 minutos cada una: 2 por semana durante 4 semanas.</p></div>
+    </div>
+    <p class="letra-chica incluye-nota">Acceso inmediato después de pagar. Las sesiones quedan disponibles en tu cuenta de nas.com sin fecha límite.</p>
+  </div>
+</section>
+
+<!-- 4. Cómo se siente -->
+<section class="seccion siente">
+  <div class="wrap">
+    <h2>El objetivo no es que te derritas en sudor.</h2>
+    <p>Este no es un ejercicio que acelere tu corazón ni que te deje empapada. Es un ejercicio que te conecta contigo, con cómo se siente tu cuerpo desde lo más profundo. Como trabajas con la respiración, ayudas a tu sistema nervioso a salir del modo alerta y a encontrar la calma. Vas a terminar más ligera, no agotada.</p>
+  </div>
+</section>
+
+<!-- 5. Quién te enseña -->
+<section class="seccion">
+  <div class="wrap caro">
+    <img src="pump-flow-design/diseño-marca-pump-flow/assets/caro-clase.jpg" alt="Caro practicando hipopresivos en clase" loading="lazy" width="1400" height="933">
+    <div>
+      <h2>Soy Caro</h2>
+      <p>Soy instructora de hipopresivos y doy clases en Pump&Flow, en Morelia y en línea.</p>
+      <p>Un día, manejando en carretera, tuve un ataque de ansiedad muy fuerte. Sentí que no iba a llegar, que no tenía el control del coche, que iba en automático y desprendida de mi cuerpo. Después de eso empecé a practicar hipopresivos, y la respiración me ayudó a encontrar la calma y a que mi sistema nervioso se tranquilizara.</p>
+      <p>Por eso, para mí lo más importante es que tu cuerpo funcione y que te sientas bien dentro de él. Eso es lo que te quiero enseñar, desde tu primera respiración.</p>
+      <!-- Espacio para la certificación (pendiente de la recertificación). Para mostrarlo, quita los signos de comentario y escribe el texto:
+      <p><span class="badge">Certificación: …</span></p>
+      -->
+      <p class="letra-chica">Los hipopresivos no sustituyen la atención médica ni psicológica.</p>
     </div>
   </div>
 </section>
 
-<section class="wrap cta">
-  <h2>Empieza hoy 🤍</h2>
-  <p style="max-width:460px;margin:0 auto 24px">El acceso es inmediato y las sesiones quedan disponibles para ti.</p>
-  <a class="btn btn-primary" style="padding:16px 40px;font-size:18px" href="https://nas.com/pump-flow/challenges/flow-base-hipopresivos-3865728" target="_blank">Ir a Flow Base ✨</a>
+<!-- 6. Testimonios -->
+<section class="seccion testimonios">
+  <div class="wrap">
+    <h2>Lo que dicen mis alumnas</h2>
+    <div class="carrusel">
+      <figure class="testimonio">
+        <blockquote>Sentí cómo mi abdomen se fue activando sin hacer miles de abdominales. Mi espalda dejó de dolerme. Mi postura mejoró y comencé a caminar más erguida.</blockquote>
+        <figcaption>Gabriela</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>Antes solía sentir incomodidad y pequeños escapes. Practicándolos solo un par de días a la semana, en escasas 3 semanas noté una gran diferencia. Mi suelo pélvico se siente más fuerte.</blockquote>
+        <figcaption>Anny</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>Como mamá que tuvo parto natural, no había podido recuperar la fuerza de mi piso pélvico. Ahora ya no me pasa con la misma intensidad de antes. Me encanta sentirme fuerte de la mano del control de mi respiración.</blockquote>
+        <figcaption>Alita</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>Mi postura ha mejorado, ha reducido mi dolor de espalda y mis cólicos han disminuido.</blockquote>
+        <figcaption>Sofía</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>La postura y el dolor de cuello y hombros ha mejorado muchísimo.</blockquote>
+        <figcaption>Andrea</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>Mis medallas de este año son gracias a tus clases. Cuando siento que ya no puedo, las recuerdo y logro terminar todo.</blockquote>
+        <figcaption>Alumna de Pump&Flow</figcaption>
+      </figure>
+    </div>
+    <p class="letra-chica desliza">Desliza para ver más →</p>
+  </div>
 </section>
+
+<!-- 7. Antes de empezar -->
+<section class="seccion">
+  <div class="wrap">
+    <h2>Importante antes de empezar</h2>
+    <div class="importante">
+      <ul>
+        <li><b>Si tienes hipertensión no controlada,</b> no practiques sin el visto bueno de tu médico.</li>
+        <li><b>Si estás embarazada,</b> no se hacen la apnea, la apertura costal ni el vacío abdominal. Puedes trabajar solo las pautas posturales, con el visto bueno de tu médico.</li>
+        <li><b>Si tienes algún problema del corazón o una inflamación abdominal fuerte,</b> consulta a tu médico antes de empezar.</li>
+      </ul>
+      <p style="margin:0">Si tienes dudas sobre tu caso, <a href="https://wa.me/524431331146?text=Hola%20Caro%2C%20tengo%20una%20duda%20sobre%20el%20curso%20Flow%20Base%20%F0%9F%A4%8D" target="_blank">escríbeme por WhatsApp</a> antes de comprar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Preguntas frecuentes -->
+<section class="seccion" style="padding-top:0">
+  <div class="wrap">
+    <h2>Preguntas frecuentes</h2>
+    <div class="faq">
+      <details><summary>¿Necesito experiencia?</summary><p>No. El curso empieza desde cero, con las pautas posturales y respiratorias explicadas paso a paso.</p></details>
+      <details><summary>¿Cuánto dura cada sesión?</summary><p>Entre 20 y 30 minutos.</p></details>
+      <details><summary>¿Cada cuánto practico?</summary><p>Dos veces por semana, dejando días de descanso entre sesiones. Así completas las 8 sesiones en 4 semanas.</p></details>
+      <details><summary>¿Qué necesito?</summary><p>Ropa cómoda, un tapete y un espacio tranquilo.</p></details>
+      <details><summary>¿Cuánto tiempo tengo acceso?</summary><p>Sin fecha límite: las sesiones quedan en tu cuenta de nas.com para que las repitas cuando quieras.</p></details>
+      <details><summary>¿Se suda?</summary><p>Poco. El trabajo es profundo e interno.</p></details>
+      <details><summary>¿Sirve si tengo diástasis o mi suelo pélvico está débil?</summary><p>Los hipopresivos trabajan tu abdomen y tu suelo pélvico sin aumentar la presión dentro de tu barriga. Si tienes un diagnóstico, cuéntame tu caso por WhatsApp antes de empezar.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Contacto -->
+<section class="seccion contacto" id="contacto">
+  <div class="wrap">
+    <h2>¿Todavía lo estás pensando?</h2>
+    <p class="intro">Déjame tus datos y te escribo para resolver tus dudas y ayudarte a saber si el curso es para ti.</p>
+    <form class="form-lead" id="form-lead">
+      <label><span>Nombre</span><input type="text" name="nombre" required maxlength="120" autocomplete="given-name"></label>
+      <label><span>WhatsApp</span><input type="tel" name="whatsapp" required minlength="7" maxlength="30" autocomplete="tel" placeholder="443 123 4567"></label>
+      <label><span>Correo (opcional)</span><input type="email" name="correo" maxlength="200" autocomplete="email"></label>
+      <label class="acepto"><input type="checkbox" name="acepta" required> Acepto que Pump&Flow me contacte por WhatsApp y correo.</label>
+      <button class="btn btn-primary" type="submit">Quiero que me escribas</button>
+      <p class="error-lead" id="error-lead">No se pudieron enviar tus datos. Inténtalo de nuevo o escríbeme por WhatsApp 🤍</p>
+      <p class="letra-chica privacidad">Lee el <a href="aviso-privacidad.html">aviso de privacidad</a>.</p>
+    </form>
+    <div class="form-lead gracias" id="gracias-lead">
+      <b>¡Gracias! 🤍</b>
+      <p style="margin:0">Ya tengo tus datos. Te escribo pronto por WhatsApp.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10. Cierre -->
+<section class="seccion cierre" id="cierre">
+  <div class="wrap">
+    <h2>Empieza hoy</h2>
+    <p>Tu cuerpo no está roto. Está esperando que alguien lo entienda.</p>
+    <div class="compra">
+      <a class="btn btn-primary btn-comprar" style="padding:16px 40px;font-size:18px" href="https://nas.com/pump-flow/challenges/flow-base-hipopresivos-3865728" target="_blank">Quiero empezar</a>
+      <div class="precio" style="text-align:left">$499 MXN<small>pago único</small></div>
+    </div>
+  </div>
+</section>
+
+<div class="barra-compra" id="barra-compra" aria-hidden="true">
+  <div class="precio">$499 MXN · pago único</div>
+  <a class="btn btn-primary" href="https://nas.com/pump-flow/challenges/flow-base-hipopresivos-3865728" target="_blank" tabindex="-1">Quiero empezar</a>
+</div>
 
 <footer>
   <div class="wrap inner">
@@ -70,4 +302,55 @@
     <span>Clases grupales y personales, presencial y en línea</span>
   </div>
 </footer>
+
+<script>
+  // Botón de compra fijo en celular: aparece cuando ya pasaste la portada y
+  // se esconde cuando llegas al cierre (ahí ya está el botón grande).
+  const barra = document.getElementById('barra-compra');
+  const visibles = new Set();
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach((e) => (e.isIntersecting ? visibles.add(e.target.id) : visibles.delete(e.target.id)));
+    barra.classList.toggle('visible', !visibles.has('portada') && !visibles.has('cierre'));
+  });
+  ['portada', 'cierre'].forEach((id) => observador.observe(document.getElementById(id)));
+
+  // Formulario de contacto: guarda en la tabla "leads" de Supabase. Solo se
+  // puede insertar (nadie puede leer los datos de otros sin ser admin).
+  const SUPABASE_URL = 'https://euhltloldxnbjbizmwze.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_e7ynsWO1oaQj58lDg1zuQg_DT8aCKB9';
+  const form = document.getElementById('form-lead');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = form.querySelector('button[type="submit"]');
+    const error = document.getElementById('error-lead');
+    boton.disabled = true;
+    error.style.display = 'none';
+    const datos = new FormData(form);
+    try {
+      const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({
+          nombre: datos.get('nombre').trim(),
+          whatsapp: datos.get('whatsapp').trim(),
+          correo: datos.get('correo').trim() || null,
+          origen: 'curso',
+          acepta_contacto: datos.get('acepta') === 'on',
+        }),
+      });
+      if (!respuesta.ok) throw new Error(await respuesta.text());
+      form.style.display = 'none';
+      document.getElementById('gracias-lead').style.display = 'block';
+    } catch (err) {
+      console.warn('No se pudo guardar el contacto:', err.message);
+      boton.disabled = false;
+      error.style.display = 'block';
+    }
+  });
+</script>
 </body></html>
