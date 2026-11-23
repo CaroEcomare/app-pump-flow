@@ -32,7 +32,44 @@
   .form input,.form select{font:var(--text-body);color:var(--text-body);padding:12px 18px;border-radius:var(--radius-pill);border:2px solid var(--border-soft);outline:none;min-height:48px;box-sizing:border-box;background:#fff}
   .form input:focus,.form select:focus{border-color:var(--focus-ring)}
   .cta-row{display:flex;gap:12px}
+
+  /* Testimonios. Para agregar uno aprobado, copia un <figure class="testimonio"> completo */
+  .testimonios{background:var(--pf-lila-fondo);padding:72px 0}
+  .testimonios h2,.experiencia h2{font:var(--text-display);color:var(--text-title);text-align:center;margin:0 0 32px}
+  .carrusel{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .testimonio{margin:0;background:#fff;border-radius:var(--radius-xl);padding:28px;display:flex;flex-direction:column;justify-content:space-between;gap:16px;box-shadow:var(--shadow-card)}
+  .testimonio blockquote{margin:0;font:var(--text-body)}
+  .testimonio blockquote::before{content:"“";display:block;font:var(--text-display);color:var(--pf-lavanda);line-height:.6}
+  .testimonio figcaption{font:var(--text-body-strong);color:var(--pf-morado)}
+  .desliza{display:none}
+  .ir-experiencia{text-align:center;margin-top:28px}
+  .ir-experiencia .btn{padding:10px 22px;font-size:14px;min-height:40px}
+
+  /* Comparte tu experiencia */
+  .experiencia{padding:72px 0}
+  .experiencia .intro{text-align:center;max-width:520px;margin:-16px auto 28px;font:var(--text-body-lg)}
+  .form-testimonio{max-width:520px;margin:0 auto;background:#fff;border-radius:var(--radius-xl);padding:32px;display:grid;gap:14px;box-shadow:var(--shadow-card)}
+  .form-testimonio label span{display:block;font:var(--text-small);font-weight:600;color:var(--pf-morado);margin-bottom:6px}
+  .form-testimonio input[type=text],.form-testimonio input[type=tel],.form-testimonio select,.form-testimonio textarea{width:100%;box-sizing:border-box;font:var(--text-body);padding:12px 16px;border-radius:var(--radius-md);border:2px solid var(--pf-lila);background:#fff;color:var(--text-title)}
+  .form-testimonio textarea{min-height:130px;resize:vertical}
+  .form-testimonio input:focus,.form-testimonio select:focus,.form-testimonio textarea:focus{outline:none;border-color:var(--pf-lavanda)}
+  .acepto{display:flex;gap:10px;align-items:flex-start;font:var(--text-small)}
+  .acepto input{margin-top:3px;accent-color:var(--pf-morado)}
+  .form-testimonio .btn{justify-content:center}
+  .form-testimonio .privacidad{text-align:center;font:var(--text-small);color:var(--text-muted);margin:0}
+  .form-testimonio .privacidad a{color:var(--pf-morado)}
+  .gracias{display:none;text-align:center}
+  .gracias b{font:var(--text-h2);color:var(--text-title);display:block;margin-bottom:8px}
+  .error-testimonio{display:none;color:#B3261E;font:var(--text-small);text-align:center;margin:0}
+
   @media (max-width: 679px) {
+    .testimonios,.experiencia{padding:48px 0}
+    .testimonios h2,.experiencia h2{font:var(--text-h1)}
+    .carrusel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 -20px;padding:4px 20px 12px;scrollbar-width:none}
+    .carrusel::-webkit-scrollbar{display:none}
+    .testimonio{flex:0 0 82%;scroll-snap-align:center}
+    .desliza{display:block;text-align:center;font:var(--text-small);color:var(--text-muted);margin:8px 0 0}
+    .form-testimonio{padding:24px}
     .hero{grid-template-columns:1fr;gap:28px;padding-top:32px;padding-bottom:48px;text-align:center}
     .hero>div:first-child{order:2}
     .hero .foto{order:1;min-height:300px}
@@ -118,6 +155,67 @@
   </div>
 </section>
 
+<section class="testimonios" id="testimonios">
+  <div class="wrap">
+    <h2>Lo que dicen mis alumnas</h2>
+    <div class="carrusel">
+      <figure class="testimonio">
+        <blockquote>Volví a reconectarme con mi cuerpo, a habitarlo con amor y respeto. No es magia, es constancia. Hoy me miro al espejo con más cariño y me siento más fuerte, desde adentro hacia afuera.</blockquote>
+        <figcaption>Gabriela</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>Ahora puedo moverme, ejercitarme y disfrutar de mis actividades diarias con más confianza. Los hipopresivos se han convertido en una herramienta de autocuidado que me brinda tranquilidad y calidad de vida.</blockquote>
+        <figcaption>Anny</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>¡Ay, la postura! Y el dolor de espalda. Me ha servido para todo. Me encanta estar más consciente de mi cuerpo y de mi tórax, y esa pancita que tenía al frente poco a poco la siento menos hinchada. 10/10.</blockquote>
+        <figcaption>Alita</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>A mí me han servido un buen los hipopresivos. Ya casi no me duele la espalda.</blockquote>
+        <figcaption>Annie</figcaption>
+      </figure>
+      <figure class="testimonio">
+        <blockquote>Hago p*p* mejor y mi abdomen se está marcando fast and furious.</blockquote>
+        <figcaption>Sofía</figcaption>
+      </figure>
+    </div>
+    <p class="desliza">Desliza para ver más →</p>
+    <div class="ir-experiencia">
+      <a class="btn btn-outline" href="#experiencia">¿Ya tomaste clases conmigo? Cuéntame cómo te ha ido</a>
+    </div>
+  </div>
+</section>
+
+<section class="experiencia" id="experiencia">
+  <div class="wrap">
+    <h2>¿Ya tomaste clases conmigo?</h2>
+    <p class="intro">Me encantaría saber cómo te has sentido. Tu experiencia puede ser justo lo que otra mujer necesita leer para animarse a empezar.</p>
+    <form class="form-testimonio" id="form-testimonio">
+      <label><span>Nombre</span><input type="text" name="nombre" required maxlength="80" autocomplete="given-name"></label>
+      <label><span>¿Qué ha cambiado en ti desde que practicas hipopresivos?</span><textarea name="experiencia" required maxlength="2000"></textarea></label>
+      <label><span>¿En qué clase estás?</span>
+        <select name="clase">
+          <option value="">Elige una opción</option>
+          <option>Grupal presencial</option>
+          <option>Grupal en línea</option>
+          <option>Personal</option>
+          <option>Curso en línea</option>
+        </select>
+      </label>
+      <label><span>WhatsApp (opcional, si quieres formar parte de la comunidad)</span><input type="tel" name="whatsapp" minlength="7" maxlength="30" autocomplete="tel" placeholder="443 123 4567"></label>
+      <label class="acepto"><input type="checkbox" name="acepta" required> Acepto que Pump&Flow publique mi testimonio solo con mi nombre de pila.</label>
+      <button class="btn btn-primary" type="submit">Enviar mi experiencia</button>
+      <p class="error-testimonio" id="error-testimonio">No se pudo enviar. Inténtalo de nuevo o escríbeme por WhatsApp 🤍</p>
+      <p class="privacidad">Lee el <a href="aviso-privacidad.html">aviso de privacidad</a>.</p>
+    </form>
+    <div class="form-testimonio gracias" id="gracias-testimonio">
+      <b>¡Gracias! 🤍</b>
+      <p style="margin:0">Lo voy a leer con mucho cariño.</p>
+    </div>
+  </div>
+</section>
+
 <section class="reserva" id="reserva">
   <div class="wrap inner">
     <div>
@@ -147,4 +245,45 @@
     <a href="pump-flow-design/diseño-marca-pump-flow/generador-wunda.html" style="font-size:11px;color:var(--pf-morado);opacity:.35">generador de clases</a>
   </div>
 </footer>
+<script>
+  // Formulario de testimonios: guarda en la tabla "testimonios" de Supabase
+  // como 'pendiente'. Nada se publica solo; Caro los revisa y agrega los
+  // aprobados al carrusel de arriba.
+  const SUPABASE_URL = 'https://euhltloldxnbjbizmwze.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_e7ynsWO1oaQj58lDg1zuQg_DT8aCKB9';
+  const formTestimonio = document.getElementById('form-testimonio');
+  formTestimonio.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const boton = formTestimonio.querySelector('button[type="submit"]');
+    const error = document.getElementById('error-testimonio');
+    boton.disabled = true;
+    error.style.display = 'none';
+    const datos = new FormData(formTestimonio);
+    try {
+      const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/testimonios`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({
+          nombre: datos.get('nombre').trim(),
+          experiencia: datos.get('experiencia').trim(),
+          clase: datos.get('clase') || null,
+          whatsapp: datos.get('whatsapp').trim() || null,
+          acepta_publicar: datos.get('acepta') === 'on',
+        }),
+      });
+      if (!respuesta.ok) throw new Error(await respuesta.text());
+      formTestimonio.style.display = 'none';
+      document.getElementById('gracias-testimonio').style.display = 'block';
+    } catch (err) {
+      console.warn('No se pudo guardar el testimonio:', err.message);
+      boton.disabled = false;
+      error.style.display = 'block';
+    }
+  });
+</script>
 </body></html>
