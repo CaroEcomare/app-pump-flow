@@ -158,7 +158,7 @@
 <section class="testimonios" id="testimonios">
   <div class="wrap">
     <h2>Lo que dicen mis alumnas</h2>
-    <div class="carrusel">
+    <div class="carrusel" id="carrusel">
       <figure class="testimonio">
         <blockquote>Volví a reconectarme con mi cuerpo, a habitarlo con amor y respeto. No es magia, es constancia. Hoy me miro al espejo con más cariño y me siento más fuerte, desde adentro hacia afuera.</blockquote>
         <figcaption>Gabriela</figcaption>
@@ -211,7 +211,7 @@
     </form>
     <div class="form-testimonio gracias" id="gracias-testimonio">
       <b>¡Gracias! 🤍</b>
-      <p style="margin:0">Lo voy a leer con mucho cariño.</p>
+      <p style="margin:0">Lo voy a leer con mucho cariño. Ya aparece arriba, en "Lo que dicen mis alumnas".</p>
     </div>
   </div>
 </section>
@@ -247,10 +247,33 @@
 </footer>
 <script>
   // Formulario de testimonios: guarda en la tabla "testimonios" de Supabase
-  // como 'pendiente'. Nada se publica solo; Caro los revisa y agrega los
-  // aprobados al carrusel de arriba.
+  // como 'aprobado' y se publica solo en el carrusel (solo nombre de pila y
+  // texto). Para ocultar uno, en Supabase se cambia su estado a 'descartado'.
   const SUPABASE_URL = 'https://euhltloldxnbjbizmwze.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_e7ynsWO1oaQj58lDg1zuQg_DT8aCKB9';
+  const carrusel = document.getElementById('carrusel');
+
+  // Agrega una tarjeta al inicio del carrusel. Solo se muestra el nombre de
+  // pila (la primera palabra), aunque hayan escrito su nombre completo.
+  function agregarTestimonio(nombre, texto) {
+    const figura = document.createElement('figure');
+    figura.className = 'testimonio';
+    const cita = document.createElement('blockquote');
+    cita.textContent = texto;
+    const pie = document.createElement('figcaption');
+    pie.textContent = nombre.trim().split(/\s+/)[0];
+    figura.append(cita, pie);
+    carrusel.prepend(figura);
+  }
+
+  // Testimonios que dejaron las alumnas en el formulario: se publican solos.
+  // Las 5 tarjetas escritas arriba en el HTML siempre se quedan.
+  fetch(`${SUPABASE_URL}/rest/v1/testimonios?select=nombre,experiencia&order=creado_en.asc`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+  })
+    .then((r) => (r.ok ? r.json() : []))
+    .then((lista) => lista.forEach((t) => agregarTestimonio(t.nombre, t.experiencia)))
+    .catch(() => {});
   const formTestimonio = document.getElementById('form-testimonio');
   formTestimonio.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -277,6 +300,7 @@
         }),
       });
       if (!respuesta.ok) throw new Error(await respuesta.text());
+      agregarTestimonio(datos.get('nombre'), datos.get('experiencia').trim());
       formTestimonio.style.display = 'none';
       document.getElementById('gracias-testimonio').style.display = 'block';
     } catch (err) {
