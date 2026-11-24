@@ -64,19 +64,50 @@
 
 
 
+
+  /* Tira de película con videos de Instagram: se desliza sola y cada cuadrito abre el video.
+     Para cambiar un video: cambia el href del cuadrito (en los DOS grupos, el segundo es la copia para el loop). */
+  .pelicula{padding:72px 0 64px;overflow:hidden}
+  .pelicula h2{font:var(--text-display);color:var(--text-title);text-align:center;margin:0 0 8px}
+  .pelicula .sub{text-align:center;margin:0 auto 36px;max-width:520px}
+  .pelicula .sub a{color:var(--pf-morado);font-weight:600}
+  .tira{--hoyo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='14'%3E%3Crect x='7' y='2' width='12' height='9' rx='2.5' fill='%23f7f2fd'/%3E%3C/svg%3E");
+    position:relative;transform:rotate(-2deg);margin:0 -40px;padding:26px 0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;cursor:grab;
+    background:var(--hoyo) 0 6px/26px 14px repeat-x,var(--hoyo) 0 calc(100% - 6px)/26px 14px repeat-x,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .8 0 0 0 0 .6 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)'/%3E%3C/svg%3E"),linear-gradient(180deg,#2a1f22,#3a2a24 50%,#2a1f22);
+    box-shadow:0 18px 30px rgba(46,35,64,.3)}
+  .tira::-webkit-scrollbar{display:none}
+  .tira.arrastrando{cursor:grabbing}
+  .tira-mover{display:flex;width:max-content}
+  .tira-grupo{display:flex;gap:14px;padding-right:14px}
+  .cuadro-peli{position:relative;display:block;flex:none;width:200px;aspect-ratio:3/4;border-radius:4px;overflow:hidden;background:#000;
+    box-shadow:inset 0 0 0 1px rgba(255,200,150,.15)}
+  .cuadro-peli img{width:100%;height:100%;object-fit:cover;filter:sepia(.18) saturate(1.1) contrast(1.05);transition:transform .4s,filter .4s}
+  .cuadro-peli::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(circle,rgba(0,0,0,0) 55%,rgba(30,15,10,.45)),linear-gradient(180deg,rgba(255,170,90,.08),rgba(0,0,0,0) 40%)}
+  .cuadro-peli:hover img{transform:scale(1.06);filter:none}
+  .cuadro-peli .play{position:absolute;left:50%;top:50%;z-index:2;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;
+    background:rgba(255,255,255,.88);box-shadow:0 4px 12px rgba(0,0,0,.35);transition:transform .25s}
+  .cuadro-peli .play::before{content:"";position:absolute;left:18px;top:14px;border-left:14px solid var(--pf-morado);border-top:9px solid transparent;border-bottom:9px solid transparent}
+  .cuadro-peli:hover .play{transform:scale(1.12)}
+  .num-peli{position:absolute;z-index:2;left:8px;bottom:6px;font:600 11px/1 "Courier New",monospace;letter-spacing:.08em;color:#f3a35c;text-shadow:0 0 4px rgba(243,163,92,.6)}
+  @media (max-width:679px){
+    .pelicula{padding:48px 0 44px}
+    .pelicula h2{font:var(--text-h1)}
+    .pelicula .sub{margin-bottom:28px}
+    .cuadro-peli{width:150px}
+  }
   /* Testimonios como post-its viejitos, cuadrados, en la paleta de Pump&Flow.
      Unos con cinta, otros con clip y otros con pin (se reparten solos por posición,
      así que también aplica a los que llegan del formulario). */
   .testimonios .carrusel{gap:40px 30px;padding-top:22px;align-items:start}
-  .testimonios .testimonio{--papel:#f4e9ff;--giro:-1.6deg;--baja:0px;position:relative;overflow:visible;aspect-ratio:1;
+  .testimonios .testimonio{--papel:#d7c2fb;--giro:-1.6deg;--baja:0px;position:relative;overflow:visible;aspect-ratio:1;
     border-radius:2px 2px 3px 16px;padding:30px 26px 22px;justify-content:space-between;
-    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .42 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),radial-gradient(120% 90% at 25% 8%,rgba(255,255,255,.55),rgba(255,255,255,0) 60%),
-      linear-gradient(180deg,rgba(0,0,0,0) 72%,rgba(88,68,114,.07)),var(--papel);
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .42 0 0 0 .13 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),radial-gradient(120% 90% at 25% 8%,rgba(255,255,255,.16),rgba(255,255,255,0) 55%),var(--papel);
     box-shadow:0 1px 1px rgba(46,35,64,.12),0 14px 20px -10px rgba(46,35,64,.4),inset 0 0 26px rgba(88,68,114,.07);
     transform:translateY(var(--baja)) rotate(var(--giro))}
-  .testimonios .testimonio:nth-child(4n+2){--papel:#f9dbef;--giro:1.6deg;--baja:18px}
-  .testimonios .testimonio:nth-child(4n+3){--papel:#e6dcfd;--giro:-.7deg;--baja:-4px}
-  .testimonios .testimonio:nth-child(4n){--papel:#fdeef7;--giro:2.2deg;--baja:10px}
+  .testimonios .testimonio:nth-child(4n+2){--papel:#f6b6df;--giro:1.6deg;--baja:18px}
+  .testimonios .testimonio:nth-child(4n+3){--papel:#bfaef6;--giro:-.7deg;--baja:-4px}
+  .testimonios .testimonio:nth-child(4n){--papel:#fbcbe8;--giro:2.2deg;--baja:10px}
   .testimonios .testimonio:nth-child(3n+2){text-align:center}
   .testimonios .testimonio:nth-child(5n+3) figcaption{text-align:right}
   .testimonios .testimonio blockquote{font:var(--text-body);color:#3d2f52}
@@ -178,6 +209,10 @@
   @media (prefers-reduced-motion:reduce){.archivero .carpeta{animation:none!important;opacity:1!important;transform:none!important}}
   @media (max-width: 679px) {
     .testimonios,.experiencia{padding:48px 0}
+    .testimonios{padding-bottom:26px}
+    .experiencia{padding-top:30px}
+    .ir-experiencia{margin-top:54px}
+    .reserva .botones-reserva{justify-content:center}
     .testimonios h2,.experiencia h2{font:var(--text-h1)}
     .carrusel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 -20px;padding:4px 20px 12px;scrollbar-width:none}
     .carrusel::-webkit-scrollbar{display:none}
@@ -291,6 +326,68 @@
   </div>
 </section>
 
+<section class="pelicula" id="videos">
+  <div class="wrap">
+    <h2>Conoce más información</h2>
+    <p class="sub">Toca un cuadrito y te llevo al video en Instagram <a href="https://www.instagram.com/caro_fluye/" target="_blank" rel="noopener">@caro_fluye</a></p>
+  </div>
+  <div class="tira" id="tira" aria-label="Videos de Instagram">
+    <div class="tira-mover">
+      <div class="tira-grupo">
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DdZzMlGOaJX/" target="_blank" rel="noopener" aria-label="Ver en Instagram: Respiración en LPF">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-1.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">12A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DbbdE03BPiw/" target="_blank" rel="noopener" aria-label="Ver en Instagram: Las hernias">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-2.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">13A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DZdjQcHP3r1/" target="_blank" rel="noopener" aria-label="Ver en Instagram: Hipopresivos LPF vs Kegel">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-3.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">14A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DW6334CD_a7/" target="_blank" rel="noopener" aria-label="Ver en Instagram: Subir el ombligo">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-4.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">15A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DVwoqxjDOxR/" target="_blank" rel="noopener" aria-label="Ver en Instagram: Incontinencia urinaria: no es normal">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-5.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">16A</span>
+        </a>
+      </div>
+      <div class="tira-grupo" aria-hidden="true">
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DdZzMlGOaJX/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Respiración en LPF">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-1.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">12A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DbbdE03BPiw/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Las hernias">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-2.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">13A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DZdjQcHP3r1/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Hipopresivos LPF vs Kegel">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-3.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">14A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DW6334CD_a7/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Subir el ombligo">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-4.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">15A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DVwoqxjDOxR/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Incontinencia urinaria: no es normal">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-5.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">16A</span>
+        </a>
+      </div>
+      <div class="tira-grupo" aria-hidden="true">
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DdZzMlGOaJX/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Respiración en LPF">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-1.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">12A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DbbdE03BPiw/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Las hernias">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-2.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">13A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DZdjQcHP3r1/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Hipopresivos LPF vs Kegel">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-3.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">14A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DW6334CD_a7/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Subir el ombligo">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-4.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">15A</span>
+        </a>
+        <a class="cuadro-peli" href="https://www.instagram.com/reel/DVwoqxjDOxR/" target="_blank" rel="noopener" tabindex="-1" aria-label="Ver en Instagram: Incontinencia urinaria: no es normal">
+          <img src="pump-flow-design/diseño-marca-pump-flow/assets/insta-video-5.jpg" alt="" loading="lazy" draggable="false"><span class="play" aria-hidden="true"></span><span class="num-peli">16A</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="testimonios" id="testimonios">
   <div class="wrap">
     <h2>Lo que dicen mis alumnas</h2>
@@ -365,7 +462,7 @@
       <h2>Reserva tu lugar</h2>
       <p style="font:var(--text-body-strong);color:#fff">Cel: 44 31 33 11 46 · @Caro_fluye</p>
       <p style="color:#fff;font:var(--text-small)">Utume #498, Lomas de Vista Bella, Morelia, Michoacán</p>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
+      <div class="botones-reserva" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
         <a class="btn btn-primary" href="https://calendly.com/caro-ecomare/clase-de-introduccion" target="_blank">Agenda tu introducción ✨</a>
         <a class="btn btn-white" href="portal/">Mi cuenta ✨</a>
       </div>
@@ -486,5 +583,48 @@
   }
   medirPostits();
   new MutationObserver(medirPostits).observe(document.getElementById('carrusel'), { childList: true });
+</script>
+<script>
+  // Tira de película: avanza sola despacito y también se puede deslizar con el dedo
+  // (o arrastrar con el mouse). Se pausa mientras la tocan y vuelve a avanzar después.
+  (() => {
+    const tira = document.getElementById('tira');
+    const grupo = tira.querySelector('.tira-grupo');
+    const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let pausa = 0, ultimo = performance.now(), arrastre = null, movio = false;
+    function vuelta() {
+      const ancho = grupo.offsetWidth;
+      if (tira.scrollLeft >= ancho) tira.scrollLeft -= ancho;
+      if (tira.scrollLeft <= 0) tira.scrollLeft += ancho;
+    }
+    function paso(t) {
+      const dt = Math.min(64, t - ultimo); ultimo = t;
+      if (!quieto && !arrastre && t > pausa) { tira.scrollLeft += dt * 0.035; vuelta(); }
+      requestAnimationFrame(paso);
+    }
+    tira.scrollLeft = grupo.offsetWidth;
+    requestAnimationFrame(paso);
+    const esperar = () => { pausa = performance.now() + 2500; };
+    tira.addEventListener('touchstart', esperar, { passive: true });
+    tira.addEventListener('touchmove', esperar, { passive: true });
+    tira.addEventListener('scroll', () => { if (arrastre || performance.now() < pausa) vuelta(); }, { passive: true });
+    tira.addEventListener('mouseenter', () => { pausa = Infinity; });
+    tira.addEventListener('mouseleave', esperar);
+    // Arrastrar con el mouse en computadora
+    tira.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      arrastre = { x: e.clientX, s: tira.scrollLeft }; movio = false; tira.classList.add('arrastrando');
+    });
+    addEventListener('pointermove', (e) => {
+      if (!arrastre) return;
+      const dx = e.clientX - arrastre.x;
+      if (Math.abs(dx) > 5) movio = true;
+      const ancho = grupo.offsetWidth;
+      let t = (arrastre.s - dx) % ancho; if (t <= 0) t += ancho;
+      tira.scrollLeft = t;
+    });
+    addEventListener('pointerup', () => { if (arrastre) { arrastre = null; tira.classList.remove('arrastrando'); } });
+    tira.addEventListener('click', (e) => { if (movio) { e.preventDefault(); movio = false; } }, true);
+  })();
 </script>
 </body></html>
