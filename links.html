@@ -42,8 +42,10 @@
     clip-path:polygon(50% 0%,59% 12%,72% 4%,75% 19%,90% 16%,86% 31%,100% 36%,90% 48%,100% 60%,86% 66%,90% 81%,75% 79%,72% 94%,59% 87%,50% 100%,41% 87%,28% 94%,25% 79%,10% 81%,14% 66%,0% 60%,10% 48%,0% 36%,14% 31%,10% 16%,25% 19%,28% 4%,41% 12%)}
 
   /* ===== Disco de cartón ===== */
-  .rueda{position:relative;width:min(340px,84vw);aspect-ratio:1;margin:0 auto;touch-action:pan-y;
+  .rueda{position:relative;width:min(340px,84vw);aspect-ratio:1;margin:0 auto;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;
     filter:drop-shadow(0 14px 14px rgba(67,52,90,.28)) drop-shadow(0 2px 2px rgba(67,52,90,.25))}
+  .rueda.arrastrando{cursor:grabbing}
+  .rueda.arrastrando .disco{transition:none}
   .disco{position:absolute;inset:0;border-radius:50%;transition:transform .6s cubic-bezier(.25,1.25,.5,1);
     background:
       var(--papelRuido),
@@ -116,7 +118,7 @@
       <div class="disco" id="disco"></div>
       <div class="centro" aria-hidden="true"><img id="logoCentro" alt=""><div class="hoyo"></div><small>HIPOPRESIVOS</small></div>
     </div>
-    <p class="gira" aria-hidden="true">← desliza o toca una foto →</p>
+    <p class="gira" aria-hidden="true">↻ gira el disco con tu dedo o toca una foto</p>
   </section>
 
   <article class="tarjeta" id="tarjeta" aria-live="polite">
@@ -144,7 +146,7 @@ const opciones = [
   {titulo:"Escríbeme", texto:"¿No sabes por dónde empezar? Cuéntame qué te pasa y te digo qué te conviene.", boton:"Abrir WhatsApp", url:"https://wa.me/524431331146?text=Hola%20Caro%2C%20no%20s%C3%A9%20por%20d%C3%B3nde%20empezar%2C%20%C2%BFme%20ayudas%3F%20%F0%9F%A4%8D", foto:F.escribeme}
 ];
 
-let i = 0, giro = 0;
+let i = 0, giro = 0, arrastrado = false;
 const $ = id => document.getElementById(id);
 const disco=$("disco"), rueda=$("rueda"), puntos=$("puntos"), tarjeta=$("tarjeta");
 const n = opciones.length, paso = 360 / n;
@@ -159,7 +161,8 @@ opciones.forEach((o,k)=>{
   if(o.testimonios) v.textContent="TESTIMONIOS";
   else v.style.backgroundImage=`url(${o.foto})`;
   v.dataset.ang=ang;
-  v.onclick=()=>ir(k);
+  v.onclick=()=>{ if(!arrastrado) ir(k); };
+  v.draggable=false;
   disco.appendChild(v); ventanas.push(v);
 
   const num=document.createElement("div");
@@ -209,15 +212,62 @@ function ir(k){
   ventanas.forEach((v,j)=>v.classList.toggle("on",j===i));
 }
 
-/* Deslizar sobre el disco */
-let x0=null;
-rueda.addEventListener("touchstart",e=>{ x0=e.touches[0].clientX; },{passive:true});
-rueda.addEventListener("touchend",e=>{
-  if(x0===null) return;
-  const dx=e.changedTouches[0].clientX-x0;
-  if(Math.abs(dx)>40) ir(dx<0?i+1:i-1);
-  x0=null;
+/* Girar el disco con el dedo (o el mouse), en círculo alrededor de su centro.
+   Al soltarlo sigue un poquito con el impulso y se acomoda en la foto más cercana. */
+let agarre=null;
+function anguloDe(e){
+  const c=rueda.getBoundingClientRect();
+  return Math.atan2(e.clientX-(c.left+c.width/2), -(e.clientY-(c.top+c.height/2)))*180/Math.PI;
+}
+function marcarCercana(){
+  const k=((Math.round(giro/paso)%n)+n)%n;
+  ventanas.forEach((v,j)=>v.classList.toggle("on",j===k));
+  return k;
+}
+rueda.addEventListener("pointerdown",e=>{
+  if(e.button!==undefined && e.button!==0) return;
+  arrastrado=false;
+  const a=anguloDe(e);
+  agarre={ultimo:a, t:performance.now(), vel:0, acum:0};
 });
+addEventListener("pointermove",e=>{
+  if(!agarre) return;
+  const a=anguloDe(e);
+  let d=a-agarre.ultimo; if(d>180) d-=360; if(d<-180) d+=360;
+  const ahora=performance.now(), dt=Math.max(1,ahora-agarre.t);
+  agarre.vel=0.7*agarre.vel+0.3*(d/dt);
+  agarre.ultimo=a; agarre.t=ahora;
+  if(!arrastrado){
+    agarre.acum+=d;
+    if(Math.abs(agarre.acum)<4) return;      // todavía es un toque, no un giro
+    arrastrado=true;
+    rueda.classList.add("arrastrando");
+    d=agarre.acum;
+  }
+  giro-=d;
+  disco.style.transform=`rotate(${-giro}deg)`;
+  const antes=ventanas.findIndex(v=>v.classList.contains("on"));
+  if(marcarCercana()!==antes && navigator.vibrate) navigator.vibrate(6);
+});
+function soltar(){
+  if(!agarre) return;
+  let vel=agarre.vel; if(performance.now()-agarre.t>90) vel=0;   // si lo sostuvo quieto, sin impulso
+  vel=Math.max(-1.2,Math.min(1.2,vel)); agarre=null;
+  if(!arrastrado) return;
+  rueda.classList.remove("arrastrando");
+  giro-=vel*180;                                   // impulso
+  giro=Math.round(giro/paso)*paso;                 // se acomoda en una foto
+  const k=marcarCercana();
+  disco.style.transform=`rotate(${-giro}deg)`;
+  if(k!==i){
+    i=k;
+    tarjeta.classList.add("cambia");
+    setTimeout(()=>{ pintar(); tarjeta.classList.remove("cambia"); },180);
+  }
+  setTimeout(()=>{ arrastrado=false; },0);
+}
+addEventListener("pointerup",soltar);
+addEventListener("pointercancel",soltar);
 document.addEventListener("keydown",e=>{ if(e.key==="ArrowRight") ir(i+1); if(e.key==="ArrowLeft") ir(i-1); });
 $("logo").src=F.logo;
 $("logoCentro").src=F.logo;
