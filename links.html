@@ -6,10 +6,11 @@
 <title>Links · Pump&amp;Flow</title>
 <meta name="description" content="Curso en línea, clases grupales y personales de hipopresivos con Caro en Morelia.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter+Tight:wght@400;500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --morado:#584472; --lavanda:#e3c7fa; --rosa:#efb2e0; --violeta:#aa9ded;
+    --helvetica:"Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif;
     --crema:#fbf6ff; --tinta:#2e2340; --papel:#faf5ec; --fondo:#e3c7fa;
     --papelRuido:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .26 0 0 0 .26 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23p)'/%3E%3C/svg%3E"),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .6 0 0 0 0 .48 0 0 0 0 .32 0 0 0 .55 -.22'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23m)'/%3E%3C/svg%3E");
@@ -37,7 +38,7 @@
 
   /* Sello rosa */
   .sello{position:absolute;top:-14px;right:-6px;z-index:4;width:84px;height:84px;display:flex;align-items:center;justify-content:center;
-    text-align:center;font:700 13px/1.05 "Fredoka",system-ui,sans-serif;letter-spacing:1px;color:var(--morado);transform:rotate(12deg);
+    text-align:center;font:500 13px/1 var(--helvetica);letter-spacing:-.01em;color:var(--morado);transform:rotate(12deg);
     background:var(--ruido),var(--rosa);filter:drop-shadow(0 3px 3px rgba(88,68,114,.3));
     clip-path:polygon(50% 0%,59% 12%,72% 4%,75% 19%,90% 16%,86% 31%,100% 36%,90% 48%,100% 60%,86% 66%,90% 81%,75% 79%,72% 94%,59% 87%,50% 100%,41% 87%,28% 94%,25% 79%,10% 81%,14% 66%,0% 60%,10% 48%,0% 36%,14% 31%,10% 16%,25% 19%,28% 4%,41% 12%)}
 
@@ -69,7 +70,7 @@
     box-shadow:inset 0 4px 8px rgba(0,0,0,.4);background:linear-gradient(160deg,rgba(255,255,255,.18),rgba(255,255,255,0) 40%)}
   .ventana.on{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--morado)}
   .ventana.texto{background:var(--ruido),var(--rosa);display:flex;align-items:center;justify-content:center;
-    font:700 10px "Fredoka",system-ui,sans-serif;letter-spacing:.5px;color:var(--morado)}
+    font:500 10px var(--helvetica);letter-spacing:.02em;color:var(--morado)}
   .numero{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;text-align:center;
     font:700 12px/20px "Fredoka",system-ui,sans-serif;color:rgba(95,70,45,.6)}
   /* Centro del disco */
@@ -80,13 +81,13 @@
   .centro img{width:80%;height:auto}
   .centro .hoyo{width:16px;height:16px;border-radius:50%;background:var(--fondo);box-shadow:inset 0 2px 3px rgba(67,52,90,.4)}
   .centro small{font:700 7px "Fredoka",system-ui,sans-serif;letter-spacing:2px;color:var(--violeta)}
-  .gira{margin-top:14px;text-align:center;font:700 12px "Fredoka",system-ui,sans-serif;letter-spacing:1.5px;color:var(--morado);opacity:.75}
+  .gira{margin-top:14px;text-align:center;font:400 14px/1.2 var(--helvetica);letter-spacing:-.01em;color:var(--morado);opacity:.85}
 
   /* ===== Tarjeta ===== */
   .tarjeta{width:100%;padding:8px 12px 10px;margin-top:6px;text-align:center;min-height:190px;transition:opacity .18s}
   .tarjeta.cambia{opacity:0}
   .tarjeta .num{font:600 12px "Fredoka",system-ui,sans-serif;letter-spacing:2px;color:#7b67bf}
-  .tarjeta h2{font-family:"Fredoka",system-ui,sans-serif;font-weight:700;font-size:23px;color:var(--morado);margin:4px 0 6px}
+  .tarjeta h2{font-family:var(--helvetica);font-weight:500;font-size:30px;line-height:1.02;letter-spacing:-.035em;color:var(--morado);margin:6px 0 8px}
   .tarjeta p{font-size:15px;line-height:1.45;color:#4c3d63}
   .tarjeta p.cita{background:rgba(255,255,255,.55);border-radius:14px;padding:10px 12px;margin-top:4px}
   .btn{display:inline-block;margin-top:14px;padding:13px 26px;border-radius:999px;background:var(--morado);color:#fff;
@@ -112,13 +113,13 @@
   </header>
 
   <section class="escenario" aria-label="Elige una opción">
-    <div class="sello" aria-hidden="true">GIRA<br>EL<br>DISCO</div>
+    <div class="sello" aria-hidden="true">Gira<br>el<br>disco</div>
     <div class="indicador" aria-hidden="true"></div>
     <div class="rueda" id="rueda">
       <div class="disco" id="disco"></div>
       <div class="centro" aria-hidden="true"><img id="logoCentro" alt=""><div class="hoyo"></div><small>HIPOPRESIVOS</small></div>
     </div>
-    <p class="gira" aria-hidden="true">↻ gira el disco con tu dedo o toca una foto</p>
+    <p class="gira" aria-hidden="true">Gira el disco con tu dedo o toca una foto</p>
   </section>
 
   <article class="tarjeta" id="tarjeta" aria-live="polite">
@@ -158,7 +159,7 @@ opciones.forEach((o,k)=>{
   const v=document.createElement("button");
   v.className="ventana"+(o.testimonios?" texto":"");
   v.setAttribute("aria-label",o.titulo);
-  if(o.testimonios) v.textContent="TESTIMONIOS";
+  if(o.testimonios) v.textContent="Testimonios";
   else v.style.backgroundImage=`url(${o.foto})`;
   v.dataset.ang=ang;
   v.onclick=()=>{ if(!arrastrado) ir(k); };

@@ -62,6 +62,120 @@
   .gracias b{font:var(--text-h2);color:var(--text-title);display:block;margin-bottom:8px}
   .error-testimonio{display:none;color:#B3261E;font:var(--text-small);text-align:center;margin:0}
 
+
+
+  /* Testimonios como post-its viejitos, cuadrados, en la paleta de Pump&Flow.
+     Unos con cinta, otros con clip y otros con pin (se reparten solos por posición,
+     así que también aplica a los que llegan del formulario). */
+  .testimonios .carrusel{gap:40px 30px;padding-top:22px;align-items:start}
+  .testimonios .testimonio{--papel:#f4e9ff;--giro:-1.6deg;--baja:0px;position:relative;overflow:visible;aspect-ratio:1;
+    border-radius:2px 2px 3px 16px;padding:30px 26px 22px;justify-content:space-between;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .42 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),radial-gradient(120% 90% at 25% 8%,rgba(255,255,255,.55),rgba(255,255,255,0) 60%),
+      linear-gradient(180deg,rgba(0,0,0,0) 72%,rgba(88,68,114,.07)),var(--papel);
+    box-shadow:0 1px 1px rgba(46,35,64,.12),0 14px 20px -10px rgba(46,35,64,.4),inset 0 0 26px rgba(88,68,114,.07);
+    transform:translateY(var(--baja)) rotate(var(--giro))}
+  .testimonios .testimonio:nth-child(4n+2){--papel:#f9dbef;--giro:1.6deg;--baja:18px}
+  .testimonios .testimonio:nth-child(4n+3){--papel:#e6dcfd;--giro:-.7deg;--baja:-4px}
+  .testimonios .testimonio:nth-child(4n){--papel:#fdeef7;--giro:2.2deg;--baja:10px}
+  .testimonios .testimonio:nth-child(3n+2){text-align:center}
+  .testimonios .testimonio:nth-child(5n+3) figcaption{text-align:right}
+  .testimonios .testimonio blockquote{font:var(--text-body);color:#3d2f52}
+  .testimonios .testimonio.medio blockquote{font-size:14.5px;line-height:1.5}
+  .testimonios .testimonio.largo blockquote{font-size:13.5px;line-height:1.45}
+  .testimonios .testimonio blockquote::before{color:var(--pf-morado);opacity:.3}
+  .testimonios .testimonio figcaption{font:500 16px/1 "Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif;letter-spacing:-.01em;color:var(--pf-morado)}
+  /* esquina doblada */
+  .testimonios .testimonio::after{content:"";position:absolute;right:0;bottom:0;width:30px;height:30px;border-radius:0 0 16px 0;
+    background:linear-gradient(135deg,rgba(255,255,255,0) 50%,rgba(88,68,114,.16) 50%,rgba(255,255,255,.7) 100%);
+    box-shadow:-2px -2px 4px rgba(46,35,64,.07)}
+  .testimonios .testimonio::before{content:"";position:absolute;z-index:2;pointer-events:none}
+  /* cinta: semitransparente, con orillas rasgadas */
+  .testimonios .testimonio:nth-child(3n+1)::before{top:-14px;left:50%;width:100px;height:30px;margin-left:-50px;transform:rotate(-4deg);
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .42 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),linear-gradient(180deg,rgba(255,255,255,.35),rgba(88,68,114,.06)),linear-gradient(90deg,rgba(236,230,244,.75),rgba(255,255,255,.85) 45%,rgba(236,230,244,.8));
+    box-shadow:0 1px 2px rgba(46,35,64,.18);filter:drop-shadow(0 1px 1px rgba(46,35,64,.15));
+    clip-path:polygon(3% 0,97% 4%,100% 22%,96% 42%,100% 64%,97% 100%,2% 96%,0 78%,4% 55%,0 34%)}
+  /* clip: el alambre de atrás se esconde detrás del papel */
+  .testimonios .testimonio:nth-child(3n+2)::before{top:-20px;right:34px;width:30px;height:60px;transform:rotate(4deg);
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='60' viewBox='0 0 30 60'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M6 20 V10 a9 9 0 0 1 18 0 V20' stroke='%23858195' stroke-width='3'/%3E%3Cpath d='M6 20 V10 a9 9 0 0 1 18 0 V20' stroke='%23fff' stroke-opacity='.6' stroke-width='1' transform='translate(-.7 -.7)'/%3E%3Cpath d='M24 20 V46 a5.5 5.5 0 0 1 -11 0 V16' stroke='%23858195' stroke-width='3'/%3E%3Cpath d='M24 20 V46 a5.5 5.5 0 0 1 -11 0 V16' stroke='%23fff' stroke-opacity='.6' stroke-width='1' transform='translate(-.7 -.7)'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(1px 3px 1.5px rgba(46,35,64,.28))}
+  /* pin */
+  .testimonios .testimonio:nth-child(3n)::before{top:-16px;left:50%;width:48px;height:48px;margin-left:-20px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cdefs%3E%3CradialGradient id='a' cx='35%25' cy='30%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23fbe0f2'/%3E%3Cstop offset='.45' stop-color='%23e58fc9'/%3E%3Cstop offset='1' stop-color='%238f4479'/%3E%3C/radialGradient%3E%3Cfilter id='b' x='-50%25' y='-50%25' width='200%25' height='200%25'%3E%3CfeGaussianBlur stdDeviation='2.2'/%3E%3C/filter%3E%3C/defs%3E%3Cellipse cx='27' cy='29' rx='10' ry='6' fill='%232e2340' fill-opacity='.35' filter='url(%23b)'/%3E%3Cpath d='M20 20 L25 27' stroke='%23b9b6c4' stroke-width='2.2' stroke-linecap='round'/%3E%3Ccircle cx='18' cy='17' r='10' fill='url(%23a)'/%3E%3Ccircle cx='18' cy='17' r='10' fill='none' stroke='%238f4479' stroke-opacity='.35'/%3E%3Cellipse cx='14.5' cy='12.5' rx='3.6' ry='2.3' fill='%23fff' fill-opacity='.75' transform='rotate(-25 14.5 12.5)'/%3E%3C/svg%3E") center/contain no-repeat}
+  @media (max-width:679px){
+    .testimonios .carrusel{padding:34px 24px 30px;align-items:center}
+    .testimonios .testimonio{flex-basis:80%;padding:26px 22px 20px}
+    .testimonios .testimonio blockquote{font-size:14.5px;line-height:1.5}
+    .testimonios .testimonio.medio blockquote{font-size:13.5px}
+    .testimonios .testimonio.largo blockquote{font-size:12.5px;line-height:1.42}
+  }
+
+  /* "¿Ya tomaste clases conmigo?": la carta sale del sobre al tocarla */
+  .sobre{position:relative;max-width:540px;height:400px;margin:0 auto;cursor:pointer;transition:height .7s cubic-bezier(.3,1,.4,1)}
+  .sobre:not(.abierto){overflow:hidden}
+  .sobre.abierto{cursor:auto}
+  .sobre-atras,.sobre-frente{position:absolute;left:0;right:0;bottom:0;height:250px;transition:transform .7s cubic-bezier(.3,1,.4,1),opacity .5s}
+  .sobre-atras{border-radius:10px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .42 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),linear-gradient(180deg,#b9a8f2,#a898ea)}
+  .sobre-atras::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:120px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .42 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),linear-gradient(0deg,#c3b4f6,#d3c7fa);clip-path:polygon(0 100%,50% 0,100% 100%)}
+  .sobre{filter:drop-shadow(0 14px 16px rgba(46,35,64,.18))}
+  .sobre.abierto{filter:none}
+  .sobre-frente{z-index:3;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .42 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),linear-gradient(180deg,#d9cdfb,#c7b8f5 70%,#bcaaf1);
+    clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%);border-radius:0 0 10px 10px;
+    filter:drop-shadow(0 -2px 3px rgba(46,35,64,.15))}
+  .sobre-frente::after{content:"";position:absolute;left:50%;top:64%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#f7c9ea,#e58fc9 60%,#b8659f);box-shadow:0 3px 6px rgba(46,35,64,.3),inset 0 -3px 6px rgba(0,0,0,.15)}
+  .sobre-sombra{display:none;position:absolute;left:4%;right:4%;bottom:4px;height:24px;border-radius:50%;background:radial-gradient(ellipse,rgba(46,35,64,.28),rgba(46,35,64,0) 70%)}
+  .sobre .form-testimonio{position:absolute;z-index:2;top:40px;left:10%;right:10%;max-width:none;margin:0;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .42 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),linear-gradient(180deg,#fefcff,#f8f3fd);border-radius:4px;
+    box-shadow:0 2px 6px rgba(46,35,64,.18);transition:transform .7s cubic-bezier(.3,1,.4,1)}
+  .sobre:not(.abierto) .form-testimonio{pointer-events:none}
+  .sobre:not(.abierto):hover .form-testimonio{transform:translateY(-10px)}
+  .sobre-pista{position:absolute;z-index:4;left:0;right:0;bottom:22px;text-align:center;color:#fff;
+    font:500 15px/1 "Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif;letter-spacing:-.01em;transition:opacity .3s}
+  .sobre.abierto .sobre-pista{opacity:0}
+  .sobre.abierto .sobre-atras,.sobre.abierto .sobre-frente,.sobre.abierto .sobre-sombra{opacity:0;transform:translateY(80px);pointer-events:none}
+  @media (max-width:679px){
+    .sobre{height:370px}
+    .sobre-atras,.sobre-frente{height:230px}
+    .sobre .form-testimonio{left:4%;right:4%}
+  }
+  /* Para ti: archivero de carpetas con etiquetas de papel viejito */
+  .para-ti{padding:72px 0 80px}
+  .para-ti h2{font:500 48px/1 "Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif;letter-spacing:-.035em;color:#fff;text-align:center;margin:0 auto 40px;max-width:640px}
+  .archivero{position:relative;max-width:720px;margin:0 auto}
+  .carpeta{position:relative;margin-top:-70px;padding-top:38px}
+  .carpeta:first-of-type{margin-top:0}
+  .pestana{position:absolute;top:0;left:var(--x);height:46px;min-width:210px;padding:7px 26px 0;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .14 0 0 0 0 .3 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E"),linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 60%),var(--c);
+    clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 100%,0 100%);border-radius:12px 12px 0 0}
+  .fondo-carpeta{height:104px;border-radius:12px 12px 8px 8px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .14 0 0 0 0 .3 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E"),linear-gradient(180deg,rgba(255,255,255,.2) 0,rgba(255,255,255,0) 8px,rgba(0,0,0,0) 70%,rgba(0,0,0,.08)),var(--c);
+    box-shadow:0 -1px 0 rgba(255,255,255,.35) inset,0 -10px 18px rgba(46,35,64,.18),0 2px 0 rgba(46,35,64,.12)}
+  .carpeta:last-of-type .fondo-carpeta{height:150px;box-shadow:0 -1px 0 rgba(255,255,255,.35) inset,0 -10px 18px rgba(46,35,64,.18),0 20px 30px rgba(46,35,64,.28)}
+  .etiq{display:inline-block;padding:8px 14px 9px;transform:rotate(var(--g));white-space:nowrap;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .26 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),radial-gradient(circle at 70% 30%,rgba(150,105,55,.14),rgba(150,105,55,0) 60%),linear-gradient(180deg,#fbf6ec,#efe4d0);
+    font:500 15px/1 "Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif;letter-spacing:-.01em;color:#3d2f52;
+    box-shadow:0 1px 1px rgba(46,35,64,.35),0 3px 6px rgba(46,35,64,.35),0 8px 14px -4px rgba(46,35,64,.3),0 0 0 1px rgba(110,80,45,.12) inset;border-radius:2px}
+  .sello-pf{display:block;position:absolute;right:-18px;top:-26px;z-index:20;transform:rotate(8deg);padding:9px 14px 8px;text-align:center;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .26 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),#fbf6ec;color:var(--pf-morado);border:2px solid var(--pf-morado);outline:2px solid #fbf6ec;
+    font:700 13px/1 "Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+    box-shadow:0 3px 6px rgba(46,35,64,.3)}
+  .sello-pf img{display:block;width:104px;height:auto;margin:0 auto 4px}
+  .sello-pf small{display:block;font-weight:500;font-size:9px;letter-spacing:.2em}
+  .archivero:not(.listo) .carpeta{opacity:0;transform:translateY(30px)}
+  .archivero.listo .carpeta{animation:archivar .6s cubic-bezier(.2,1.2,.4,1) both;animation-delay:var(--d)}
+  @keyframes archivar{0%{opacity:0;transform:translateY(30px)}100%{opacity:1;transform:none}}
+  @media (max-width:679px){
+    .para-ti{padding:48px 0 56px}
+    .para-ti h2{font-size:36px;margin-bottom:34px}
+    .carpeta{margin-top:-72px;padding-top:34px}
+    .pestana{left:calc(var(--x) * .45);height:42px;min-width:0;padding:6px 18px 0}
+    .etiq{font-size:13px;padding:7px 11px 8px}
+    .fondo-carpeta{height:96px}
+    .carpeta:last-of-type .fondo-carpeta{height:110px}
+    .sello-pf{right:-4px;top:-14px;font-size:10px}
+    .sello-pf img{width:80px}
+  }
+  @media (prefers-reduced-motion:reduce){.archivero .carpeta{animation:none!important;opacity:1!important;transform:none!important}}
   @media (max-width: 679px) {
     .testimonios,.experiencia{padding:48px 0}
     .testimonios h2,.experiencia h2{font:var(--text-h1)}
@@ -112,17 +226,39 @@
   <div class="foto" style="background:url('pump-flow-design/diseño-marca-pump-flow/assets/hero-pumpflow.png') center 62%/cover no-repeat"></div>
 </section>
 
-<section class="bloque-lavanda">
+<section class="bloque-lavanda para-ti">
   <div class="wrap">
     <h2>Estas clases son para ti si buscas</h2>
-    <div class="burbujas">
-      <div class="bub">Evitar pérdida de orina</div>
-      <div class="bub">Mejorar tránsito intestinal</div>
-      <div class="bub">Reducir perímetro de cintura</div>
-      <div class="bub">Mejorar tu sistema nervioso</div>
-      <div class="bub">Aumentar capacidad pulmonar</div>
-      <div class="bub">Abdomen funcional</div>
-      <div class="bub">Mejorar tu postura</div>
+    <div class="archivero">
+      <span class="sello-pf" aria-hidden="true"><img src="pump-flow-design/diseño-marca-pump-flow/assets/logo-morado.png" alt=""><small>hipopresivos</small></span>
+      <div class="carpeta" style="--c:#584472;--x:4%;--g:-2deg;--d:0.0s;z-index:1">
+        <div class="pestana"><span class="etiq">Evitar pérdida de orina</span></div>
+        <div class="fondo-carpeta"></div>
+      </div>
+      <div class="carpeta" style="--c:#efb2e0;--x:38%;--g:1.5deg;--d:0.1s;z-index:2">
+        <div class="pestana"><span class="etiq">Mejorar tránsito intestinal</span></div>
+        <div class="fondo-carpeta"></div>
+      </div>
+      <div class="carpeta" style="--c:#7b67bf;--x:16%;--g:-1deg;--d:0.2s;z-index:3">
+        <div class="pestana"><span class="etiq">Reducir perímetro de cintura</span></div>
+        <div class="fondo-carpeta"></div>
+      </div>
+      <div class="carpeta" style="--c:#f1e4ff;--x:52%;--g:2deg;--d:0.3s;z-index:4">
+        <div class="pestana"><span class="etiq">Mejorar tu sistema nervioso</span></div>
+        <div class="fondo-carpeta"></div>
+      </div>
+      <div class="carpeta" style="--c:#d98fc4;--x:8%;--g:-1.5deg;--d:0.4s;z-index:5">
+        <div class="pestana"><span class="etiq">Aumentar capacidad pulmonar</span></div>
+        <div class="fondo-carpeta"></div>
+      </div>
+      <div class="carpeta" style="--c:#6a57ab;--x:30%;--g:1deg;--d:0.5s;z-index:6">
+        <div class="pestana"><span class="etiq">Abdomen funcional</span></div>
+        <div class="fondo-carpeta"></div>
+      </div>
+      <div class="carpeta" style="--c:#e3c7fa;--x:46%;--g:-2.5deg;--d:0.6s;z-index:7">
+        <div class="pestana"><span class="etiq">Mejorar tu postura</span></div>
+        <div class="fondo-carpeta"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -191,6 +327,9 @@
   <div class="wrap">
     <h2>¿Ya tomaste clases conmigo?</h2>
     <p class="intro">Me encantaría saber cómo te has sentido. Tu experiencia puede ser justo lo que otra persona necesita leer para animarse a empezar.</p>
+    <div class="sobre" id="sobre" role="button" tabindex="0" aria-label="Abrir la carta para escribir tu experiencia">
+      <div class="sobre-sombra"></div>
+      <div class="sobre-atras"></div>
     <form class="form-testimonio" id="form-testimonio">
       <label><span>Nombre</span><input type="text" name="nombre" required maxlength="80" autocomplete="given-name"></label>
       <label><span>¿Qué ha cambiado en ti desde que practicas hipopresivos?</span><textarea name="experiencia" required maxlength="2000"></textarea></label>
@@ -209,6 +348,9 @@
       <p class="error-testimonio" id="error-testimonio">No se pudo enviar. Inténtalo de nuevo o escríbeme por WhatsApp 🤍</p>
       <p class="privacidad">Lee el <a href="aviso-privacidad.html">aviso de privacidad</a>.</p>
     </form>
+      <div class="sobre-frente"></div>
+      <p class="sobre-pista">Toca la carta para escribir ✉️</p>
+    </div>
     <div class="form-testimonio gracias" id="gracias-testimonio">
       <b>¡Gracias! 🤍</b>
       <p style="margin:0">Lo voy a leer con mucho cariño. Ya aparece arriba, en "Lo que dicen mis alumnas".</p>
@@ -301,7 +443,7 @@
       });
       if (!respuesta.ok) throw new Error(await respuesta.text());
       agregarTestimonio(datos.get('nombre'), datos.get('experiencia').trim());
-      formTestimonio.style.display = 'none';
+      sobre.style.display = 'none';
       document.getElementById('gracias-testimonio').style.display = 'block';
     } catch (err) {
       console.warn('No se pudo guardar el testimonio:', err.message);
@@ -309,5 +451,40 @@
       error.style.display = 'block';
     }
   });
+</script>
+
+<script>
+  // Las carpetas se van acomodando una por una cuando la sección aparece.
+  const archivero = document.querySelector('.archivero');
+  new IntersectionObserver((entradas, obs) => {
+    if (entradas[0].isIntersecting) { archivero.classList.add('listo'); obs.disconnect(); }
+  }, { threshold: 0.25 }).observe(archivero);
+</script>
+<script>
+  // Sobre: al tocarlo, la carta sale y el sobre crece al tamaño de la carta.
+  const sobre = document.getElementById('sobre');
+  const carta = document.getElementById('form-testimonio');
+  function abrirSobre() {
+    if (sobre.classList.contains('abierto')) return;
+    sobre.style.height = (carta.offsetTop + carta.scrollHeight + 10) + 'px';
+    sobre.classList.add('abierto');
+    sobre.removeAttribute('role'); sobre.removeAttribute('tabindex');
+    setTimeout(() => carta.querySelector('input[name="nombre"]').focus({ preventScroll: true }), 650);
+  }
+  sobre.addEventListener('click', abrirSobre);
+  sobre.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrirSobre(); } });
+  carta.addEventListener('focusin', abrirSobre);
+  addEventListener('resize', () => { if (sobre.classList.contains('abierto')) sobre.style.height = (carta.offsetTop + carta.scrollHeight + 10) + 'px'; });
+
+  // Post-its: letra un poco más chica en los testimonios largos para que quepan en el cuadrito.
+  function medirPostits() {
+    document.querySelectorAll('.testimonios .testimonio').forEach((t) => {
+      const n = t.querySelector('blockquote').textContent.length;
+      t.classList.toggle('medio', n > 170 && n <= 240);
+      t.classList.toggle('largo', n > 240);
+    });
+  }
+  medirPostits();
+  new MutationObserver(medirPostits).observe(document.getElementById('carrusel'), { childList: true });
 </script>
 </body></html>
