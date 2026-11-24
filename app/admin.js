@@ -681,7 +681,7 @@ async function abrirDialogAgregarClase(supabase) {
 }
 
 async function renderMuestraAdmin(supabase) {
-  const link = 'https://calendly.com/caro-ecomare/clase-de-introduccion';
+  const link = 'https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20de%20introducci%C3%B3n%20%F0%9F%A4%8D';
   document.getElementById('d-muestra-link').textContent = link;
 
   const [disponibilidad, citas] = await Promise.all([

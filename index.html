@@ -75,7 +75,7 @@
   .carpeta.abierta .fondo-carpeta{transform:perspective(600px) rotateX(-14deg);transform-origin:50% 100%}
   .info-fondo{position:fixed;inset:0;z-index:100;background:rgba(46,35,64,.45);opacity:0;pointer-events:none;transition:opacity .35s}
   .info-fondo.visible{opacity:1;pointer-events:auto}
-  .hoja-info{position:fixed;z-index:101;left:50%;top:50%;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;
+  .hoja-info{box-sizing:border-box;position:fixed;z-index:101;left:50%;top:50%;width:min(500px,calc(100vw - 48px));max-height:calc(100vh - 140px);max-height:calc(100dvh - 140px);overflow:auto;
     padding:44px 40px 40px 64px;border-radius:3px;color:#3d2f52;opacity:0;pointer-events:none;
     transform:translate(-50%,-50%);box-shadow:0 30px 60px rgba(46,35,64,.45),0 3px 8px rgba(46,35,64,.25)}
   .hoja-info.visible{opacity:1;pointer-events:auto}
@@ -102,7 +102,8 @@
       linear-gradient(180deg,#fbf7f0,#f3ece0)}
   @media (max-width:679px){
     .pista-carpetas{margin:-20px 0 26px;font-size:14px}
-    .hoja-info{padding:40px 22px 28px 50px}
+    .hoja-info{padding:46px 20px 24px 50px}
+    .hoja-info .cerrar{top:6px;right:6px}
     .hoja-info.vieja{padding-left:24px}
     .hoja-info.rayada{background-size:auto,auto,auto,auto}
     .hoja-info.rayada{background:linear-gradient(90deg,transparent 36px,rgba(229,143,201,.7) 36px,rgba(229,143,201,.7) 38px,transparent 38px),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .3 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),repeating-linear-gradient(180deg,transparent 0 27px,rgba(123,103,191,.28) 27px 28px),#fdfcfa;background-position:0 0,0 0,0 12px,0 0}
@@ -280,7 +281,7 @@
 </style></head><body>
 <script>
   if (new URLSearchParams(location.search).get('agenda') === 'clase-muestra') {
-    location.replace('https://calendly.com/caro-ecomare/clase-de-introduccion');
+    location.replace('https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20de%20introducci%C3%B3n%20%F0%9F%A4%8D');
   }
 </script>
 <header class="wrap">
@@ -300,7 +301,7 @@
     <p>Clases de hipopresivos grupales y personales, presenciales y en línea. Para trabajar tu abdomen, cuidar tu suelo pélvico y regalarte un momento de calma.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="recursos.html" style="justify-content:center">Empieza gratis ✨</a>
-      <a class="btn btn-outline" href="https://calendly.com/caro-ecomare/clase-de-introduccion" target="_blank" style="justify-content:center">Agenda tu introducción</a>
+      <a class="btn btn-outline" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20de%20introducci%C3%B3n%20%F0%9F%A4%8D" target="_blank" style="justify-content:center">Agenda tu introducción</a>
     </div>
   </div>
   <div class="foto" style="background:url('pump-flow-design/diseño-marca-pump-flow/assets/hero-pumpflow.png') center 62%/cover no-repeat"></div>
@@ -509,7 +510,7 @@
       <p style="font:var(--text-body-strong);color:#fff">Cel: 44 31 33 11 46 · @Caro_fluye</p>
       <p style="color:#fff;font:var(--text-small)">Utume #498, Lomas de Vista Bella, Morelia, Michoacán</p>
       <div class="botones-reserva" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
-        <a class="btn btn-primary" href="https://calendly.com/caro-ecomare/clase-de-introduccion" target="_blank">Agenda tu introducción ✨</a>
+        <a class="btn btn-primary" href="https://wa.me/524431331146?text=Hola%20Caro%2C%20quiero%20agendar%20mi%20clase%20de%20introducci%C3%B3n%20%F0%9F%A4%8D" target="_blank">Agenda tu introducción ✨</a>
         <a class="btn btn-white" href="portal/">Mi cuenta ✨</a>
       </div>
       <p style="color:#fff;font:var(--text-small);margin-top:20px">Si tienes dudas, escríbeme</p>
