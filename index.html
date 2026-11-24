@@ -65,6 +65,51 @@
 
 
 
+
+  /* Etiquetas que se tocan: abren la carpeta y sale una hoja con la explicación */
+  .pista-carpetas{text-align:center;color:#fff;margin:-26px 0 30px;font:500 15px/1.3 "Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif}
+  button.etiq{border:0;cursor:pointer;transition:transform .2s,box-shadow .2s}
+  button.etiq:hover,button.etiq:focus-visible{transform:rotate(0deg) translateY(-3px) scale(1.04);outline:none}
+  .carpeta .pestana,.carpeta .fondo-carpeta{transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
+  .carpeta.abierta .pestana{transform:translateY(-10px)}
+  .carpeta.abierta .fondo-carpeta{transform:perspective(600px) rotateX(-14deg);transform-origin:50% 100%}
+  .info-fondo{position:fixed;inset:0;z-index:100;background:rgba(46,35,64,.45);opacity:0;pointer-events:none;transition:opacity .35s}
+  .info-fondo.visible{opacity:1;pointer-events:auto}
+  .hoja-info{position:fixed;z-index:101;left:50%;top:50%;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;
+    padding:44px 40px 40px 64px;border-radius:3px;color:#3d2f52;opacity:0;pointer-events:none;
+    transform:translate(-50%,-50%);box-shadow:0 30px 60px rgba(46,35,64,.45),0 3px 8px rgba(46,35,64,.25)}
+  .hoja-info.visible{opacity:1;pointer-events:auto}
+  .hoja-info h3{font:500 30px/1.05 "Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif;letter-spacing:-.03em;color:var(--pf-morado);margin:0 0 18px}
+  .hoja-info p{font:400 16px/28px var(--font-body);margin:0}
+  .hoja-info .cerrar{position:absolute;top:10px;right:12px;width:36px;height:36px;border:0;border-radius:50%;cursor:pointer;
+    background:rgba(88,68,114,.1);color:var(--pf-morado);font:500 22px/36px "Helvetica Neue",Helvetica,Arial,sans-serif}
+  .hoja-info .cerrar:hover{background:rgba(88,68,114,.2)}
+  .hoja-info .cerrar:focus{outline:none}
+  .hoja-info .cerrar:focus-visible{outline:2px solid var(--pf-morado);outline-offset:2px}
+  /* Hoja de libreta rayada */
+  .hoja-info.rayada{background:
+      linear-gradient(90deg,transparent 46px,rgba(229,143,201,.7) 46px,rgba(229,143,201,.7) 48px,transparent 48px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .3 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),
+      repeating-linear-gradient(180deg,transparent 0 27px,rgba(123,103,191,.28) 27px 28px),
+      #fdfcfa;background-position:0 0,0 0,0 16px,0 0}
+  .hoja-info.rayada::before{content:"";position:absolute;left:16px;top:0;bottom:0;width:16px;pointer-events:none;
+    background:radial-gradient(circle,rgba(46,35,64,.45) 0 6px,transparent 7px) 0 40px/16px 33.3% repeat-y}
+  .hoja-info.rayada h3{line-height:28px;margin-bottom:28px}
+  /* Hoja de papel viejito, como el disco */
+  .hoja-info.vieja{padding-left:40px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .3 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),
+      radial-gradient(30% 22% at 82% 14%,rgba(150,105,55,.12),rgba(150,105,55,0) 70%),
+      radial-gradient(26% 20% at 12% 88%,rgba(150,105,55,.1),rgba(150,105,55,0) 70%),
+      linear-gradient(180deg,#fbf7f0,#f3ece0)}
+  @media (max-width:679px){
+    .pista-carpetas{margin:-20px 0 26px;font-size:14px}
+    .hoja-info{padding:40px 22px 28px 50px}
+    .hoja-info.vieja{padding-left:24px}
+    .hoja-info.rayada{background-size:auto,auto,auto,auto}
+    .hoja-info.rayada{background:linear-gradient(90deg,transparent 36px,rgba(229,143,201,.7) 36px,rgba(229,143,201,.7) 38px,transparent 38px),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .3 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),repeating-linear-gradient(180deg,transparent 0 27px,rgba(123,103,191,.28) 27px 28px),#fdfcfa;background-position:0 0,0 0,0 12px,0 0}
+    .hoja-info.rayada::before{left:10px;width:14px}
+    .hoja-info h3{font-size:25px}
+    .hoja-info p{font-size:15px}
+  }
   /* Tira de película con videos de Instagram: se desliza sola y cada cuadrito abre el video.
      Para cambiar un video: cambia el href del cuadrito (en los DOS grupos, el segundo es la copia para el loop). */
   .pelicula{padding:72px 0 64px;overflow:hidden}
@@ -183,7 +228,7 @@
     box-shadow:0 -1px 0 rgba(255,255,255,.35) inset,0 -10px 18px rgba(46,35,64,.18),0 2px 0 rgba(46,35,64,.12)}
   .carpeta:last-of-type .fondo-carpeta{height:150px;box-shadow:0 -1px 0 rgba(255,255,255,.35) inset,0 -10px 18px rgba(46,35,64,.18),0 20px 30px rgba(46,35,64,.28)}
   .etiq{display:inline-block;padding:8px 14px 9px;transform:rotate(var(--g));white-space:nowrap;
-    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .26 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),radial-gradient(circle at 70% 30%,rgba(150,105,55,.14),rgba(150,105,55,0) 60%),linear-gradient(180deg,#fbf6ec,#efe4d0);
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .3 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),radial-gradient(circle at 70% 30%,rgba(150,105,55,.08),rgba(150,105,55,0) 60%),linear-gradient(180deg,#fdfbf7,#f4efe6);
     font:500 15px/1 "Helvetica Neue",Helvetica,"Inter Tight",Arial,sans-serif;letter-spacing:-.01em;color:#3d2f52;
     box-shadow:0 1px 1px rgba(46,35,64,.35),0 3px 6px rgba(46,35,64,.35),0 8px 14px -4px rgba(46,35,64,.3),0 0 0 1px rgba(110,80,45,.12) inset;border-radius:2px}
   .sello-pf{display:block;position:absolute;right:-18px;top:-26px;z-index:20;transform:rotate(8deg);padding:9px 14px 8px;text-align:center;
@@ -264,34 +309,35 @@
 <section class="bloque-lavanda para-ti">
   <div class="wrap">
     <h2>Estas clases son para ti si buscas</h2>
+    <p class="pista-carpetas">Toca una etiqueta para leer más 📄</p>
     <div class="archivero">
       <span class="sello-pf" aria-hidden="true"><img src="pump-flow-design/diseño-marca-pump-flow/assets/logo-morado.png" alt=""><small>hipopresivos</small></span>
       <div class="carpeta" style="--c:#584472;--x:4%;--g:-2deg;--d:0.0s;z-index:1">
-        <div class="pestana"><span class="etiq">Evitar pérdida de orina</span></div>
+        <div class="pestana"><button class="etiq" type="button" data-info="0" aria-haspopup="dialog">Evita la pérdida de orina</button></div>
         <div class="fondo-carpeta"></div>
       </div>
       <div class="carpeta" style="--c:#efb2e0;--x:38%;--g:1.5deg;--d:0.1s;z-index:2">
-        <div class="pestana"><span class="etiq">Mejorar tránsito intestinal</span></div>
+        <div class="pestana"><button class="etiq" type="button" data-info="1" aria-haspopup="dialog">Favorece el tránsito intestinal</button></div>
         <div class="fondo-carpeta"></div>
       </div>
       <div class="carpeta" style="--c:#7b67bf;--x:16%;--g:-1deg;--d:0.2s;z-index:3">
-        <div class="pestana"><span class="etiq">Reducir perímetro de cintura</span></div>
+        <div class="pestana"><button class="etiq" type="button" data-info="2" aria-haspopup="dialog">Reduce el perímetro de cintura</button></div>
         <div class="fondo-carpeta"></div>
       </div>
       <div class="carpeta" style="--c:#f1e4ff;--x:52%;--g:2deg;--d:0.3s;z-index:4">
-        <div class="pestana"><span class="etiq">Mejorar tu sistema nervioso</span></div>
+        <div class="pestana"><button class="etiq" type="button" data-info="3" aria-haspopup="dialog">Equilibra tu sistema nervioso</button></div>
         <div class="fondo-carpeta"></div>
       </div>
       <div class="carpeta" style="--c:#d98fc4;--x:8%;--g:-1.5deg;--d:0.4s;z-index:5">
-        <div class="pestana"><span class="etiq">Aumentar capacidad pulmonar</span></div>
+        <div class="pestana"><button class="etiq" type="button" data-info="4" aria-haspopup="dialog">Mejora tu función respiratoria</button></div>
         <div class="fondo-carpeta"></div>
       </div>
       <div class="carpeta" style="--c:#6a57ab;--x:30%;--g:1deg;--d:0.5s;z-index:6">
-        <div class="pestana"><span class="etiq">Abdomen funcional</span></div>
+        <div class="pestana"><button class="etiq" type="button" data-info="5" aria-haspopup="dialog">Abdomen funcional</button></div>
         <div class="fondo-carpeta"></div>
       </div>
       <div class="carpeta" style="--c:#e3c7fa;--x:46%;--g:-2.5deg;--d:0.6s;z-index:7">
-        <div class="pestana"><span class="etiq">Mejorar tu postura</span></div>
+        <div class="pestana"><button class="etiq" type="button" data-info="6" aria-haspopup="dialog">Mejora tu postura</button></div>
         <div class="fondo-carpeta"></div>
       </div>
     </div>
@@ -625,6 +671,60 @@
     });
     addEventListener('pointerup', () => { if (arrastre) { arrastre = null; tira.classList.remove('arrastrando'); } });
     tira.addEventListener('click', (e) => { if (movio) { e.preventDefault(); movio = false; } }, true);
+  })();
+</script>
+
+<div class="info-fondo" id="info-fondo"></div>
+<article class="hoja-info rayada" id="hoja-info" role="dialog" aria-modal="true" aria-labelledby="info-titulo">
+  <button class="cerrar" type="button" aria-label="Cerrar">×</button>
+  <h3 id="info-titulo"></h3>
+  <p id="info-texto"></p>
+</article>
+<script>
+  // Al tocar una etiqueta, su carpeta se abre y sale una hoja con la explicación.
+  (() => {
+    const INFO = [["Evita la pérdida de orina", "El suelo pélvico es el grupo de músculos que sostiene la vejiga y controla la salida de la orina. Cuando hacemos esfuerzos con mucha presión hacia abajo, ese grupo se debilita poco a poco. Los hipopresivos bajan la presión dentro del abdomen, el suelo pélvico sube y se recoloca, y con la práctica recupera su capacidad de responder solo cuando toses, saltas o te ríes."], ["Favorece el tránsito intestinal", "El diafragma es el músculo principal de la respiración y vive justo encima de tus órganos digestivos. En cada ejercicio hipopresivo se eleva y se mueve, lo que estimula y moviliza toda esa zona por dentro. Además, la respiración lenta activa el modo de descanso de tu cuerpo, que es el mismo que se encarga de la digestión."], ["Reduce el perímetro de cintura", "Tu faja abdominal es la capa de músculos que rodea tu cintura y la sostiene hacia adentro. Con los años, los embarazos o la falta de movimiento, pierde tono y deja de contener. Los hipopresivos LPF la activan de forma profunda y sostenida, y eso se nota en los centímetros. No se trata de bajar de peso: se trata de que tu abdomen recupere su firmeza."], ["Equilibra tu sistema nervioso", "Tu respiración le habla a tu sistema nervioso. Cuando respiras rápido y corto, tu cuerpo entra en modo alerta. Cuando respiras lento y profundo, recibe la señal de que puede descansar. En cada sesión entrenamos esa respiración consciente, y tu cuerpo aprende a salir del modo alerta con más facilidad en tu día a día."], ["Mejora tu función respiratoria", "Pasar muchas horas sentada, el estrés o una mala postura hacen que las costillas casi no se muevan y respiremos de forma superficial. En hipopresivos LPF trabajamos la apertura de las costillas y fortalecemos los músculos que participan en la respiración. El resultado es una respiración más amplia, más profunda y menos cansada."], ["Abdomen funcional", "Un abdomen funcional no se mide en cuadritos. Se mide en lo bien que te sostiene cuando cargas algo pesado, toses o te agachas. La faja abdominal está hecha para trabajar de forma constante y automática, y los hipopresivos LPF la entrenan justo así. Con la práctica, tu abdomen responde hacia adentro en los esfuerzos y protege tu espalda y tu suelo pélvico."], ["Mejora tu postura", "Cada ejercicio hipopresivo empieza por acomodar el cuerpo: crecer desde la coronilla, separar costillas de crestas iliacas, abrir los hombros y repartir bien el peso en los pies. Al sostener esa alineación una y otra vez, tu cuerpo la aprende y la lleva a tu vida diaria. También se liberan tensiones acumuladas, y tu espalda deja de cargar lo que no le corresponde."]];
+    const fondo = document.getElementById('info-fondo');
+    const hoja = document.getElementById('hoja-info');
+    let carpetaAbierta = null, botonOrigen = null;
+    function desde(el) {
+      // calcula dónde está la carpeta para que la hoja "salga" de ahí
+      const r = el.getBoundingClientRect();
+      const dx = r.left + r.width / 2 - innerWidth / 2;
+      const dy = r.top + r.height / 2 - innerHeight / 2;
+      return `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.25) rotate(-6deg)`;
+    }
+    function abrir(boton) {
+      const [titulo, texto] = INFO[boton.dataset.info];
+      document.getElementById('info-titulo').textContent = titulo;
+      document.getElementById('info-texto').textContent = texto;
+      botonOrigen = boton;
+      carpetaAbierta = boton.closest('.carpeta');
+      carpetaAbierta.classList.add('abierta');
+      hoja.style.transition = 'none';
+      hoja.style.transform = desde(carpetaAbierta);
+      hoja.scrollTop = 0;
+      hoja.offsetWidth; // aplica la posición inicial antes de animar
+      setTimeout(() => {
+        hoja.style.transition = 'transform .6s cubic-bezier(.2,1.15,.4,1), opacity .25s';
+        hoja.style.transform = 'translate(-50%,-50%) rotate(-1deg)';
+        hoja.classList.add('visible'); fondo.classList.add('visible');
+        hoja.querySelector('.cerrar').focus({ preventScroll: true });
+      }, 180);
+    }
+    function cerrar() {
+      if (!carpetaAbierta) return;
+      hoja.style.transition = 'transform .45s cubic-bezier(.5,0,.7,.4), opacity .35s .1s';
+      hoja.style.transform = desde(carpetaAbierta);
+      hoja.classList.remove('visible'); fondo.classList.remove('visible');
+      const c = carpetaAbierta; carpetaAbierta = null;
+      setTimeout(() => c.classList.remove('abierta'), 350);
+      if (botonOrigen) botonOrigen.focus({ preventScroll: true });
+    }
+    document.querySelectorAll('button.etiq').forEach((b) => b.addEventListener('click', () => abrir(b)));
+    fondo.addEventListener('click', cerrar);
+    hoja.querySelector('.cerrar').addEventListener('click', cerrar);
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrar(); });
   })();
 </script>
 </body></html>
