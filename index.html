@@ -616,7 +616,12 @@
     setTimeout(() => carta.querySelector('input[name="nombre"]').focus({ preventScroll: true }), 650);
   }
   sobre.addEventListener('click', abrirSobre);
-  sobre.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrirSobre(); } });
+  // Solo cuando el sobre mismo tiene el foco (cerrado). Si la tecla viene de un campo
+  // del formulario (que está dentro del sobre), no se toca: así se puede escribir espacios.
+  sobre.addEventListener('keydown', (e) => {
+    if (e.target !== sobre || sobre.classList.contains('abierto')) return;
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrirSobre(); }
+  });
   carta.addEventListener('focusin', abrirSobre);
   addEventListener('resize', () => { if (sobre.classList.contains('abierto')) sobre.style.height = (carta.offsetTop + carta.scrollHeight + 10) + 'px'; });
 
