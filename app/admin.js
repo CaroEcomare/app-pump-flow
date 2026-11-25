@@ -303,8 +303,8 @@ async function renderFicha(supabase, alumnaId) {
              <label class="field" style="flex:1;margin-top:0"><span>Fecha de pago</span><input class="input" type="date" name="fechaPago" value="${escaparHTML(paquete.fecha_pago ?? '')}"></label>
              <button class="pillbtn soft" type="submit" style="padding:7px 16px;min-height:36px;font-size:13px;align-self:flex-end">Guardar</button>
            </form>
-           <button class="link-suave" id="btn-marcar-asistencia-manual" style="padding:4px 0;margin-top:8px">+ Marcar asistencia de un día pasado</button><br>
-           <button class="link-suave" id="btn-toggle-pagado" style="padding:4px 0">${paquete.pagado === false ? 'Marcar como pagado' : 'Marcar como pendiente de pago'}</button>`}
+           <button class="link-suave" id="btn-toggle-pagado" style="padding:4px 0">${paquete.pagado === false ? 'Marcar como pagado' : 'Marcar como pendiente de pago'}</button><br>`}
+      <button class="link-suave" id="btn-marcar-asistencia-manual" style="padding:4px 0;margin-top:8px">+ Marcar asistencia de un día pasado</button>
     </div>
 
     <div class="card">
