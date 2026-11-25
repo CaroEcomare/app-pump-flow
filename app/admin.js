@@ -5,7 +5,7 @@ import {
   actualizarClasesUsadas, crearAlumnaManual, cancelarClase,
   crearHorarioRecurrente, crearClaseEspecial, generarClases,
   marcarAsistenciaManual, borrarAsistencia, actualizarPlataforma,
-  actualizarFechaPago, actualizarPagado, agregarPaqueteHistorico,
+  actualizarFechaPago, actualizarPagado, agregarPaqueteHistorico, cancelarPaquete,
   listarDisponibilidadClaseMuestra, crearDisponibilidadClaseMuestra,
   desactivarDisponibilidadClaseMuestra, listarCitasClaseMuestra, cancelarCitaClaseMuestra,
 } from './data.js';
@@ -15,7 +15,7 @@ import { escaparHTML } from './lib/escape.js';
 import { wireTabs, mostrarErrorCerca } from './ui.js';
 import {
   estadoAsistenciaBadge, estadoPaquete, estadoPlan, pagaPorPlataforma, paqueteVenceEnDias,
-  siguienteNumeroValoracion, inicialAvatar, agruparAsistenciasPorPaquete,
+  siguienteNumeroValoracion, inicialAvatar, agruparAsistenciasPorPaquete, paqueteAnteriorA,
 } from './lib/status.js';
 
 const CAMPOS_VALORACION = [
@@ -324,6 +324,24 @@ async function renderFicha(supabase, alumnaId) {
       body.style.display = body.style.display === 'none' ? 'block' : 'none';
     });
   });
+  cont.querySelectorAll('.btn-cancelar-paquete-grupo').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const cancelado = paquetes.find((p) => String(p.id) === btn.dataset.paqueteId);
+      if (!cancelado) return;
+      const anterior = cancelado.activo ? paqueteAnteriorA(cancelado, paquetes) : null;
+      const aviso = `¿Cancelar el paquete desde ${formatDiaMesConDia(cancelado.fecha_pago)}? Se borra ese pago.`
+        + (anterior ? ` Vuelve a quedar activo el paquete desde ${formatDiaMesConDia(anterior.fecha_pago)}.` : '');
+      if (!confirm(aviso)) return;
+      btn.disabled = true;
+      try {
+        await cancelarPaquete(supabase, cancelado, anterior);
+        await renderFicha(supabase, alumnaId);
+      } catch (err) {
+        btn.disabled = false;
+        mostrarErrorCerca(btn, `No se pudo cancelar el paquete: ${err.message}`);
+      }
+    });
+  });
   cont.querySelectorAll('.btn-borrar-asistencia').forEach((btn) => {
     btn.addEventListener('click', async () => {
       if (!confirm('¿Borrar esta clase? Si estaba confirmada, se le regresa a su paquete.')) return;
@@ -433,7 +451,9 @@ function renderGrupoAsistencias(grupo) {
       <button class="acc" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--pf-lila-fondo);border:none;padding:12px 14px;cursor:pointer;font:var(--text-body-strong);font-size:14px;color:var(--text-title);text-align:left;min-height:44px">
         ${titulo}<span class="badge">${grupo.asistencias.length} clase${grupo.asistencias.length === 1 ? '' : 's'}</span>
       </button>
-      <div class="acc-body" style="display:none;padding:4px 14px 12px">${filas}</div>
+      <div class="acc-body" style="display:none;padding:4px 14px 12px">${filas || '<div class="muted" style="padding:6px 0">Sin clases en este paquete</div>'}
+        ${grupo.paquete ? `<button class="link-suave btn-cancelar-paquete-grupo" data-paquete-id="${escaparHTML(grupo.paquete.id)}" style="padding:8px 0 0;color:var(--pf-error)">Cancelar este paquete</button>` : ''}
+      </div>
     </div>`;
 }
 

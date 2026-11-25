@@ -308,6 +308,22 @@ export async function actualizarFechaPago(supabase, paqueteId, fechaPago) {
   if (error) throw error;
 }
 
+// Cancela un paquete registrado por error: lo borra y, si era el activo,
+// vuelve a activar el anterior y le pasa las clases que ya se habían
+// descontado del paquete cancelado (sin pasarse de su total).
+export async function cancelarPaquete(supabase, paquete, anterior) {
+  const { error } = await supabase.from('paquetes').delete().eq('id', paquete.id);
+  if (error) throw error;
+  if (!paquete.activo || !anterior) return;
+  const clasesUsadas = Math.min(
+    (anterior.clases_usadas ?? 0) + (paquete.clases_usadas ?? 0),
+    anterior.clases_totales ?? Infinity,
+  );
+  const { error: errorAnterior } = await supabase.from('paquetes')
+    .update({ activo: true, clases_usadas: clasesUsadas }).eq('id', anterior.id);
+  if (errorAnterior) throw errorAnterior;
+}
+
 export async function actualizarPagado(supabase, paqueteId, pagado) {
   const { error } = await supabase.from('paquetes').update({ pagado }).eq('id', paqueteId);
   if (error) throw error;

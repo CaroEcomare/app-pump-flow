@@ -5,7 +5,7 @@ import {
   estadoPaquete, estadoPlan, pagaPorPlataforma, paqueteVenceEnDias, estadoAsistenciaBadge,
   horasHastaClase, puedeApartar, puedeCancelar,
   siguienteNumeroValoracion, tieneValoraciones, inicialAvatar,
-  agruparAsistenciasPorPaquete, slotsDisponiblesClaseMuestra,
+  agruparAsistenciasPorPaquete, slotsDisponiblesClaseMuestra, paqueteAnteriorA,
 } from './status.js';
 
 test('cupoDisponible resta ocupados del total, nunca negativo', () => {
@@ -238,4 +238,14 @@ test('slotsDisponiblesClaseMuestra ordena por fecha y luego por hora', () => {
   ];
   const slots = slotsDisponiblesClaseMuestra(disponibilidad, hoy, 3);
   assert.deepEqual(slots, [{ fecha: '2026-08-10', hora: '10:00:00' }, { fecha: '2026-08-12', hora: '16:00:00' }]);
+});
+
+test('paqueteAnteriorA devuelve el más reciente de los demás paquetes', () => {
+  const paquetes = [
+    { id: 1, fecha_pago: '2026-09-24' },
+    { id: 2, fecha_pago: '2026-10-24' },
+    { id: 3, fecha_pago: '2026-11-24' },
+  ];
+  assert.equal(paqueteAnteriorA(paquetes[2], paquetes).id, 2);
+  assert.equal(paqueteAnteriorA({ id: 9 }, [{ id: 9, fecha_pago: '2026-11-24' }]), null);
 });

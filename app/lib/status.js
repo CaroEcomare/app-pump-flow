@@ -113,6 +113,16 @@ export function agruparAsistenciasPorPaquete(asistencias, paquetes) {
   return grupos;
 }
 
+// Al cancelar un paquete activo, el que vuelve a quedar activo es el más
+// reciente de los demás (por fecha de pago y, si empatan, el último creado).
+export function paqueteAnteriorA(cancelado, paquetes) {
+  return paquetes
+    .filter((p) => p.id !== cancelado.id)
+    .slice()
+    .sort((a, b) => (a.fecha_pago ?? '').localeCompare(b.fecha_pago ?? '') || a.id - b.id)
+    .pop() ?? null;
+}
+
 export function slotsDisponiblesClaseMuestra(disponibilidad, hoy, dias = 14) {
   const slots = [];
   for (let i = 0; i < dias; i += 1) {
